@@ -4,8 +4,14 @@ import copy
 import time
 from datetime import datetime
 import asyncio
+import os
+from dotenv import load_dotenv
 
 from exceptions import BookTooSmall
+import helpers as hp
+
+
+load_dotenv()
 
 
 def get_books(pairs, limit=100):
@@ -36,46 +42,50 @@ def get_best_price(orders, money_in, inverse=False):
 
 
 def find_trades(amount, best_ask, best_bid, eth_books, usdt_books):
-    fee = 0.0075
+    fee = 0.00075
     ask_asset = best_ask[0][3:]
     bid_asset = best_bid[0][3:]
 
     msg = ""
 
-    msg += f"HOLDING {amount} USDT" + "\n"
+    msg += "\t" + f"HOLDING {amount} USDT" + "\n"
 
     # Convert if starting asset is not in USDT
     if ask_asset != 'USDT':
         ask_asset_book = usdt_books[ask_asset + 'USDT']['asks']
         buy_amount = get_best_price(ask_asset_book, amount, inverse=1) * amount
-        msg += f"BUY {buy_amount} {ask_asset + 'USDT'}" + "\n"
+        msg += "\t" + f"BUY {buy_amount} {ask_asset + 'USDT'}" + "\n"
         holding = buy_amount*(1-fee)
-        msg += f"HOLDING {holding} {ask_asset}" + "\n"
+        msg += "\t" + f"HOLDING {holding} {ask_asset}" + "\n"
     else:
         holding = amount
 
     # Buy ETH
     buy_amount = holding*get_best_price(eth_books[best_ask[0]]['asks'], holding, inverse=1)
     holding = buy_amount*(1-fee)
-    msg += f"BUY {buy_amount} {best_ask[0]}" + "\n"
-    msg += f"HOLDING {holding} ETH" + "\n"
+    msg += "\t" + f"BUY {buy_amount} {best_ask[0]}" + "\n"
+    msg += "\t" + f"HOLDING {holding} ETH" + "\n"
               
     # Sell ETH
     sell_amount = holding
-    msg += f"SELL {sell_amount} {best_bid[0]}" + "\n"
+    msg += "\t" + f"SELL {sell_amount} {best_bid[0]}" + "\n"
     holding = sell_amount*get_best_price(eth_books[best_bid[0]]['bids'], sell_amount)*(1-fee)
-    msg += f"HOLDING {holding} {bid_asset}" + "\n"
+    msg += "\t" + f"HOLDING {holding} {bid_asset}" + "\n"
               
     # If asset is not in USDT convert it
     if bid_asset != 'USDT':
-        msg += f"SELL {holding} {bid_asset + 'USDT'}" + "\n"
+        msg += "\t" + f"SELL {holding} {bid_asset + 'USDT'}" + "\n"
         bid_asset_book = usdt_books[bid_asset + 'USDT']['bids']
         holding = get_best_price(bid_asset_book, holding) * holding * (1-fee)
               
-    msg += f"HOLDING: {holding}" + "\n"
-    msg += f"PROFIT: {holding - amount}"
+    msg += "\t" + f"HOLDING: {holding}" + "\n"
+    msg += "\t" + f"PROFIT: {holding - amount}"
 
-    return msg
+    if holding > amount:
+        hp.send_to_slack(msg, SLACK_KEY, SLACK_MEMBER_ID)
+        return msg
+    else:
+        return "NO OPPORTUNITY"
         
 
 
@@ -105,17 +115,37 @@ def find_oppurtunity(eth_pairs, usdt_pairs, amount, eth_books, usdt_books):
 
 
 def main():
-    eth_pairs = ['ETHEUR', 'ETHUSDT', 'ETHBUSD', 'ETHUSDC','ETHTUSD']
-    usdt_pairs = ['EURUSDT', 'BUSDUSDT', 'TUSDUSDT', 'USDCUSDT']
-    amount = 100
-    fees = 0.0075
+    eth_pairs = ['ETHEUR', 
+                 'ETHUSDT', 
+                 # 'ETHBUSD', 
+                 # 'ETHUSDC', 
+                 # 'ETHTUSD'
+                 ]
+    usdt_pairs = ['EURUSDT', 
+                  # 'BUSDUSDT', 
+                  # 'TUSDUSDT', 
+                  # 'USDCUSDT'
+                  ]
+    amount = 1
+    fees = 0.00075
 
     eth_books = get_books(eth_pairs, limit=10)
     usdt_books = get_books(usdt_pairs, limit=10)
 
     best_ask, best_bid = find_oppurtunity(eth_pairs, usdt_pairs, amount, eth_books, usdt_books).values()
 
-    if (best_bid[1]-best_ask[1]) > 0:
+    pairs = f"{best_ask[0]}/{best_bid[0]}"
+    profit = (best_bid[1]-best_ask[1])
+
+    msg = f"{'~'*60}\n" \
+          f"{datetime.now().strftime('%Y/%m/%d %H:%M:%S')}\n" \
+          f"Buy {best_ask[0]} for {best_ask[1]:.3f}\n" \
+          f"Sell {best_bid[0]} for {best_bid[1]:.3f}\n" \
+          f"Profit(no fees): {profit:.5f}\n" \
+          f"{'~'*60}\n"
+    print(msg)
+
+    if profit > 0:
         return find_trades(amount, best_ask, best_bid, eth_books, usdt_books)
     else:
         return "NO OPPORTUNITY"
@@ -133,31 +163,35 @@ if __name__ == '__main__':
     #     profit = (best_bid[1]-best_ask[1]) * (1-fees)
     #     best_profit = max((pairs, profit), best_profit, key=lambda x: x[1])
 
-    #     msg = f"{'~'*60}\n" \
-    #           f"{datetime.now().strftime('%Y/%m/%d %H:%M:%S')}\n" \
-    #           f"Buy {best_ask[0]} for {best_ask[1]:.3f}\nSell {best_bid[0]} for {best_bid[1]:.3f}\nProfit: {profit:.5f}\n" \
-    #           f"Best profit: ({best_profit[0]}, {best_profit[1]:.5f})"
+        # msg = f"{'~'*60}\n" \
+        #       f"{datetime.now().strftime('%Y/%m/%d %H:%M:%S')}\n" \
+        #       f"Buy {best_ask[0]} for {best_ask[1]:.3f}\nSell {best_bid[0]} for {best_bid[1]:.3f}\nProfit: {profit:.5f}\n" \
+        #       f"Best profit: ({best_profit[0]}, {best_profit[1]:.5f})"
 
     #     print(msg)
     #     print(msg, file=logs)
     #     time.sleep(5)
 
     # logs.close()
-    logs = open('logs.txt', 'a+')
-    while 1:
-        time1 = time.time()
-        msg = main()
-        if msg != 'NO OPPORTUNITY':
-            out = "~"*60 + "\n"
-            out += datetime.now().strftime('%Y/%m/%d %H:%M:%S') + "\n"
-            out += "\t" + msg
-            print(out)
-            print(out, file=logs)
-        else:
-            print(msg)
-        to_sleep = 8 - (time.time() - time1)
-        time.sleep(to_sleep)
-    logs.close()
-
+    try:
+        SLACK_KEY = os.getenv('SLACK_KEY')
+        SLACK_MEMBER_ID = os.getenv('SLACK_MEMBER_ID')
+        logs = open('logs.txt', 'a+')
+        while 1:
+            time1 = time.time()
+            msg = main()
+            if msg != 'NO OPPORTUNITY':
+                out = "~"*60 + "\n"
+                out += datetime.now().strftime('%Y/%m/%d %H:%M:%S') + "\n"
+                out += msg
+                print(out)
+                print(out, file=logs)
+            else:
+                print(msg.center(60) + "\n")
+            to_sleep = abs(3 - (time.time() - time1))
+            time.sleep(to_sleep)
+        logs.close()
+    except Exceptions as e:
+        hp.send_to_slack(str(repr(r)), SLACK_KEY, SLACK_MEMBER_ID)
 
 

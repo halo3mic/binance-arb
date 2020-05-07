@@ -20,3 +20,15 @@ def make_signature(query_string, secret_key):
 	inter.update(query_string.encode('utf-8'))
 	signature = inter.hexdigest()
 	return signature
+
+
+def send_to_slack(msg, api_key, channel):
+	# Sending a slack message to the telegram-bot chat-room
+	params = {'token': api_key,
+	          'channel': channel,
+	          'text': msg,
+	          'icon_emoji': ':blocky-money:',
+	          'username': 'telegram_bot',
+	          'pretty': 1}
+	url = 'https://slack.com/api/chat.postMessage'
+	make_request(url, query=params, method='POST')
