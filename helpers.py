@@ -32,3 +32,17 @@ def send_to_slack(msg, api_key, channel):
 	          'pretty': 1}
 	url = 'https://slack.com/api/chat.postMessage'
 	make_request(url, query=params, method='POST')
+
+
+def round_up(x, m):
+	x *= 10**m
+	x = int(x) + 1 
+	x /= 10**m
+	return x
+
+
+def round_down(x, m):
+	x *= 10**m
+	x = int(x) 
+	x /= 10**m
+	return x

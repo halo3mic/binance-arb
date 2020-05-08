@@ -1,0 +1,20 @@
+{
+    "ETHUSDT": {
+        "filterType": "LOT_SIZE",
+        "minQty": "0.00001000",
+        "maxQty": "9000.00000000",
+        "stepSize": "0.00001000"
+    },
+    "ETHEUR": {
+        "filterType": "LOT_SIZE",
+        "minQty": "0.00001000",
+        "maxQty": "900000.00000000",
+        "stepSize": "0.00001000"
+    },
+    "EURUSDT": {
+        "filterType": "LOT_SIZE",
+        "minQty": "0.01000000",
+        "maxQty": "900000.00000000",
+        "stepSize": "0.01000000"
+    }
+}

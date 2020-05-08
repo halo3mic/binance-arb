@@ -14,4 +14,4 @@ class BinanceAPIError(Exception):
 
 
 class BookTooSmall(Exception):
-	pass
+    pass
