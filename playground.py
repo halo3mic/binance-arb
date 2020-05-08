@@ -1,14 +1,3 @@
-
-# put money in
-# store raw response
-# store the order book
-# store timing
-# log errors
-# check for different amounts - 10, 50, 100
-
-
-
-
 from pprint import pprint
 import json
 import time

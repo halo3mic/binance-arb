@@ -50,6 +50,7 @@ class BinanceBot(BinanceAPI):
         return money_out/money_in
 
     def find_trades(self, amount, fee, best_ask, best_bid):
+        _fee = 1 - fee
         ask_asset = best_ask[0][3:]
         bid_asset = best_bid[0][3:]
 
@@ -82,7 +83,7 @@ class BinanceBot(BinanceAPI):
         if bid_asset != 'USDT':
             pair = bid_asset + 'USDT'
             sell_amount = self.apply_qnt_filter(holding, pair)
-            instructions.append(Instruction(quantity=holding, side='SELL', symbol=pair))
+            instructions.append(Instruction(quantity=sell_amount, side='SELL', symbol=pair))
             bid_asset_book = self.usdt_books[pair]['bids']
             holding = self.get_best_price(bid_asset_book, holding) * holding * (1-fee)
 
@@ -137,9 +138,15 @@ class BinanceBot(BinanceAPI):
                 responses = self.execute(instructions)
                 self.save_json(responses, self.op_id, "data/responses.json")
             else:
-                print("~"*60, "NO OPPORTUNITY".center(60), sep="\n\n", end="\n\n")
+                self.print_no_op()
         else:
-            print("~"*60, "NO OPPORTUNITY".center(60), sep="\n\n", end="\n\n")
+            self.print_no_op()
+
+    @staticmethod
+    def print_no_op():
+        print("~"*60 + "\n")
+        print(datetime.now().strftime('%Y/%m/%d %H:%M:%S').center(60))
+        print("NO OPPORTUNITY".center(60), end="\n\n")
 
     def run_loop(self):
         while 1:
@@ -152,8 +159,8 @@ class BinanceBot(BinanceAPI):
                     hp.send_to_slack("Bot is alive and well! :blocky-robot:", SLACK_KEY, SLACK_MEMBER_ID)
             except Exception as e:
                 hp.send_to_slack(str(repr(e)), SLACK_KEY, SLACK_MEMBER_ID)
-                if isinstance(e, BinanceAPIError):
-                    break
+                # if isinstance(e, BinanceAPIError):
+                #     break
 
     def output_instructions(self, instructions, start_qnt, end_qnt):
         # Print the instructions in the terminal
@@ -238,6 +245,3 @@ if __name__ == '__main__':
                   ]
     bot = BinanceBot(eth_pairs, usdt_pairs, API_KEY, SECRET_KEY, SLACK_KEY, SLACK_MEMBER_ID)
     bot.run_loop()
-
-
-

@@ -51,6 +51,14 @@ class BinanceAPI:
 
 
 if __name__ == '__main__':
-    pass
-    # print(submit_market_order("EURUSDT", "SELL", 10.25, API_KEY, SECRET_KEY))
-    # print(submit_market_order('ETHUSDT', 'BUY', 0.1, API_KEY, SECRET_KEY))
+    from dotenv import load_dotenv
+    import os
+
+
+    load_dotenv()
+    SECRET_KEY = os.getenv('BINANCE_SECRET')
+    API_KEY = os.getenv('BINANCE_KEY')
+    ba = BinanceAPI(API_KEY, SECRET_KEY)
+    # print(ba.submit_market_order("ETHUSDT", "BUY", 0.05739))
+    # print(ba.submit_market_order('ETHEUR', 'SELL', 0.05734))
+    # print(ba.submit_market_order('EURUSDT', 'SELL', 11.17))
