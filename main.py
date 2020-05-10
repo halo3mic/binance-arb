@@ -60,7 +60,7 @@ class BinanceBot(BinanceAPI):
 
         # Convert if starting asset is not in USDT
         if ask_asset != 'USDT':
-        	fee_times += 1
+            fee_times += 1
             pair = ask_asset + 'USDT'
             ask_asset_book = self.usdt_books[pair]['asks']
             buy_amount = self.get_best_price(ask_asset_book, amount, inverse=True) * amount
@@ -83,7 +83,7 @@ class BinanceBot(BinanceAPI):
 
         # If asset is not in USDT convert it
         if bid_asset != 'USDT':
-        	fee_times += 1
+            fee_times += 1
             pair = bid_asset + 'USDT'
             sell_amount = self.apply_qnt_filter(holding, pair)
             instructions.append(Instruction(quantity=sell_amount, side='SELL', symbol=pair))
@@ -167,7 +167,7 @@ class BinanceBot(BinanceAPI):
                 self.run_once()
                 sleep_time = abs(3 - (time.time() - start_time))  # Needs to sleep at least 3 sec
                 time.sleep(sleep_time)
-                if int(start_time) % 100 == 0:
+                if int(start_time) % 1200 == 0:
                     hp.send_to_slack("Bot is alive and well! :blocky-robot:", SLACK_KEY, SLACK_MEMBER_ID)
             except Exception as e:
                 hp.send_to_slack(str(repr(e)), SLACK_KEY, SLACK_MEMBER_ID)
