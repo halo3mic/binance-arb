@@ -5,12 +5,12 @@ from collections import namedtuple
 import csv
 
 
-# Instruction = namedtuple("Instruction", "quantity side symbol")
-# instructions = [
-#                 Instruction(quantity=0.05348, side='BUY', symbol='ETHUSDT'),
-#                 Instruction(quantity=0.05344, side='SELL', symbol='ETHEUR'),
-#                  Instruction(quantity=10.25, side='SELL', symbol='EURUSDT')
-#                ]
+Instruction = namedtuple("Instruction", "quantity side symbol")
+instructions = [
+                Instruction(quantity=0.05348, side='BUY', symbol='ETHUSDT'),
+                Instruction(quantity=0.05344, side='SELL', symbol='ETHEUR'),
+                 Instruction(quantity=10.25, side='SELL', symbol='EURUSDT')
+               ]
 
 # pprint(instructions)
 # pprint(main.execute(instructions))

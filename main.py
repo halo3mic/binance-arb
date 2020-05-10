@@ -39,7 +39,7 @@ class BinanceBot(BinanceAPI):
             diff = avl - (amount if not inverse else amount*price)
             if diff <= 0:
                 money_out += avl*price if not inverse else avl/price
-                avl = 0 
+                avl = 0
                 break
             else:
                 money_out += (price*amount) if not inverse else amount
@@ -50,7 +50,8 @@ class BinanceBot(BinanceAPI):
         return money_out/money_in
 
     def find_trades(self, amount, fee, best_ask, best_bid):
-        _fee = 1 - fee
+        _fee = 1  # BNB is used for the fees
+        fee_times = 2
         ask_asset = best_ask[0][3:]
         bid_asset = best_bid[0][3:]
 
@@ -59,12 +60,13 @@ class BinanceBot(BinanceAPI):
 
         # Convert if starting asset is not in USDT
         if ask_asset != 'USDT':
+        	fee_times += 1
             pair = ask_asset + 'USDT'
             ask_asset_book = self.usdt_books[pair]['asks']
             buy_amount = self.get_best_price(ask_asset_book, amount, inverse=True) * amount
             buy_amount = self.apply_qnt_filter(buy_amount, pair)
             instructions.append(Instruction(quantity=buy_amount, side='BUY', symbol=pair))
-            holding = buy_amount*(1-fee)
+            holding = buy_amount*_fee
         else:
             holding = amount
 
@@ -72,20 +74,24 @@ class BinanceBot(BinanceAPI):
         buy_amount = holding*self.get_best_price(self.eth_books[best_ask[0]]['asks'], holding, inverse=True)
         buy_amount = self.apply_qnt_filter(buy_amount, best_ask[0])
         instructions.append(Instruction(quantity=buy_amount, side='BUY', symbol=best_ask[0]))
-        holding = buy_amount*(1-fee)
+        holding = buy_amount*_fee
 
         # Sell ETH
         sell_amount = self.apply_qnt_filter(holding, best_bid[0])
         instructions.append(Instruction(quantity=sell_amount, side='SELL', symbol=best_bid[0]))
-        holding = sell_amount*self.get_best_price(self.eth_books[best_bid[0]]['bids'], sell_amount)*(1-fee)
+        holding = sell_amount*self.get_best_price(self.eth_books[best_bid[0]]['bids'], sell_amount)*_fee
 
         # If asset is not in USDT convert it
         if bid_asset != 'USDT':
+        	fee_times += 1
             pair = bid_asset + 'USDT'
             sell_amount = self.apply_qnt_filter(holding, pair)
             instructions.append(Instruction(quantity=sell_amount, side='SELL', symbol=pair))
             bid_asset_book = self.usdt_books[pair]['bids']
-            holding = self.get_best_price(bid_asset_book, holding) * holding * (1-fee)
+            holding = self.get_best_price(bid_asset_book, holding) * holding * _fee
+
+        # Applying fees
+        holding = holding * (1-fee)**fee_times
 
         return instructions, holding
 
@@ -125,8 +131,14 @@ class BinanceBot(BinanceAPI):
         self.eth_books = self.get_books(eth_pairs, limit=10)
         self.usdt_books = self.get_books(usdt_pairs, limit=10)
         best_ask, best_bid = self.find_oppurtunity(amount).values()
-        no_fee_profit = best_bid[1]-best_ask[1]
-
+        no_fee_profit = best_bid[1] - best_ask[1]
+        # pairs = f"{best_ask[0]}/{best_bid[0]}"
+        # msg = f"{'~'*60}\n" \
+        #       f"Buy {best_ask[0]} for {best_ask[1]:.3f}\n" \
+        #       f"Sell {best_bid[0]} for {best_bid[1]:.3f}\n" \
+        #       f"Profit(no fees): {no_fee_profit:.5f}\n" \
+        #       f"{'~'*60}\n"
+        # print(msg)
         if no_fee_profit > 0:
             instructions, holding = bot.find_trades(amount, fees, best_ask, best_bid)
             profit = holding - amount
@@ -155,7 +167,7 @@ class BinanceBot(BinanceAPI):
                 self.run_once()
                 sleep_time = abs(3 - (time.time() - start_time))  # Needs to sleep at least 3 sec
                 time.sleep(sleep_time)
-                if int(start_time) % 3600 == 0:
+                if int(start_time) % 100 == 0:
                     hp.send_to_slack("Bot is alive and well! :blocky-robot:", SLACK_KEY, SLACK_MEMBER_ID)
             except Exception as e:
                 hp.send_to_slack(str(repr(e)), SLACK_KEY, SLACK_MEMBER_ID)
@@ -212,17 +224,6 @@ class BinanceBot(BinanceAPI):
             dec = min_qnt.count("0")
             rounded = hp.round_down(float(qnt), dec) if round_down else hp.round_up(float(qnt), dec)
         return rounded
-
-
-    # pairs = f"{best_ask[0]}/{best_bid[0]}"
-
-    # msg = f"{'~'*60}\n" \
-    #       f"{datetime.now().strftime('%Y/%m/%d %H:%M:%S')}\n" \
-    #       f"Buy {best_ask[0]} for {best_ask[1]:.3f}\n" \
-    #       f"Sell {best_bid[0]} for {best_bid[1]:.3f}\n" \
-    #       f"Profit(no fees): {profit:.5f}\n" \
-    #       f"{'~'*60}\n"
-    # print(msg)
 
 
 if __name__ == '__main__':
