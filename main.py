@@ -34,6 +34,7 @@ class BinanceBot(BinanceAPI):
 
     @staticmethod
     def get_best_price(orders, money_in, inverse=False):
+        print(money_in)
         avl = money_in
         money_out = 0
         for price, amount in orders:
@@ -102,7 +103,7 @@ class BinanceBot(BinanceAPI):
         # Normalize_books
         normalized_books = copy.deepcopy(self.eth_books)
         for eth_pair in self.eth_books:
-            if eth_pair == 'ETHUSDT': continue
+            if eth_pair in ('ETHUSDT', 'BTCUSDT'): continue
             usdt_pair = [pair for pair in usdt_pairs if eth_pair[3:] in pair][0]
             buy = lambda x: x * self.get_best_price(self.usdt_books[usdt_pair]['asks'], x)  # Buying EUR/BUSD/USDC/TUSD
             sell = lambda x: x * self.get_best_price(self.usdt_books[usdt_pair]['bids'], x)  # Selling EUR/BUSD/USDC/TUSD
@@ -131,8 +132,8 @@ class BinanceBot(BinanceAPI):
         amount = 12
         fees = 0.00075
 
-        self.eth_books = self.get_books(eth_pairs, limit=10)
-        self.usdt_books = self.get_books(usdt_pairs, limit=10)
+        self.eth_books = self.get_books(self.eth_pairs, limit=10)
+        self.usdt_books = self.get_books(self.usdt_pairs, limit=10)
         best_ask, best_bid = self.find_oppurtunity(amount).values()
         no_fee_profit = best_bid[1] - best_ask[1]
         # pairs = f"{best_ask[0]}/{best_bid[0]}"
@@ -142,12 +143,11 @@ class BinanceBot(BinanceAPI):
         #       f"Profit(no fees): {no_fee_profit:.5f}\n" \
         #       f"{'~'*60}\n"
         # print(msg)
-        if no_fee_profit > 0 or 1:
+        if no_fee_profit > 0:
             instructions, holding = bot.find_trades(amount, fees, best_ask, best_bid)
             instructions2, holding2 = bot.find_trades(amount, 0, best_ask, best_bid)
             profit = holding - amount
-
-            if profit > 0 or 1:
+            if profit > 0:
                 self.output_instructions(instructions, amount, holding)
                 self.save_instructions(instructions, amount, holding)
                 self.save_books()
@@ -225,7 +225,7 @@ class BinanceBot(BinanceAPI):
     def apply_qnt_filter(qnt, pair, round_type='even'):
         with open("data/symbols_qnt_filter.json") as file:
             c = json.load(file)
-            min_qnt = c['ETHUSDT']['stepSize'].rstrip("0")
+            min_qnt = c[pair]['stepSize'].rstrip("0")
             dec = min_qnt.count("0")
             rounding = {'even': round, 'up': hp.round_up, 'down': hp.round_down}
             rounded = rounding[round_type](float(qnt), dec)
@@ -245,6 +245,9 @@ if __name__ == '__main__':
                  # 'ETHUSDC',
                  # 'ETHTUSD'
                  ]
+    # btc_pairs = ['BTCEUR',
+    #              'BTCUSDT'
+    #             ]
     usdt_pairs = ['EURUSDT',
                   # 'BUSDUSDT',
                   # 'TUSDUSDT',

@@ -28,7 +28,7 @@ def send_to_slack(msg, api_key, channel):
 	          'channel': channel,
 	          'text': msg,
 	          'icon_emoji': ':blocky-money:',
-	          'username': 'telegram_bot',
+	          'username': 'Binance Bot',
 	          'pretty': 1}
 	url = 'https://slack.com/api/chat.postMessage'
 	make_request(url, query=params, method='POST')
