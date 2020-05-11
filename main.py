@@ -23,6 +23,8 @@ class BinanceBot(BinanceAPI):
         self.slack_key = slack_key
         self.slack_member_id = slack_member_id
         self.op_id = None
+        self.to_slack = True
+        self.execute_trade = True
 
     def get_books(self, pairs, limit=100):
         books = {}
@@ -50,8 +52,7 @@ class BinanceBot(BinanceAPI):
         return money_out/money_in
 
     def find_trades(self, amount, fee, best_ask, best_bid):
-        _fee = 1  # BNB is used for the fees
-        fee_times = 2
+        fees_total = 0  # In USDT
         ask_asset = best_ask[0][3:]
         bid_asset = best_bid[0][3:]
 
@@ -60,40 +61,42 @@ class BinanceBot(BinanceAPI):
 
         # Convert if starting asset is not in USDT
         if ask_asset != 'USDT':
-            fee_times += 1
             pair = ask_asset + 'USDT'
             ask_asset_book = self.usdt_books[pair]['asks']
             buy_amount = self.get_best_price(ask_asset_book, amount, inverse=True) * amount
             buy_amount = self.apply_qnt_filter(buy_amount, pair)
             instructions.append(Instruction(quantity=buy_amount, side='BUY', symbol=pair))
-            holding = buy_amount*_fee
+            holding = buy_amount
+            fees_total += amount * fee
         else:
             holding = amount
 
         # Buy ETH
-        buy_amount = holding*self.get_best_price(self.eth_books[best_ask[0]]['asks'], holding, inverse=True)
+        buy_amount = holding * self.get_best_price(self.eth_books[best_ask[0]]['asks'], holding, inverse=True)
         buy_amount = self.apply_qnt_filter(buy_amount, best_ask[0])
         instructions.append(Instruction(quantity=buy_amount, side='BUY', symbol=best_ask[0]))
-        holding = buy_amount*_fee
+        fees_total += holding * fee
+        holding = buy_amount
 
         # Sell ETH
         sell_amount = self.apply_qnt_filter(holding, best_bid[0])
         instructions.append(Instruction(quantity=sell_amount, side='SELL', symbol=best_bid[0]))
-        holding = sell_amount*self.get_best_price(self.eth_books[best_bid[0]]['bids'], sell_amount)*_fee
+        holding = sell_amount*self.get_best_price(self.eth_books[best_bid[0]]['bids'], sell_amount)
+        fees_total += holding * fee
 
         # If asset is not in USDT convert it
         if bid_asset != 'USDT':
-            fee_times += 1
             pair = bid_asset + 'USDT'
             sell_amount = self.apply_qnt_filter(holding, pair)
             instructions.append(Instruction(quantity=sell_amount, side='SELL', symbol=pair))
             bid_asset_book = self.usdt_books[pair]['bids']
-            holding = self.get_best_price(bid_asset_book, holding) * holding * _fee
+            holding = self.get_best_price(bid_asset_book, holding) * holding
+            fees_total += holding * fee
 
-        # Applying fees
-        holding = holding * (1-fee)**fee_times
+        # # Applying fees
+        # holding = holding * (1-fee)**fee_times
 
-        return instructions, holding
+        return instructions, holding - fees_total
 
     def find_oppurtunity(self, amount):
         # Normalize_books
@@ -139,16 +142,18 @@ class BinanceBot(BinanceAPI):
         #       f"Profit(no fees): {no_fee_profit:.5f}\n" \
         #       f"{'~'*60}\n"
         # print(msg)
-        if no_fee_profit > 0:
+        if no_fee_profit > 0 or 1:
             instructions, holding = bot.find_trades(amount, fees, best_ask, best_bid)
+            instructions2, holding2 = bot.find_trades(amount, 0, best_ask, best_bid)
             profit = holding - amount
 
-            if profit > 0:
+            if profit > 0 or 1:
                 self.output_instructions(instructions, amount, holding)
                 self.save_instructions(instructions, amount, holding)
                 self.save_books()
-                responses = self.execute(instructions)
-                self.save_json(responses, self.op_id, "data/responses.json")
+                if self.execute_trade:
+                    responses = self.execute(instructions)
+                    self.save_json(responses, self.op_id, "data/responses.json")
             else:
                 self.print_no_op()
         else:
@@ -168,9 +173,9 @@ class BinanceBot(BinanceAPI):
                 sleep_time = abs(3 - (time.time() - start_time))  # Needs to sleep at least 3 sec
                 time.sleep(sleep_time)
                 if int(start_time) % 1200 == 0:
-                    hp.send_to_slack("Bot is alive and well! :blocky-robot:", SLACK_KEY, SLACK_MEMBER_ID)
+                    if self.to_slack: hp.send_to_slack("Bot is alive and well! :blocky-robot:", SLACK_KEY, SLACK_MEMBER_ID)
             except Exception as e:
-                hp.send_to_slack(str(repr(e)), SLACK_KEY, SLACK_MEMBER_ID)
+                if self.to_slack: hp.send_to_slack(str(repr(e)), SLACK_KEY, SLACK_MEMBER_ID)
                 # if isinstance(e, BinanceAPIError):
                 #     break
 
@@ -185,7 +190,7 @@ class BinanceBot(BinanceAPI):
         out += f"PROFIT: {end_qnt-start_qnt:.5f}"
         print("~"*60, out.center(60), sep="\n\n")
         # Send instructions to slack
-        hp.send_to_slack(out, self.slack_key, self.slack_member_id)
+        if self.to_slack: hp.send_to_slack(out, self.slack_key, self.slack_member_id)
 
     def save_instructions(self, instructions, start_qnt, end_qnt):
         # Save instructions in json file
@@ -217,12 +222,13 @@ class BinanceBot(BinanceAPI):
         jsonfile.close()
 
     @staticmethod
-    def apply_qnt_filter(qnt, pair, round_down=True):
+    def apply_qnt_filter(qnt, pair, round_type='even'):
         with open("data/symbols_qnt_filter.json") as file:
             c = json.load(file)
             min_qnt = c['ETHUSDT']['stepSize'].rstrip("0")
             dec = min_qnt.count("0")
-            rounded = hp.round_down(float(qnt), dec) if round_down else hp.round_up(float(qnt), dec)
+            rounding = {'even': round, 'up': hp.round_up, 'down': hp.round_down}
+            rounded = rounding[round_type](float(qnt), dec)
         return rounded
 
 
@@ -245,4 +251,7 @@ if __name__ == '__main__':
                   # 'USDCUSDT'
                   ]
     bot = BinanceBot(eth_pairs, usdt_pairs, API_KEY, SECRET_KEY, SLACK_KEY, SLACK_MEMBER_ID)
+    # bot.to_slack = 0
+    # bot.execute_trade = 0
+    # bot.run_once()
     bot.run_loop()
