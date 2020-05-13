@@ -22,12 +22,12 @@ def make_signature(query_string, secret_key):
 	return signature
 
 
-def send_to_slack(msg, api_key, channel):
+def send_to_slack(msg, api_key, channel, emoji=':blocky-money:'):
 	# Sending a slack message to the telegram-bot chat-room
 	params = {'token': api_key,
 	          'channel': channel,
 	          'text': msg,
-	          'icon_emoji': ':blocky-money:',
+	          'icon_emoji': emoji,
 	          'username': 'Binance Bot',
 	          'pretty': 1}
 	url = 'https://slack.com/api/chat.postMessage'

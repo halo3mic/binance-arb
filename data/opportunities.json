@@ -1218,5 +1218,95 @@
         "start_qnt": 12,
         "end_qnt": 11.9800182874,
         "profit": -0.019981712599999923
+    },
+    "15892303380": {
+        "instructions": [
+            {
+                "quantity": 0.06423,
+                "side": "BUY",
+                "symbol": "ETHUSDT"
+            },
+            {
+                "quantity": 0.06423,
+                "side": "SELL",
+                "symbol": "ETHUSDT"
+            }
+        ],
+        "datetime": "2020/05/11 22:52:19",
+        "start_qnt": 12,
+        "end_qnt": 11.97888174045,
+        "profit": -0.021118259550000573
+    },
+    "15892312375": {
+        "instructions": [
+            {
+                "quantity": 0.06384,
+                "side": "BUY",
+                "symbol": "ETHUSDT"
+            },
+            {
+                "quantity": 0.06384,
+                "side": "SELL",
+                "symbol": "ETHUSDT"
+            }
+        ],
+        "datetime": "2020/05/11 23:07:18",
+        "start_qnt": 12,
+        "end_qnt": 11.977539347999999,
+        "profit": -0.022460652000001247
+    },
+    "15892319348": {
+        "instructions": [
+            {
+                "quantity": 0.06407,
+                "side": "BUY",
+                "symbol": "ETHUSDT"
+            },
+            {
+                "quantity": 0.06407,
+                "side": "SELL",
+                "symbol": "ETHUSDT"
+            }
+        ],
+        "datetime": "2020/05/11 23:18:55",
+        "start_qnt": 12,
+        "end_qnt": 11.98870183635,
+        "profit": -0.011298163650000248
+    },
+    "15892327042": {
+        "instructions": [
+            {
+                "quantity": 0.06419,
+                "side": "BUY",
+                "symbol": "ETHUSDT"
+            },
+            {
+                "quantity": 0.06419,
+                "side": "SELL",
+                "symbol": "ETHUSDT"
+            }
+        ],
+        "datetime": "2020/05/11 23:31:45",
+        "start_qnt": 12,
+        "end_qnt": 11.981037422475,
+        "profit": -0.018962577525000412
+    },
+    "15892330790": {
+        "instructions": [
+            {
+                "quantity": 0.06443,
+                "side": "BUY",
+                "symbol": "ETHUSDT"
+            },
+            {
+                "quantity": 0.06443,
+                "side": "SELL",
+                "symbol": "ETHUSDT"
+            }
+        ],
+        "datetime": "2020/05/11 23:38:00",
+        "start_qnt": 12,
+        "end_qnt": 11.9762930834,
+        "profit": -0.023706916600000127
     }
 }

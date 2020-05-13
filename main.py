@@ -34,7 +34,6 @@ class BinanceBot(BinanceAPI):
 
     @staticmethod
     def get_best_price(orders, money_in, inverse=False):
-        print(money_in)
         avl = money_in
         money_out = 0
         for price, amount in orders:
@@ -68,7 +67,7 @@ class BinanceBot(BinanceAPI):
             buy_amount = self.apply_qnt_filter(buy_amount, pair)
             instructions.append(Instruction(quantity=buy_amount, side='BUY', symbol=pair))
             holding = buy_amount
-            fees_total += amount * fee
+            fees_total += buy_amount * fee
         else:
             holding = amount
 
@@ -91,12 +90,12 @@ class BinanceBot(BinanceAPI):
             sell_amount = self.apply_qnt_filter(holding, pair)
             instructions.append(Instruction(quantity=sell_amount, side='SELL', symbol=pair))
             bid_asset_book = self.usdt_books[pair]['bids']
-            holding = self.get_best_price(bid_asset_book, holding) * holding
+            holding = self.get_best_price(bid_asset_book, sell_amount) * sell_amount
             fees_total += holding * fee
 
         # # Applying fees
         # holding = holding * (1-fee)**fee_times
-
+        print(f"holding: {holding}", f"\tfees: {fees_total}")
         return instructions, holding - fees_total
 
     def find_oppurtunity(self, amount):
@@ -145,7 +144,6 @@ class BinanceBot(BinanceAPI):
         # print(msg)
         if no_fee_profit > 0:
             instructions, holding = bot.find_trades(amount, fees, best_ask, best_bid)
-            instructions2, holding2 = bot.find_trades(amount, 0, best_ask, best_bid)
             profit = holding - amount
             if profit > 0:
                 self.output_instructions(instructions, amount, holding)
@@ -170,12 +168,12 @@ class BinanceBot(BinanceAPI):
             try:
                 start_time = time.time()
                 self.run_once()
-                sleep_time = abs(3 - (time.time() - start_time))  # Needs to sleep at least 3 sec
+                sleep_time = abs(3 - (time.time() - start_time))  # Needs to sleep at least 3 sec for making 3 calls
                 time.sleep(sleep_time)
-                if int(start_time) % 1200 == 0:
-                    if self.to_slack: hp.send_to_slack("Bot is alive and well! :blocky-robot:", SLACK_KEY, SLACK_MEMBER_ID)
+                if int(start_time) % 7200 == 0:  # Feedback about 4 times a day
+                    if self.to_slack: hp.send_to_slack("Bot is alive and well! :blocky-robot:", SLACK_KEY, SLACK_MEMBER_ID, emoji=":blocky-angel:")
             except Exception as e:
-                if self.to_slack: hp.send_to_slack(str(repr(e)), SLACK_KEY, SLACK_MEMBER_ID)
+                if self.to_slack: hp.send_to_slack(str(repr(e)), SLACK_KEY, SLACK_MEMBER_ID, emoji=":blocky-grin:")
                 # if isinstance(e, BinanceAPIError):
                 #     break
 
