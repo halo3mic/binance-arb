@@ -34,7 +34,6 @@ class BinanceBot(BinanceAPI):
 
     @staticmethod
     def get_best_price(orders, money_in, inverse=False):
-        print(money_in)
         avl = money_in
         money_out = 0
         for price, amount in orders:

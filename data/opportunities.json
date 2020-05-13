@@ -492,5 +492,28 @@
         "start_qnt": 12,
         "end_qnt": 12.001836955900002,
         "profit": 0.0018369559000017688
+    },
+    "15893100622": {
+        "instructions": [
+            {
+                "quantity": 0.06326,
+                "side": "BUY",
+                "symbol": "ETHUSDT"
+            },
+            {
+                "quantity": 0.06326,
+                "side": "SELL",
+                "symbol": "ETHEUR"
+            },
+            {
+                "quantity": 11.2,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/12 21:01:04",
+        "start_qnt": 12,
+        "end_qnt": 12.009409296096596,
+        "profit": 0.00940929609659591
     }
 }
