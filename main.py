@@ -206,7 +206,8 @@ class BinanceBot(BinanceAPI):
         books = {**self.usdt_books, **self.eth_books}
         self.save_json(books, self.op_id, "data/books.json")
 
-    def save_json(self, content, key, filename):
+    @staticmethod
+    def save_json(content, key, filename):
         try:
             with open(filename, 'r') as jsonfile:
                 data = json.load(jsonfile)

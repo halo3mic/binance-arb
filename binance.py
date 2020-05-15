@@ -49,6 +49,12 @@ class BinanceAPI:
         headers = {"X-MBX-APIKEY": self.api_key}
         return make_request(endpoint, query=params, headers=headers, method='POST')
 
+    def fetch_old_trade(self, pair, trade_id):
+        endpoint = self.spot_base_endpoint + "/api/v3/historicalTrades"
+        params = {'symbol': pair, 'fromId': trade_id, 'limit': 1}
+        headers = {"X-MBX-APIKEY": self.api_key}
+        return make_request(endpoint, query=params, headers=headers, method='GET')
+
 
 if __name__ == '__main__':
     from dotenv import load_dotenv
@@ -59,6 +65,7 @@ if __name__ == '__main__':
     SECRET_KEY = os.getenv('BINANCE_SECRET')
     API_KEY = os.getenv('BINANCE_KEY')
     ba = BinanceAPI(API_KEY, SECRET_KEY)
+    print(ba.fetch_old_trade('ETHUSDT', 147670669))
     # print(ba.submit_market_order("ETHUSDT", "BUY", 0.05739))
     # print(ba.submit_market_order('ETHEUR', 'SELL', 0.05734))
     # print(ba.submit_market_order('EURUSDT', 'SELL', 11.17))
