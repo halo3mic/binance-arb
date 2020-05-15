@@ -643,5 +643,382 @@
                 }
             ]
         }
+    ],
+    "15894216208": [
+        {
+            "symbol": "ETHUSDT",
+            "orderId": 1074734252,
+            "orderListId": -1,
+            "clientOrderId": "y5jRa9s1Nr2OIeszbUorV1",
+            "transactTime": 1589421624458,
+            "price": "0.00000000",
+            "origQty": "0.06101000",
+            "executedQty": "0.06101000",
+            "cummulativeQuoteQty": "12.00371750",
+            "status": "FILLED",
+            "timeInForce": "GTC",
+            "type": "MARKET",
+            "side": "BUY",
+            "fills": [
+                {
+                    "price": "196.75000000",
+                    "qty": "0.06101000",
+                    "commission": "0.00056188",
+                    "commissionAsset": "BNB",
+                    "tradeId": 147939768
+                }
+            ]
+        },
+        {
+            "symbol": "ETHEUR",
+            "orderId": 4779033,
+            "orderListId": -1,
+            "clientOrderId": "O8pb3WCr8iRMnOCDJIyYE0",
+            "transactTime": 1589421625118,
+            "price": "0.00000000",
+            "origQty": "0.06101000",
+            "executedQty": "0.06101000",
+            "cummulativeQuoteQty": "11.21741720",
+            "status": "FILLED",
+            "timeInForce": "GTC",
+            "type": "MARKET",
+            "side": "SELL",
+            "fills": [
+                {
+                    "price": "183.88000000",
+                    "qty": "0.00593000",
+                    "commission": "0.00005462",
+                    "commissionAsset": "BNB",
+                    "tradeId": 112577
+                },
+                {
+                    "price": "183.86000000",
+                    "qty": "0.05508000",
+                    "commission": "0.00050734",
+                    "commissionAsset": "BNB",
+                    "tradeId": 112578
+                }
+            ]
+        },
+        {
+            "symbol": "EURUSDT",
+            "orderId": 2149891,
+            "orderListId": -1,
+            "clientOrderId": "ScTnyRR7LEG9ZImpGNkxjT",
+            "transactTime": 1589421626279,
+            "price": "0.00000000",
+            "origQty": "11.22000000",
+            "executedQty": "11.22000000",
+            "cummulativeQuoteQty": "12.03008400",
+            "status": "FILLED",
+            "timeInForce": "GTC",
+            "type": "MARKET",
+            "side": "SELL",
+            "fills": [
+                {
+                    "price": "1.07220000",
+                    "qty": "11.22000000",
+                    "commission": "0.00056191",
+                    "commissionAsset": "BNB",
+                    "tradeId": 213857
+                }
+            ]
+        }
+    ],
+    "15894509801": [
+        {
+            "symbol": "ETHUSDT",
+            "orderId": 1076751322,
+            "orderListId": -1,
+            "clientOrderId": "RaOHYJNyc6K6ilzs0TtN7l",
+            "transactTime": 1589450982016,
+            "price": "0.00000000",
+            "origQty": "0.05879000",
+            "executedQty": "0.05879000",
+            "cummulativeQuoteQty": "12.00785750",
+            "status": "FILLED",
+            "timeInForce": "GTC",
+            "type": "MARKET",
+            "side": "BUY",
+            "fills": [
+                {
+                    "price": "204.25000000",
+                    "qty": "0.05879000",
+                    "commission": "0.00054426",
+                    "commissionAsset": "BNB",
+                    "tradeId": 148035633
+                }
+            ]
+        },
+        {
+            "symbol": "ETHEUR",
+            "orderId": 4800433,
+            "orderListId": -1,
+            "clientOrderId": "UJRxkI0JsR7yNTSDqZnFb8",
+            "transactTime": 1589450983750,
+            "price": "0.00000000",
+            "origQty": "0.05879000",
+            "executedQty": "0.05879000",
+            "cummulativeQuoteQty": "11.27063090",
+            "status": "FILLED",
+            "timeInForce": "GTC",
+            "type": "MARKET",
+            "side": "SELL",
+            "fills": [
+                {
+                    "price": "191.71000000",
+                    "qty": "0.05879000",
+                    "commission": "0.00054624",
+                    "commissionAsset": "BNB",
+                    "tradeId": 112891
+                }
+            ]
+        },
+        {
+            "symbol": "EURUSDT",
+            "orderId": 2163458,
+            "orderListId": -1,
+            "clientOrderId": "1eOoSLY8euNvVtajDxmGvt",
+            "transactTime": 1589450985520,
+            "price": "0.00000000",
+            "origQty": "11.28000000",
+            "executedQty": "11.28000000",
+            "cummulativeQuoteQty": "12.05944800",
+            "status": "FILLED",
+            "timeInForce": "GTC",
+            "type": "MARKET",
+            "side": "SELL",
+            "fills": [
+                {
+                    "price": "1.06910000",
+                    "qty": "11.28000000",
+                    "commission": "0.00054355",
+                    "commissionAsset": "BNB",
+                    "tradeId": 214898
+                }
+            ]
+        }
+    ],
+    "15894740305": [
+        {
+            "symbol": "ETHUSDT",
+            "orderId": 1078409859,
+            "orderListId": -1,
+            "clientOrderId": "XeORLivqaRmcn2MKSBTaH0",
+            "transactTime": 1589474032493,
+            "price": "0.00000000",
+            "origQty": "0.06043000",
+            "executedQty": "0.06043000",
+            "cummulativeQuoteQty": "12.00200230",
+            "status": "FILLED",
+            "timeInForce": "GTC",
+            "type": "MARKET",
+            "side": "BUY",
+            "fills": [
+                {
+                    "price": "198.61000000",
+                    "qty": "0.06043000",
+                    "commission": "0.00055537",
+                    "commissionAsset": "BNB",
+                    "tradeId": 148117541
+                }
+            ]
+        },
+        {
+            "symbol": "ETHEUR",
+            "orderId": 4821416,
+            "orderListId": -1,
+            "clientOrderId": "4yyuohbwGY1eL0clyFbE1z",
+            "transactTime": 1589474033789,
+            "price": "0.00000000",
+            "origQty": "0.06043000",
+            "executedQty": "0.06043000",
+            "cummulativeQuoteQty": "11.11609850",
+            "status": "FILLED",
+            "timeInForce": "GTC",
+            "type": "MARKET",
+            "side": "SELL",
+            "fills": [
+                {
+                    "price": "183.95000000",
+                    "qty": "0.06043000",
+                    "commission": "0.00054640",
+                    "commissionAsset": "BNB",
+                    "tradeId": 113350
+                }
+            ]
+        },
+        {
+            "symbol": "EURUSDT",
+            "orderId": 2187457,
+            "orderListId": -1,
+            "clientOrderId": "Cw9Y3fdIv5q0653PwdTIdE",
+            "transactTime": 1589474034926,
+            "price": "0.00000000",
+            "origQty": "11.20000000",
+            "executedQty": "11.20000000",
+            "cummulativeQuoteQty": "12.02992000",
+            "status": "FILLED",
+            "timeInForce": "GTC",
+            "type": "MARKET",
+            "side": "SELL",
+            "fills": [
+                {
+                    "price": "1.07410000",
+                    "qty": "11.20000000",
+                    "commission": "0.00055038",
+                    "commissionAsset": "BNB",
+                    "tradeId": 216254
+                }
+            ]
+        }
+    ],
+    "15895099294": [
+        {
+            "symbol": "ETHUSDT",
+            "orderId": 1080661059,
+            "orderListId": -1,
+            "clientOrderId": "dOREk7yVVLLrQQMyOATNv1",
+            "transactTime": 1589509931649,
+            "price": "0.00000000",
+            "origQty": "0.06046000",
+            "executedQty": "0.06046000",
+            "cummulativeQuoteQty": "12.00796060",
+            "status": "FILLED",
+            "timeInForce": "GTC",
+            "type": "MARKET",
+            "side": "BUY",
+            "fills": [
+                {
+                    "price": "198.61000000",
+                    "qty": "0.06046000",
+                    "commission": "0.00055770",
+                    "commissionAsset": "BNB",
+                    "tradeId": 148232095
+                }
+            ]
+        },
+        {
+            "symbol": "ETHEUR",
+            "orderId": 4848852,
+            "orderListId": -1,
+            "clientOrderId": "rM9U3W2Tdu9ixan06a6bZV",
+            "transactTime": 1589509934257,
+            "price": "0.00000000",
+            "origQty": "0.06046000",
+            "executedQty": "0.06046000",
+            "cummulativeQuoteQty": "11.21533000",
+            "status": "FILLED",
+            "timeInForce": "GTC",
+            "type": "MARKET",
+            "side": "SELL",
+            "fills": [
+                {
+                    "price": "185.50000000",
+                    "qty": "0.06046000",
+                    "commission": "0.00055551",
+                    "commissionAsset": "BNB",
+                    "tradeId": 113811
+                }
+            ]
+        },
+        {
+            "symbol": "EURUSDT",
+            "orderId": 2208213,
+            "orderListId": -1,
+            "clientOrderId": "z3sRdJlnLY9b3B07vldunz",
+            "transactTime": 1589509936854,
+            "price": "0.00000000",
+            "origQty": "11.22000000",
+            "executedQty": "11.22000000",
+            "cummulativeQuoteQty": "12.05364600",
+            "status": "FILLED",
+            "timeInForce": "GTC",
+            "type": "MARKET",
+            "side": "SELL",
+            "fills": [
+                {
+                    "price": "1.07430000",
+                    "qty": "11.22000000",
+                    "commission": "0.00055555",
+                    "commissionAsset": "BNB",
+                    "tradeId": 217508
+                }
+            ]
+        }
+    ],
+    "15895100410": [
+        {
+            "symbol": "EURUSDT",
+            "orderId": 2208339,
+            "orderListId": -1,
+            "clientOrderId": "DP5AlOdEJpPeqcZ4An4Vjq",
+            "transactTime": 1589510043411,
+            "price": "0.00000000",
+            "origQty": "11.15000000",
+            "executedQty": "11.15000000",
+            "cummulativeQuoteQty": "12.00520500",
+            "status": "FILLED",
+            "timeInForce": "GTC",
+            "type": "MARKET",
+            "side": "BUY",
+            "fills": [
+                {
+                    "price": "1.07670000",
+                    "qty": "11.15000000",
+                    "commission": "0.00056758",
+                    "commissionAsset": "BNB",
+                    "tradeId": 217565
+                }
+            ]
+        },
+        {
+            "symbol": "ETHEUR",
+            "orderId": 4849187,
+            "orderListId": -1,
+            "clientOrderId": "nuGaz5sVoMziHNuYPpP6mZ",
+            "transactTime": 1589510044870,
+            "price": "0.00000000",
+            "origQty": "0.06059000",
+            "executedQty": "0.06059000",
+            "cummulativeQuoteQty": "11.17400780",
+            "status": "FILLED",
+            "timeInForce": "GTC",
+            "type": "MARKET",
+            "side": "BUY",
+            "fills": [
+                {
+                    "price": "184.42000000",
+                    "qty": "0.06059000",
+                    "commission": "0.00056556",
+                    "commissionAsset": "BNB",
+                    "tradeId": 113851
+                }
+            ]
+        },
+        {
+            "symbol": "ETHUSDT",
+            "orderId": 1080676589,
+            "orderListId": -1,
+            "clientOrderId": "1aNljJOjxIpnsnqXnwr0r8",
+            "transactTime": 1589510045789,
+            "price": "0.00000000",
+            "origQty": "0.06059000",
+            "executedQty": "0.06059000",
+            "cummulativeQuoteQty": "12.03317400",
+            "status": "FILLED",
+            "timeInForce": "GTC",
+            "type": "MARKET",
+            "side": "SELL",
+            "fills": [
+                {
+                    "price": "198.60000000",
+                    "qty": "0.06059000",
+                    "commission": "0.00056523",
+                    "commissionAsset": "BNB",
+                    "tradeId": 148236049
+                }
+            ]
+        }
     ]
 }
