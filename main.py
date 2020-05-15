@@ -25,6 +25,7 @@ class BinanceBot(BinanceAPI):
         self.op_id = None
         self.to_slack = True
         self.execute_trade = True
+        self.filter_off = False
 
     def get_books(self, pairs, limit=100):
         books = {}
@@ -51,10 +52,10 @@ class BinanceBot(BinanceAPI):
             raise BookTooSmall('Try again with bigger limit on the order book.')
         return money_out/money_in
 
-    def find_trades(self, amount, fee, best_ask, best_bid):
+    def find_trades(self, amount, fee, best_ask_asset, best_bid_asset):
         fees_total = 0  # In USDT
-        ask_asset = best_ask[0][3:]
-        bid_asset = best_bid[0][3:]
+        ask_asset = best_ask_asset[3:]
+        bid_asset = best_bid_asset[3:]
 
         Instruction = namedtuple("Instruction", "quantity side symbol")
         instructions = []
@@ -63,8 +64,13 @@ class BinanceBot(BinanceAPI):
         if ask_asset != 'USDT':
             pair = ask_asset + 'USDT'
             ask_asset_book = self.usdt_books[pair]['asks']
-            buy_amount = self.get_best_price(ask_asset_book, amount, inverse=True) * amount
+            price = self.get_best_price(ask_asset_book, amount, inverse=True)
+            buy_amount = price * amount
             buy_amount = self.apply_qnt_filter(buy_amount, pair)
+            # Start amount is not the amount this program is set to. 
+            # This is because we have to base order no on amount we have, but on the amount we want. 
+            # And accuracy of that is limited with allowed decimal points.
+            start_amount = buy_amount / price
             instructions.append(Instruction(quantity=buy_amount, side='BUY', symbol=pair))
             holding = buy_amount
             fees_total += buy_amount * fee
@@ -72,16 +78,22 @@ class BinanceBot(BinanceAPI):
             holding = amount
 
         # Buy ETH
-        buy_amount = holding * self.get_best_price(self.eth_books[best_ask[0]]['asks'], holding, inverse=True)
-        buy_amount = self.apply_qnt_filter(buy_amount, best_ask[0])
-        instructions.append(Instruction(quantity=buy_amount, side='BUY', symbol=best_ask[0]))
+        price = self.get_best_price(self.eth_books[best_ask_asset]['asks'], holding, inverse=True)
+        buy_amount = holding * price
+        buy_amount = self.apply_qnt_filter(buy_amount, best_ask_asset)
+        # Start amount is not the amount this program is set to. 
+        # This is because we have to base order no on amount we have, but on the amount we want. 
+        # And accuracy of that is limited with allowed decimal points.
+        start_amount = buy_amount / price
+        instructions.append(Instruction(quantity=buy_amount, side='BUY', symbol=best_ask_asset))
         fees_total += holding * fee
         holding = buy_amount
 
         # Sell ETH
-        sell_amount = self.apply_qnt_filter(holding, best_bid[0])
-        instructions.append(Instruction(quantity=sell_amount, side='SELL', symbol=best_bid[0]))
-        holding = sell_amount*self.get_best_price(self.eth_books[best_bid[0]]['bids'], sell_amount)
+        sell_amount = self.apply_qnt_filter(holding, best_bid_asset)
+        instructions.append(Instruction(quantity=sell_amount, side='SELL', symbol=best_bid_asset))
+        price_ = self.get_best_price(self.eth_books[best_bid_asset]['bids'], sell_amount)
+        holding = sell_amount * price_
         fees_total += holding * fee
 
         # If asset is not in USDT convert it
@@ -93,17 +105,14 @@ class BinanceBot(BinanceAPI):
             holding = self.get_best_price(bid_asset_book, sell_amount) * sell_amount
             fees_total += holding * fee
 
-        # # Applying fees
-        # holding = holding * (1-fee)**fee_times
-        print(f"holding: {holding}", f"\tfees: {fees_total}")
-        return instructions, holding - fees_total
+        return {"instructions": instructions, "start_amount": start_amount, "end_amount": holding, "fees": fees_total}
 
     def find_oppurtunity(self, amount):
         # Normalize_books
         normalized_books = copy.deepcopy(self.eth_books)
         for eth_pair in self.eth_books:
             if eth_pair in ('ETHUSDT', 'BTCUSDT'): continue
-            usdt_pair = [pair for pair in usdt_pairs if eth_pair[3:] in pair][0]
+            usdt_pair = [pair for pair in self.usdt_pairs if eth_pair[3:] in pair][0]
             buy = lambda x: x * self.get_best_price(self.usdt_books[usdt_pair]['asks'], x)  # Buying EUR/BUSD/USDC/TUSD
             sell = lambda x: x * self.get_best_price(self.usdt_books[usdt_pair]['bids'], x)  # Selling EUR/BUSD/USDC/TUSD
             normalized_books[eth_pair]['asks'] = [[buy(float(price)), amount] for price, amount in normalized_books[eth_pair]['asks']]
@@ -133,29 +142,31 @@ class BinanceBot(BinanceAPI):
 
         self.eth_books = self.get_books(self.eth_pairs, limit=10)
         self.usdt_books = self.get_books(self.usdt_pairs, limit=10)
-        best_ask, best_bid = self.find_oppurtunity(amount).values()
-        no_fee_profit = best_bid[1] - best_ask[1]
-        # pairs = f"{best_ask[0]}/{best_bid[0]}"
-        # msg = f"{'~'*60}\n" \
-        #       f"Buy {best_ask[0]} for {best_ask[1]:.3f}\n" \
-        #       f"Sell {best_bid[0]} for {best_bid[1]:.3f}\n" \
-        #       f"Profit(no fees): {no_fee_profit:.5f}\n" \
-        #       f"{'~'*60}\n"
-        # print(msg)
-        if no_fee_profit > 0:
-            instructions, holding = bot.find_trades(amount, fees, best_ask, best_bid)
-            profit = holding - amount
-            if profit > 0:
-                self.output_instructions(instructions, amount, holding)
-                self.save_instructions(instructions, amount, holding)
+        # best_ask, best_bid = self.find_oppurtunity(amount).values()
+        # no_fee_profit = best_bid[1] - best_ask[1]
+
+        # if no_fee_profit > 0 or self.filter_off:
+        #     found_trades = self.find_trades(amount, fees, best_ask[0], best_bid[0])
+        for i in (0, -1):
+            pairs = ("ETHUSDT", "ETHEUR")
+            found_trades = self.find_trades(amount, fees, pairs[i], pairs[i+1])
+            start_amount = found_trades['start_amount']
+            holding = found_trades['end_amount']
+            instructions = found_trades['instructions']
+            fees = found_trades['fees']
+            profit = holding - start_amount - fees
+            if profit > 0 or self.filter_off:
+                self.output_instructions(instructions, start_amount, holding, fees)
+                self.save_instructions(instructions, start_amount, holding, fees)
                 self.save_books()
                 if self.execute_trade:
                     responses = self.execute(instructions)
                     self.save_json(responses, self.op_id, "data/responses.json")
             else:
                 self.print_no_op()
-        else:
-            self.print_no_op()
+            self.op_id = str(int(self.op_id) + 1)
+        # else:
+        #     self.print_no_op()
 
     @staticmethod
     def print_no_op():
@@ -170,14 +181,14 @@ class BinanceBot(BinanceAPI):
                 self.run_once()
                 sleep_time = abs(3 - (time.time() - start_time))  # Needs to sleep at least 3 sec for making 3 calls
                 time.sleep(sleep_time)
-                if int(start_time) % 7200 == 0:  # Feedback about 4 times a day
+                if int(start_time) % 14400 == 0:  # Feedback about 4 times a day
                     if self.to_slack: hp.send_to_slack("Bot is alive and well! :blocky-robot:", SLACK_KEY, SLACK_MEMBER_ID, emoji=":blocky-angel:")
             except Exception as e:
                 if self.to_slack: hp.send_to_slack(str(repr(e)), SLACK_KEY, SLACK_MEMBER_ID, emoji=":blocky-grin:")
                 # if isinstance(e, BinanceAPIError):
                 #     break
 
-    def output_instructions(self, instructions, start_qnt, end_qnt):
+    def output_instructions(self, instructions, start_qnt, end_qnt, fees):
         # Print the instructions in the terminal
         str_instructions = '\n'.join([f"\t{i.side} {i.quantity} {i.symbol}" for i in instructions])
         out = self.op_id + " | "
@@ -185,12 +196,12 @@ class BinanceBot(BinanceAPI):
         out += f"START: {start_qnt} USDT\n"
         out += str_instructions + "\n"
         out += f"END: {end_qnt} USDT\n"
-        out += f"PROFIT: {end_qnt-start_qnt:.5f}"
+        out += f"PROFIT: {end_qnt-start_qnt-fees:.5f}"
         print("~"*60, out.center(60), sep="\n\n")
         # Send instructions to slack
         if self.to_slack: hp.send_to_slack(out, self.slack_key, self.slack_member_id)
 
-    def save_instructions(self, instructions, start_qnt, end_qnt):
+    def save_instructions(self, instructions, start_qnt, end_qnt, fees):
         # Save instructions in json file
         instr_dicts = []
         for i in instructions:
@@ -199,14 +210,15 @@ class BinanceBot(BinanceAPI):
                     'datetime': datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
                     'start_qnt': start_qnt,
                     'end_qnt': end_qnt,
-                    'profit': end_qnt-start_qnt}
+                    'fees': fees}
         self.save_json(json_out, self.op_id, "data/opportunities.json")
 
     def save_books(self):
         books = {**self.usdt_books, **self.eth_books}
         self.save_json(books, self.op_id, "data/books.json")
 
-    def save_json(self, content, key, filename):
+    @staticmethod
+    def save_json(content, key, filename):
         try:
             with open(filename, 'r') as jsonfile:
                 data = json.load(jsonfile)
@@ -220,7 +232,7 @@ class BinanceBot(BinanceAPI):
         jsonfile.close()
 
     @staticmethod
-    def apply_qnt_filter(qnt, pair, round_type='even'):
+    def apply_qnt_filter(qnt, pair, round_type='down'):
         with open("data/symbols_qnt_filter.json") as file:
             c = json.load(file)
             min_qnt = c[pair]['stepSize'].rstrip("0")
