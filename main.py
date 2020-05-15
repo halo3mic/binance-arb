@@ -52,10 +52,10 @@ class BinanceBot(BinanceAPI):
             raise BookTooSmall('Try again with bigger limit on the order book.')
         return money_out/money_in
 
-    def find_trades(self, amount, fee, best_ask, best_bid):
+    def find_trades(self, amount, fee, best_ask_asset, best_bid_asset):
         fees_total = 0  # In USDT
-        ask_asset = best_ask[0][3:]
-        bid_asset = best_bid[0][3:]
+        ask_asset = best_ask_asset[3:]
+        bid_asset = best_bid_asset[3:]
 
         Instruction = namedtuple("Instruction", "quantity side symbol")
         instructions = []
@@ -78,21 +78,21 @@ class BinanceBot(BinanceAPI):
             holding = amount
 
         # Buy ETH
-        price = self.get_best_price(self.eth_books[best_ask[0]]['asks'], holding, inverse=True)
+        price = self.get_best_price(self.eth_books[best_ask_asset]['asks'], holding, inverse=True)
         buy_amount = holding * price
-        buy_amount = self.apply_qnt_filter(buy_amount, best_ask[0])
+        buy_amount = self.apply_qnt_filter(buy_amount, best_ask_asset)
         # Start amount is not the amount this program is set to. 
         # This is because we have to base order no on amount we have, but on the amount we want. 
         # And accuracy of that is limited with allowed decimal points.
         start_amount = buy_amount / price
-        instructions.append(Instruction(quantity=buy_amount, side='BUY', symbol=best_ask[0]))
+        instructions.append(Instruction(quantity=buy_amount, side='BUY', symbol=best_ask_asset))
         fees_total += holding * fee
         holding = buy_amount
 
         # Sell ETH
-        sell_amount = self.apply_qnt_filter(holding, best_bid[0])
-        instructions.append(Instruction(quantity=sell_amount, side='SELL', symbol=best_bid[0]))
-        price_ = self.get_best_price(self.eth_books[best_bid[0]]['bids'], sell_amount)
+        sell_amount = self.apply_qnt_filter(holding, best_bid_asset)
+        instructions.append(Instruction(quantity=sell_amount, side='SELL', symbol=best_bid_asset))
+        price_ = self.get_best_price(self.eth_books[best_bid_asset]['bids'], sell_amount)
         holding = sell_amount * price_
         fees_total += holding * fee
 
@@ -142,16 +142,19 @@ class BinanceBot(BinanceAPI):
 
         self.eth_books = self.get_books(self.eth_pairs, limit=10)
         self.usdt_books = self.get_books(self.usdt_pairs, limit=10)
-        best_ask, best_bid = self.find_oppurtunity(amount).values()
-        no_fee_profit = best_bid[1] - best_ask[1]
+        # best_ask, best_bid = self.find_oppurtunity(amount).values()
+        # no_fee_profit = best_bid[1] - best_ask[1]
 
-        if no_fee_profit > 0 or self.filter_off:
-            found_trades = self.find_trades(amount, fees, best_ask, best_bid)
+        # if no_fee_profit > 0 or self.filter_off:
+        #     found_trades = self.find_trades(amount, fees, best_ask[0], best_bid[0])
+        for i in (0, -1):
+            pairs = ("ETHUSDT", "ETHEUR")
+            found_trades = self.find_trades(amount, fees, pairs[i], pairs[i+1])
             start_amount = found_trades['start_amount']
             holding = found_trades['end_amount']
             instructions = found_trades['instructions']
             fees = found_trades['fees']
-            profit = holding - amount
+            profit = holding - start_amount - fees
             if profit > 0 or self.filter_off:
                 self.output_instructions(instructions, start_amount, holding, fees)
                 self.save_instructions(instructions, start_amount, holding, fees)
@@ -161,8 +164,9 @@ class BinanceBot(BinanceAPI):
                     self.save_json(responses, self.op_id, "data/responses.json")
             else:
                 self.print_no_op()
-        else:
-            self.print_no_op()
+            self.op_id = str(int(self.op_id) + 1)
+        # else:
+        #     self.print_no_op()
 
     @staticmethod
     def print_no_op():
@@ -177,7 +181,7 @@ class BinanceBot(BinanceAPI):
                 self.run_once()
                 sleep_time = abs(3 - (time.time() - start_time))  # Needs to sleep at least 3 sec for making 3 calls
                 time.sleep(sleep_time)
-                if int(start_time) % 7200 == 0:  # Feedback about 4 times a day
+                if int(start_time) % 14400 == 0:  # Feedback about 4 times a day
                     if self.to_slack: hp.send_to_slack("Bot is alive and well! :blocky-robot:", SLACK_KEY, SLACK_MEMBER_ID, emoji=":blocky-angel:")
             except Exception as e:
                 if self.to_slack: hp.send_to_slack(str(repr(e)), SLACK_KEY, SLACK_MEMBER_ID, emoji=":blocky-grin:")
