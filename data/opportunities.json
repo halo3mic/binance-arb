@@ -630,5 +630,51 @@
         "start_qnt": 12,
         "end_qnt": 12.000158772599999,
         "profit": 0.00015877259999896864
+    },
+    "15895701700": {
+        "instructions": [
+            {
+                "quantity": 0.06154,
+                "side": "BUY",
+                "symbol": "ETHUSDT"
+            },
+            {
+                "quantity": 0.06154,
+                "side": "SELL",
+                "symbol": "ETHEUR"
+            },
+            {
+                "quantity": 11.2,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/15 21:16:11",
+        "start_qnt": 12,
+        "end_qnt": 12.018045490024999,
+        "profit": 0.01804549002499911
+    },
+    "15895750558": {
+        "instructions": [
+            {
+                "quantity": 0.06223,
+                "side": "BUY",
+                "symbol": "ETHUSDT"
+            },
+            {
+                "quantity": 0.06223,
+                "side": "SELL",
+                "symbol": "ETHEUR"
+            },
+            {
+                "quantity": 11.18,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/15 22:37:37",
+        "start_qnt": 12,
+        "end_qnt": 12.006867196025,
+        "profit": 0.0068671960250004105
     }
 }
