@@ -631,14 +631,42 @@
         "end_qnt": 12.000158772599999,
         "profit": 0.00015877259999896864
     },
+<<<<<<< HEAD
+    "15895701700": {
+        "instructions": [
+            {
+                "quantity": 0.06154,
+=======
     "15895660198": {
         "instructions": [
             {
                 "quantity": 0.06046,
+>>>>>>> 12286103b68d332ed5f85e1c2ee7a016f587e99e
                 "side": "BUY",
                 "symbol": "ETHUSDT"
             },
             {
+<<<<<<< HEAD
+                "quantity": 0.06154,
+                "side": "SELL",
+                "symbol": "ETHEUR"
+            },
+            {
+                "quantity": 11.2,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/15 21:16:11",
+        "start_qnt": 12,
+        "end_qnt": 12.018045490024999,
+        "profit": 0.01804549002499911
+    },
+    "15895750558": {
+        "instructions": [
+            {
+                "quantity": 0.06223,
+=======
                 "quantity": 0.06046,
                 "side": "SELL",
                 "symbol": "ETHUSDT"
@@ -707,10 +735,27 @@
         "instructions": [
             {
                 "quantity": 0.06201,
+>>>>>>> 12286103b68d332ed5f85e1c2ee7a016f587e99e
                 "side": "BUY",
                 "symbol": "ETHUSDT"
             },
             {
+<<<<<<< HEAD
+                "quantity": 0.06223,
+                "side": "SELL",
+                "symbol": "ETHEUR"
+            },
+            {
+                "quantity": 11.18,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/15 22:37:37",
+        "start_qnt": 12,
+        "end_qnt": 12.006867196025,
+        "profit": 0.0068671960250004105
+=======
                 "quantity": 0.06201,
                 "side": "SELL",
                 "symbol": "ETHUSDT"
@@ -774,5 +819,6 @@
         "start_qnt": 11.998104,
         "end_qnt": 11.995037400000001,
         "fees": 0.01799627805
+>>>>>>> 12286103b68d332ed5f85e1c2ee7a016f587e99e
     }
 }
