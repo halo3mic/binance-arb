@@ -84,7 +84,8 @@ class BinanceBot(BinanceAPI):
         # Start amount is not the amount this program is set to. 
         # This is because we have to base order no on amount we have, but on the amount we want. 
         # And accuracy of that is limited with allowed decimal points.
-        start_amount = buy_amount / price
+        if ask_asset == 'USDT':
+            start_amount = buy_amount / price
         instructions.append(Instruction(quantity=buy_amount, side='BUY', symbol=best_ask_asset))
         fees_total += holding * fee
         holding = buy_amount
@@ -156,12 +157,12 @@ class BinanceBot(BinanceAPI):
             fees = found_trades['fees']
             profit = holding - start_amount - fees
             if profit > 0 or self.filter_off:
-                self.output_instructions(instructions, start_amount, holding, fees)
-                self.save_instructions(instructions, start_amount, holding, fees)
-                self.save_books()
                 if self.execute_trade:
                     responses = self.execute(instructions)
                     self.save_json(responses, self.op_id, "data/responses.json")
+                self.output_instructions(instructions, start_amount, holding, fees)
+                self.save_instructions(instructions, start_amount, holding, fees)
+                self.save_books()
             else:
                 self.print_no_op()
             self.op_id = str(int(self.op_id) + 1)
@@ -264,7 +265,4 @@ if __name__ == '__main__':
                   # 'USDCUSDT'
                   ]
     bot = BinanceBot(eth_pairs, usdt_pairs, API_KEY, SECRET_KEY, SLACK_KEY, SLACK_MEMBER_ID)
-    # bot.to_slack = 0
-    # bot.execute_trade = 0
-    # bot.run_once()
     bot.run_loop()

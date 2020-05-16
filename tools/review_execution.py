@@ -153,6 +153,6 @@ def main(*ids, save=True):
 
 if __name__ == "__main__":
     # In normalization the current average price is used
-    main("15895789963", save=1)
+    main("15895787519", save=1)
 
 
