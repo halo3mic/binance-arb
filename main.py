@@ -156,13 +156,13 @@ class BinanceBot(BinanceAPI):
             instructions = found_trades['instructions']
             fees = found_trades['fees']
             profit = holding - start_amount - fees
+            self.save_instructions(instructions, start_amount, holding, fees)
+            self.save_books()
             if profit > 0 or self.filter_off:
                 if self.execute_trade:
                     responses = self.execute(instructions)
                     self.save_json(responses, self.op_id, "data/responses.json")
                 self.output_instructions(instructions, start_amount, holding, fees)
-                self.save_instructions(instructions, start_amount, holding, fees)
-                self.save_books()
             else:
                 self.print_no_op()
             self.op_id = str(int(self.op_id) + 1)
