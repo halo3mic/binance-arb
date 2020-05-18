@@ -148,6 +148,7 @@ class BinanceBot(BinanceAPI):
 
         # if no_fee_profit > 0 or self.filter_off:
         #     found_trades = self.find_trades(amount, fees, best_ask[0], best_bid[0])
+        self.save_books()
         for i in (0, -1):
             pairs = ("ETHUSDT", "ETHEUR")
             found_trades = self.find_trades(amount, fees, pairs[i], pairs[i+1])
@@ -157,7 +158,6 @@ class BinanceBot(BinanceAPI):
             fees = found_trades['fees']
             profit = holding - start_amount - fees
             self.save_instructions(instructions, start_amount, holding, fees)
-            self.save_books()
             if profit > 0 or self.filter_off:
                 if self.execute_trade:
                     responses = self.execute(instructions)
@@ -207,11 +207,11 @@ class BinanceBot(BinanceAPI):
         instr_dicts = []
         for i in instructions:
             instr_dicts.append(dict(i._asdict()))
-        json_out = {'instructions': instr_dicts,
-                    'datetime': datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
-                    'start_qnt': start_qnt,
-                    'end_qnt': end_qnt,
-                    'fees': fees}
+        json_out = {"instructions": instr_dicts,
+                    "datetime": datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
+                    "start_qnt": start_qnt,
+                    "end_qnt": end_qnt,
+                    "fees": fees}
         self.save_json(json_out, self.op_id, "data/opportunities.json")
 
     def save_books(self):
