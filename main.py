@@ -25,6 +25,7 @@ class BinanceBot(BinanceAPI):
         self.books = {}
         self.decimal_limits = {}
         self.fired_exceptions = []
+        self.executions = 0
 
     # def get_books(self, pairs, limit=10):
     #     valid_pairs = set(pairs) - set(self.books.keys())
@@ -192,6 +193,7 @@ class BinanceBot(BinanceAPI):
             if profit > 0 or self.filter_off:
                 if self.execute_trade:
                     responses = self.execute(report["instructions"])
+                    self.executions += 1
                     self.save_books()
                     self.save_instructions(report["instructions"], start_amount, profit, report["fees"])
                     self.save_json(responses, self.op_id, "data/responses.json")
@@ -203,20 +205,28 @@ class BinanceBot(BinanceAPI):
             self.op_id = str(int(self.op_id) + 1)
 
     def run_loop(self, chain):
+        EXECUTION_LIMIT = 100
+        SLACK_ALIVE_MSG_MULTIPLE = 14400
+        MAX_SAME_ERRORS = 5
+        LOOP_TIME = 3
+
         while 1:
+            start_time = time.time()
             try:
-                start_time = time.time()
                 self.run_once(chain)
-                sleep_time = abs(3 - (time.time() - start_time))  # Needs to sleep at least 3 sec for making 3 calls
-                time.sleep(sleep_time)
-                if int(start_time) % 14400 == 0:  # Feedback about 4 times a day
+                if self.executions > EXECUTION_LIMIT: break
+                
+                if int(start_time) % SLACK_ALIVE_MSG_MULTIPLE == 0:  # Feedback about 4 times a day
                     if self.to_slack: hp.send_to_slack("Bot is alive and well! :blocky-robot:", SLACK_KEY, SLACK_MEMBER_ID, emoji=":blocky-angel:")
             except Exception as e:
                 if self.to_slack and e not in self.fired_exceptions:
                     hp.send_to_slack(str(repr(e)), SLACK_KEY, SLACK_MEMBER_ID, emoji=":blocky-grin:")
                     self.fired_exceptions.append(e)
-                elif self.fired_exceptions.count(e) > 5:
+                elif self.fired_exceptions.count(e) > MAX_SAME_ERRORS:
                     break 
+            sleep_time = LOOP_TIME - (time.time() - start_time)  # To prevent the ban from Binance
+            if sleep_time > 0:
+                time.sleep(sleep_time)
 
     def output_instructions(self, instructions, start_qnt, profit, fees):
         # Print the instructions in the terminal
@@ -275,7 +285,9 @@ if __name__ == '__main__':
     SLACK_KEY = os.getenv('SLACK_KEY')
     SLACK_MEMBER_ID = os.getenv('SLACK_MEMBER_ID')
 
-    chains = [["ETHUSDT", "ETHEUR", "EURUSDT"], 
-              ["EURUSDT", "ETHEUR", "ETHUSDT"]]
+    # chains_eth = [["ETHUSDT", "ETHEUR", "EURUSDT"], 
+    #           ["EURUSDT", "ETHEUR", "ETHUSDT"]]
+    chains_btc = [["BTCUSDT", "BTCEUR", "EURUSDT"], 
+                  ["EURUSDT", "BTCEUR", "BTCUSDT"]]
     bot = BinanceBot(API_KEY, SECRET_KEY, SLACK_KEY, SLACK_MEMBER_ID)
-    bot.run_loop(chains)
+    bot.run_loop(chains_btc)
