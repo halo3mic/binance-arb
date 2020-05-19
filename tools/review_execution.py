@@ -98,7 +98,12 @@ def review_opportunity(op_id, op_path, books_path):
         book = json.load(books)[op_id]
 
     instructions = op['instructions']
-    profit = op['end_qnt'] - op['start_qnt'] - op['fees']
+    if "profit" in op.keys():
+        profit = op["profit"]
+    elif "fees" in op.keys():
+        profit = op['end_qnt'] - op['start_qnt'] - op['fees']
+    else:
+        profit = op["profit"]
 
     wallet = {}             
     orders_fills = {'BUY': {}, 'SELL': {}}
@@ -126,7 +131,10 @@ def review_opportunity(op_id, op_path, books_path):
         rebalance(asset_out, money_out)
         rebalance(asset_in, money_in)
     norm_wallet = normalize_wallet(wallet, 'USDT', order['side'])
-    fee_norm = -op['fees']
+    if "fees" in op.keys():
+        fee_norm = -op['fees']
+    else:
+        fee_norm = -(op['end_qnt'] - op['start_qnt'])
     norm_wallet['BNB'] = fee_norm
 
     return {'end_wallet': norm_wallet, 'fills': orders_fills, 'balance': sum(norm_wallet.values())}
@@ -149,15 +157,15 @@ def main(*ids, save=True, show=False):
         execution = review_execution(op_id, responses_path)
         opportunity = review_opportunity(op_id, opportunities_path, books_path)
         reviews[op_id] = {'execution': execution, 'opportunity': opportunity}
+        if show:
+            pprint(reviews[op_id])
     if save:
         with open(reviews_path, 'w') as reviews_file:
             json.dump(reviews, reviews_file, indent=4)
-    if show:
-        pprint(reviews[op_id])
     
 
 if __name__ == "__main__":
     # In normalization the current average price is used
-    main("15898441121", save=1, show=1)
+    main("15898944936", save=0, show=1)
 
 
