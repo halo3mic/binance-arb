@@ -1,5 +1,6 @@
 import json
 import requests
+from pprint import pprint
 
 
 PRICES = {'BUY': {}, 'SELL': {}}  # Make it into a class method
@@ -7,13 +8,15 @@ PRICES = {'BUY': {}, 'SELL': {}}  # Make it into a class method
 
 def normalize_wallet(wallet_, base, side):
     # In normalization the current average price is used
+    # NO NEED FOR SIDE; SIDE IS ALWAYS BIDS
+    # DIFFERENT API ENDPOINT - TICKERS
     norm_wallet = wallet_
     for asset in wallet_:
         if asset == base or wallet_[asset] == 0: continue
         pair = asset + base
         if pair not in PRICES[side]:
-            response = requests.get("https://api.binance.com/api/v3/avgPrice", {'symbol': pair}).json()
-            price = float(response['price'])
+            response = requests.get("https://api.binance.com/api/v3/ticker/bookTicker", {'symbol': pair}).json()
+            price = float(response["bidPrice"])
             PRICES[side][pair] = price
         else:
             price = PRICES[side][pair]
@@ -129,7 +132,7 @@ def review_opportunity(op_id, op_path, books_path):
     return {'end_wallet': norm_wallet, 'fills': orders_fills, 'balance': sum(norm_wallet.values())}
 
 
-def main(*ids, save=True):
+def main(*ids, save=True, show=False):
     reviews_path = '../data/reviews.json'
     responses_path = '../data/responses.json'
     books_path = '../data/books.json'
@@ -149,10 +152,12 @@ def main(*ids, save=True):
     if save:
         with open(reviews_path, 'w') as reviews_file:
             json.dump(reviews, reviews_file, indent=4)
+    if show:
+        pprint(reviews[op_id])
     
 
 if __name__ == "__main__":
     # In normalization the current average price is used
-    main("15895787519", save=1)
+    main("15898441121", save=1, show=1)
 
 
