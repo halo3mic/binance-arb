@@ -23,11 +23,20 @@ class BinanceBot(BinanceAPI):
         self.execute_trade = True
         self.filter_off = False
         self.books = {}
+        self.decimal_limits = {}
+        self.fired_exceptions = []
 
-    def get_books(self, pairs, limit=100):
+    def get_books(self, pairs, limit=10):
         valid_pairs = set(pairs) - set(self.books.keys())
         for pair in valid_pairs:
             self.books[pair] = self.fetch_order_book(pair, limit=limit)
+
+    def get_decimal_limits(self, pairs):
+        exhange_info = self.fetch_exchange_info()
+        for symbol in exhange_info['symbols']:
+            if symbol['symbol'] in pairs:
+                step_size = symbol['filters'][2]['stepSize'].rstrip("0")
+                self.decimal_limits[symbol['symbol']] = step_size.count("0")
 
     @staticmethod
     def get_best_price(orders, money_in, inverse=False):
@@ -166,7 +175,8 @@ class BinanceBot(BinanceAPI):
         start_amount = 12
         fees = 0.00075
         base = "USDT"
-        
+        self.get_decimal_limits([chain for subchain in chains for chain in subchain])
+
         for chain in chains:
             self.get_books(chain, limit=10)
             report = self.find_trades(start_amount, fees, chain, base)
@@ -195,7 +205,11 @@ class BinanceBot(BinanceAPI):
                 if int(start_time) % 14400 == 0:  # Feedback about 4 times a day
                     if self.to_slack: hp.send_to_slack("Bot is alive and well! :blocky-robot:", SLACK_KEY, SLACK_MEMBER_ID, emoji=":blocky-angel:")
             except Exception as e:
-                if self.to_slack: hp.send_to_slack(str(repr(e)), SLACK_KEY, SLACK_MEMBER_ID, emoji=":blocky-grin:")
+                if self.to_slack and e not in self.fired_exceptions:
+                    hp.send_to_slack(str(repr(e)), SLACK_KEY, SLACK_MEMBER_ID, emoji=":blocky-grin:")
+                    self.fired_exceptions.append(e)
+                elif self.fired_exceptions.count(e) > 5:
+                    break 
 
     def output_instructions(self, instructions, start_qnt, profit, fees):
         # Print the instructions in the terminal
@@ -239,15 +253,12 @@ class BinanceBot(BinanceAPI):
         json.dump(data, jsonfile, indent=4)
         jsonfile.close()
 
-    @staticmethod
-    def apply_qnt_filter(qnt, pair, round_type='down'):
-        with open("data/symbols_qnt_filter.json") as file:
-            c = json.load(file)
-            min_qnt = c[pair]['stepSize'].rstrip("0")
-            dec = min_qnt.count("0")
-            rounding = {'even': round, 'up': hp.round_up, 'down': hp.round_down}
-            rounded = rounding[round_type](float(qnt), dec)
+    def apply_qnt_filter(self, qnt, pair, round_type='down'):
+        rounding = {'even': round, 'up': hp.round_up, 'down': hp.round_down}
+        rounded = rounding[round_type](float(qnt), self.decimal_limits[pair])
         return rounded
+
+
 
 
 if __name__ == '__main__':
