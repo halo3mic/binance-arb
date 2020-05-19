@@ -12,12 +12,14 @@ SLACK_KEY = os.getenv('SLACK_KEY')
 SLACK_MEMBER_ID = os.getenv('SLACK_MEMBER_ID')
 
 chains_eth = [["ETHUSDT", "ETHEUR", "EURUSDT"], 
-		  ["EURUSDT", "ETHEUR", "ETHUSDT"]]
-# chains_btc = [["XRPUSDT", "XRPETH", "ETHEUR", "EURUSDT"]]
+		      ["EURUSDT", "ETHEUR", "ETHUSDT"]]
+chains_btc = [["BTCUSDT", "BTCEUR", "EURUSDT"], 
+		  	  ["EURUSDT", "BTCEUR", "BTCUSDT"]]
+chains = chains_eth + chains_btc
 bot = BinanceBot(API_KEY, SECRET_KEY, SLACK_KEY, SLACK_MEMBER_ID)
 bot.to_slack = 0
 bot.execute_trade = 0
 bot.filter_off = 1
-bot.run_once(chains_btc)
+bot.run_once(chains)
 
 

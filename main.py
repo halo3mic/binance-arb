@@ -26,10 +26,10 @@ class BinanceBot(BinanceAPI):
         self.decimal_limits = {}
         self.fired_exceptions = []
 
-    def get_books(self, pairs, limit=10):
-        valid_pairs = set(pairs) - set(self.books.keys())
-        for pair in valid_pairs:
-            self.books[pair] = self.fetch_order_book(pair, limit=limit)
+    # def get_books(self, pairs, limit=10):
+    #     valid_pairs = set(pairs) - set(self.books.keys())
+    #     for pair in valid_pairs:
+    #         self.books[pair] = self.fetch_order_book(pair, limit=limit)
 
     def get_decimal_limits(self, pairs):
         exhange_info = self.fetch_exchange_info()
@@ -40,6 +40,7 @@ class BinanceBot(BinanceAPI):
 
     @staticmethod
     def get_best_price(orders, money_in, inverse=False):
+        # Should it return tuples with amount and price?
         avl = money_in
         money_out = 0
         for price, amount in orders:
@@ -57,6 +58,12 @@ class BinanceBot(BinanceAPI):
             raise BookTooSmall('Try again with bigger limit on the order book.')
         return money_out/money_in
 
+    def market_price(self, pair, side, amount, limit=10, inverse=0):
+        if pair not in self.books:
+            self.books[pair] = self.fetch_order_book(pair, limit=limit)
+        orders = self.books[pair][side]
+        return self.get_best_price(orders, amount, inverse=inverse)
+
     def normalize_wallet(self, wallet_, base):
     # In normalization the current average price is used
     # LOOKING UP THESE BOOKS MIGHT NOT CATCH THE BEST PRICE - TICKERS?
@@ -64,7 +71,7 @@ class BinanceBot(BinanceAPI):
         for asset in wallet_:
             if asset == base or wallet_[asset] == 0: continue
             pair = asset + base
-            price = self.get_best_price(self.books[pair]["bids"], wallet_[asset])
+            price = self.market_price(pair, "bids", wallet_[asset])
             norm_wallet[asset] = wallet_[asset] * price
 
         return norm_wallet
@@ -116,10 +123,10 @@ class BinanceBot(BinanceAPI):
 
         for action in actions:
             side = {"BUY": "asks", "SELL": "bids"}[action[1]]
-            orders = self.books[action[0]][side]
+            # orders = self.books[action[0]][side]
 
             if action[1] == 'BUY':
-                price = self.get_best_price(orders, holding, inverse=1)
+                price = self.market_price(action[0], side, holding, inverse=1)
                 money_in_full = holding * price
                 money_in = self.apply_qnt_filter(money_in_full, action[0])
                 asset_in = action[0][:3]
@@ -127,7 +134,7 @@ class BinanceBot(BinanceAPI):
                 asset_out = action[0][3:]
                 instructions.append(Instruction(quantity=money_in, side="BUY", symbol=action[0]))
             else:
-                price = self.get_best_price(orders, holding)
+                price = self.market_price(action[0], side, holding)
                 money_out_full = holding
                 money_out = self.apply_qnt_filter(money_out_full, action[0])
                 asset_out = action[0][:3]
@@ -148,15 +155,15 @@ class BinanceBot(BinanceAPI):
     #     for eth_pair in self.eth_books:
     #         if eth_pair in ('ETHUSDT', 'BTCUSDT'): continue
     #         usdt_pair = [pair for pair in self.usdt_pairs if eth_pair[3:] in pair][0]
-    #         buy = lambda x: x * self.get_best_price(self.usdt_books[usdt_pair]['asks'], x)  # Buying EUR/BUSD/USDC/TUSD
-    #         sell = lambda x: x * self.get_best_price(self.usdt_books[usdt_pair]['bids'], x)  # Selling EUR/BUSD/USDC/TUSD
+    #         buy = lambda x: x * self.market_price(self.usdt_books[usdt_pair]['asks'], x)  # Buying EUR/BUSD/USDC/TUSD
+    #         sell = lambda x: x * self.market_price(self.usdt_books[usdt_pair]['bids'], x)  # Selling EUR/BUSD/USDC/TUSD
     #         normalized_books[eth_pair]['asks'] = [[buy(float(price)), amount] for price, amount in normalized_books[eth_pair]['asks']]
     #         normalized_books[eth_pair]['bids'] = [[sell(float(price)), amount] for price, amount in normalized_books[eth_pair]['bids']]
 
     #     best_prices = {'asks': [], 'bids': []}
     #     for pair in normalized_books:
-    #         ask_price = 1/self.get_best_price(normalized_books[pair]['asks'], amount, inverse=True)
-    #         bid_price = 1/self.get_best_price(normalized_books[pair]['bids'], amount, inverse=True)
+    #         ask_price = 1/self.market_price(normalized_books[pair]['asks'], amount, inverse=True)
+    #         bid_price = 1/self.market_price(normalized_books[pair]['bids'], amount, inverse=True)
     #         best_prices['asks'] += [(pair, ask_price)]
     #         best_prices['bids'] += [(pair, bid_price)]
     #     best_ask = min(best_prices['asks'], key=lambda x: x[1])
@@ -178,7 +185,7 @@ class BinanceBot(BinanceAPI):
         self.get_decimal_limits([chain for subchain in chains for chain in subchain])
 
         for chain in chains:
-            self.get_books(chain, limit=10)
+            # self.get_books(chain, limit=10)
             report = self.find_trades(start_amount, fees, chain, base)
 
             profit = report["final_balance"] - start_amount - report["fees"]

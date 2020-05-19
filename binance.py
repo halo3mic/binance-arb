@@ -15,7 +15,12 @@ class BinanceAPI:
         response =  make_request(endpoint)
         return response['serverTime']
 
-    def fetch_order_book(self, symbol, limit=100):
+    def fetch_exchange_info(self):
+        endpoint = self.spot_base_endpoint + "/api/v1/exchangeInfo"
+        response =  make_request(endpoint)
+        return response
+
+    def fetch_order_book(self, symbol, limit=10):
         endpoint = self.spot_base_endpoint + '/api/v1/depth'
         params = {'symbol': symbol,
                   'limit': limit
