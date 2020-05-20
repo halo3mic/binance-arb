@@ -26,6 +26,7 @@ class BinanceBot(BinanceAPI):
         self.decimal_limits = {}
         self.fired_exceptions = []
         self.executions = 0
+        self.chain_assets = []
 
     # def get_books(self, pairs, limit=10):
     #     valid_pairs = set(pairs) - set(self.books.keys())
@@ -71,9 +72,9 @@ class BinanceBot(BinanceAPI):
         norm_wallet = wallet_
         for asset in wallet_:
             if asset == base or wallet_[asset] == 0: continue
-            pair = asset + base
+            pair = [pair for pair in self.chain_assets if asset in pair and base in pair][0]  # Remove this after #17 is resolved
             price = self.market_price(pair, "bids", wallet_[asset])
-            norm_wallet[asset] = wallet_[asset] * price
+            norm_wallet[asset] = wallet_[asset] * price if pair.startswith(asset) else wallet_[asset] / price
 
         return norm_wallet
 
@@ -83,8 +84,9 @@ class BinanceBot(BinanceAPI):
         actions = []
         current_asset = base
         for pair in chain:
-            asset1 = pair[:3]
-            asset2 = pair[3:]
+            cut = 4 if pair.startswith("USDT") else 3  # Remove this after #17 is done
+            asset1 = pair[:cut]
+            asset2 = pair[cut:]
             sell = asset1 == current_asset
             buy = asset2 == current_asset
             if (buy or sell) and not (buy and sell):
@@ -125,22 +127,22 @@ class BinanceBot(BinanceAPI):
         for action in actions:
             side = {"BUY": "asks", "SELL": "bids"}[action[1]]
             # orders = self.books[action[0]][side]
-
+            cut = 4 if action[0].startswith("USDT") else 3  # Change this after #17 is resolved
             if action[1] == 'BUY':
                 price = self.market_price(action[0], side, holding, inverse=1)
                 money_in_full = holding * price
                 money_in = self.apply_qnt_filter(money_in_full, action[0])
-                asset_in = action[0][:3]
+                asset_in = action[0][:cut]
                 money_out = money_in / price
-                asset_out = action[0][3:]
+                asset_out = action[0][cut:]
                 instructions.append(Instruction(quantity=money_in, side="BUY", symbol=action[0]))
             else:
                 price = self.market_price(action[0], side, holding)
                 money_out_full = holding
                 money_out = self.apply_qnt_filter(money_out_full, action[0])
-                asset_out = action[0][:3]
+                asset_out = action[0][:cut]
                 money_in = money_out * price
-                asset_in = action[0][3:]
+                asset_in = action[0][cut:]
                 instructions.append(Instruction(quantity=money_out, side="SELL", symbol=action[0]))
 
             rebalance(wallet, asset_out, -money_out)
@@ -182,20 +184,21 @@ class BinanceBot(BinanceAPI):
         self.op_id = str(int(time.time()*10))
         start_amount = 12
         fees = 0.00075
-        self.get_decimal_limits([chain for subchain in chains for chain in subchain])
+        self.chain_assets = [chain for subchain in chains for chain in subchain]
+        self.get_decimal_limits(self.chain_assets)  # Can be stored locally
 
         for chain in chains:
             # self.get_books(chain, limit=10)
             report = self.find_trades(start_amount, fees, chain, base)
 
             profit = report["final_balance"] - start_amount - report["fees"]
-            if profit > 0 or self.filter_off:
+            if profit > 0 or self.filter_off:    
                 if self.execute_trade:
                     responses = self.execute(report["instructions"])
                     self.executions += 1
-                    self.save_books()
-                    self.save_instructions(report["instructions"], start_amount, profit, report["fees"])
                     self.save_json(responses, self.op_id, "data/responses.json")
+                self.save_books()
+                self.save_instructions(report["instructions"], start_amount, profit, report["fees"])
                 self.output_instructions(report["instructions"], start_amount, profit, report["fees"])
             else:
                 print("~"*60 + "\n")
@@ -203,11 +206,12 @@ class BinanceBot(BinanceAPI):
                 print("NO OPPORTUNITY".center(60), end="\n\n")
             self.op_id = str(int(self.op_id) + 1)
 
+
     def run_loop(self, chain, base="USDT"):
         EXECUTION_LIMIT = 100
         SLACK_ALIVE_MSG_MULTIPLE = 14400
         MAX_SAME_ERRORS = 5
-        LOOP_TIME = 3
+        LOOP_TIME = 3.3
 
         while 1:
             start_time = time.time()
