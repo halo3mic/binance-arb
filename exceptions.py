@@ -9,9 +9,13 @@ class BinanceAPIError(Exception):
             self.code = None
             self.msg = None
         message = f"{status_code} [{self.code}] {self.msg}"
-        
+        if status_code == 429:
+            raise StopBot("Limit exceeded - stop the bot.")
         super().__init__(message)
 
 
 class BookTooSmall(Exception):
+    pass
+
+class StopBot(Exception):
     pass
