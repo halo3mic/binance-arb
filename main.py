@@ -186,13 +186,15 @@ class BinanceBot(BinanceAPI):
         fees = 0.00075
         self.chain_assets = [chain for subchain in chains for chain in subchain]
         self.get_decimal_limits(self.chain_assets)  # Can be stored locally
+        opp_found = False
 
         for chain in chains:
             # self.get_books(chain, limit=10)
             report = self.find_trades(start_amount, fees, chain, base)
 
             profit = report["final_balance"] - start_amount - report["fees"]
-            if profit > 0 or self.filter_off:    
+            if profit > 0 or self.filter_off:
+                opp_found = True    
                 if self.execute_trade:
                     responses = self.execute(report["instructions"])
                     self.executions += 1
@@ -200,10 +202,10 @@ class BinanceBot(BinanceAPI):
                 self.save_books()
                 self.save_instructions(report["instructions"], start_amount, profit, report["fees"])
                 self.output_instructions(report["instructions"], start_amount, profit, report["fees"])
-            else:
-                print("~"*60 + "\n")
-                print(datetime.now().strftime('%Y/%m/%d %H:%M:%S').center(60))
-                print("NO OPPORTUNITY".center(60), end="\n\n")
+        if not opp_found:
+            print("~"*60 + "\n")
+            print(datetime.now().strftime('%Y/%m/%d %H:%M:%S').center(60))
+            print("NO OPPORTUNITY".center(60), end="\n\n")
             self.op_id = str(int(self.op_id) + 1)
 
 
@@ -288,9 +290,9 @@ if __name__ == '__main__':
     SLACK_KEY = os.getenv('SLACK_KEY')
     SLACK_MEMBER_ID = os.getenv('SLACK_MEMBER_ID')
 
-    # chains_eth = [["ETHUSDT", "ETHEUR", "EURUSDT"], 
-    #           ["EURUSDT", "ETHEUR", "ETHUSDT"]]
-    chains_btc = [["BTCUSDT", "BTCEUR", "EURUSDT"], 
-                  ["EURUSDT", "BTCEUR", "BTCUSDT"]]
+    chains_eth = [["ETHUSDT", "ETHEUR", "EURUSDT"], 
+                  ["EURUSDT", "ETHEUR", "ETHUSDT"]]
+    chain_rub = [["ETHUSDT", "ETHRUB", "USDTRUB"], 
+                 ["USDTRUB", "ETHRUB", "ETHUSDT"]]
     bot = BinanceBot(API_KEY, SECRET_KEY, SLACK_KEY, SLACK_MEMBER_ID)
-    bot.run_loop(chains_btc)
+    bot.run_loop(chains_eth + chain_rub)
