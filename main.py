@@ -202,11 +202,11 @@ class BinanceBot(BinanceAPI):
                 self.save_books()
                 self.save_instructions(report["instructions"], start_amount, profit, report["fees"])
                 self.output_instructions(report["instructions"], start_amount, profit, report["fees"])
+                self.op_id = str(int(self.op_id) + 1)
         if not opp_found:
             print("~"*60 + "\n")
             print(datetime.now().strftime('%Y/%m/%d %H:%M:%S').center(60))
             print("NO OPPORTUNITY".center(60), end="\n\n")
-            self.op_id = str(int(self.op_id) + 1)
 
 
     def run_loop(self, chain, base="USDT"):
