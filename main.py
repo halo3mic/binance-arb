@@ -6,7 +6,7 @@ import time
 import json
 import os
 
-from exceptions import BookTooSmall
+from exceptions import BookTooSmall, StopBot
 from binance import BinanceAPI
 import helpers as hp
 from exceptions import BinanceAPIError
@@ -178,11 +178,10 @@ class BinanceBot(BinanceAPI):
             responses.append(self.submit_market_order(i.symbol, i.side, i.quantity))
         return responses
 
-    def run_once(self, chains):
+    def run_once(self, chains, base="USDT"):
         self.op_id = str(int(time.time()*10))
         start_amount = 12
         fees = 0.00075
-        base = "USDT"
         self.get_decimal_limits([chain for subchain in chains for chain in subchain])
 
         for chain in chains:
@@ -204,7 +203,7 @@ class BinanceBot(BinanceAPI):
                 print("NO OPPORTUNITY".center(60), end="\n\n")
             self.op_id = str(int(self.op_id) + 1)
 
-    def run_loop(self, chain):
+    def run_loop(self, chain, base="USDT"):
         EXECUTION_LIMIT = 100
         SLACK_ALIVE_MSG_MULTIPLE = 14400
         MAX_SAME_ERRORS = 5
@@ -213,15 +212,15 @@ class BinanceBot(BinanceAPI):
         while 1:
             start_time = time.time()
             try:
-                self.run_once(chain)
+                self.run_once(chain, base=base)
                 if self.executions > EXECUTION_LIMIT: break
-                
                 if int(start_time) % SLACK_ALIVE_MSG_MULTIPLE == 0:  # Feedback about 4 times a day
                     if self.to_slack: hp.send_to_slack("Bot is alive and well! :blocky-robot:", SLACK_KEY, SLACK_MEMBER_ID, emoji=":blocky-angel:")
             except Exception as e:
                 if self.to_slack and e not in self.fired_exceptions:
                     hp.send_to_slack(str(repr(e)), SLACK_KEY, SLACK_MEMBER_ID, emoji=":blocky-grin:")
                     self.fired_exceptions.append(e)
+                if isinstance(e, StopBot): break
                 elif self.fired_exceptions.count(e) > MAX_SAME_ERRORS:
                     break 
             sleep_time = LOOP_TIME - (time.time() - start_time)  # To prevent the ban from Binance
