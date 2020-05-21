@@ -84,7 +84,7 @@ class BinanceBot(BinanceAPI):
         actions = []
         current_asset = base
         for pair in chain:
-            cut = 4 if pair.startswith("USDT") else 3  # Remove this after #17 is done
+            cut = 4 if pair.startswith("USDT") or pair.startswith("USDC") else 5 if pair.startswith("STORM") else 3  # Remove this after #17 is done
             asset1 = pair[:cut]
             asset2 = pair[cut:]
             sell = asset1 == current_asset
@@ -127,7 +127,7 @@ class BinanceBot(BinanceAPI):
         for action in actions:
             side = {"BUY": "asks", "SELL": "bids"}[action[1]]
             # orders = self.books[action[0]][side]
-            cut = 4 if action[0].startswith("USDT") else 3  # Change this after #17 is resolved
+            cut = 4 if action[0].startswith("USDT") else 5 if action[0].startswith("STORM") else 3  # Change this after #17 is resolved
             if action[1] == 'BUY':
                 price = self.market_price(action[0], side, holding, inverse=1)
                 money_in_full = holding * price
@@ -241,6 +241,7 @@ class BinanceBot(BinanceAPI):
         out += f"START: {start_qnt} USDT\n"
         out += str_instructions + "\n"
         out += f"END: {start_qnt + profit} USDT\n"
+        out += f"FEE: {fees} USDT\n"
         out += f"PROFIT: {profit:.5f}"
         print("~"*60, out.center(60), sep="\n\n")
         # Send instructions to slack
@@ -292,7 +293,7 @@ if __name__ == '__main__':
 
     chains_eth = [["ETHUSDT", "ETHEUR", "EURUSDT"], 
                   ["EURUSDT", "ETHEUR", "ETHUSDT"]]
-    chain_rub = [["ETHUSDT", "ETHRUB", "USDTRUB"], 
-                 ["USDTRUB", "ETHRUB", "ETHUSDT"]]
+    chain_zar = [["BTCUSDT", "BTCZAR", "USDTZAR"], 
+                 ["USDTZAR", "BTCZAR", "BTCUSDT"]]
     bot = BinanceBot(API_KEY, SECRET_KEY, SLACK_KEY, SLACK_MEMBER_ID)
     bot.run_loop(chains_eth + chain_rub)
