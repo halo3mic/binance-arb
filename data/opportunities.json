@@ -1,0 +1,600 @@
+{
+    "159059688282767048": {
+        "instructions": [
+            {
+                "quantity": 60.4,
+                "side": "BUY",
+                "symbol": "XRPUSDT"
+            },
+            {
+                "quantity": 60.4,
+                "side": "SELL",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 11.06,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 18:28:03",
+        "start_qnt": 12,
+        "profit": 0.001,
+        "fees": 0.025117078101064172
+    },
+    "159059688316666792": {
+        "instructions": [
+            {
+                "quantity": 11.08,
+                "side": "BUY",
+                "symbol": "EURUSDT"
+            },
+            {
+                "quantity": 60.2,
+                "side": "BUY",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 60.2,
+                "side": "SELL",
+                "symbol": "XRPUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 18:28:03",
+        "start_qnt": 12,
+        "profit": 0.001,
+        "fees": 0.025108722800000004
+    },
+    "159059688353567048": {
+        "instructions": [
+            {
+                "quantity": 60.4,
+                "side": "BUY",
+                "symbol": "XRPUSDT"
+            },
+            {
+                "quantity": 60.4,
+                "side": "SELL",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 11.06,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 18:28:03",
+        "start_qnt": 12,
+        "profit": 0.001,
+        "fees": 0.025117078101064172
+    },
+    "159059688387166792": {
+        "instructions": [
+            {
+                "quantity": 11.08,
+                "side": "BUY",
+                "symbol": "EURUSDT"
+            },
+            {
+                "quantity": 60.2,
+                "side": "BUY",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 60.2,
+                "side": "SELL",
+                "symbol": "XRPUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 18:28:04",
+        "start_qnt": 12,
+        "profit": 0.001,
+        "fees": 0.025108722800000004
+    },
+    "159059688429767048": {
+        "instructions": [
+            {
+                "quantity": 60.4,
+                "side": "BUY",
+                "symbol": "XRPUSDT"
+            },
+            {
+                "quantity": 60.4,
+                "side": "SELL",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 11.07,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 18:28:04",
+        "start_qnt": 12,
+        "profit": 0.001,
+        "fees": 0.025130571013920182
+    },
+    "159059688463266792": {
+        "instructions": [
+            {
+                "quantity": 11.08,
+                "side": "BUY",
+                "symbol": "EURUSDT"
+            },
+            {
+                "quantity": 60.2,
+                "side": "BUY",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 60.2,
+                "side": "SELL",
+                "symbol": "XRPUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 18:28:04",
+        "start_qnt": 12,
+        "profit": 0.001,
+        "fees": 0.025108722800000004
+    },
+    "159059688500167048": {
+        "instructions": [
+            {
+                "quantity": 60.4,
+                "side": "BUY",
+                "symbol": "XRPUSDT"
+            },
+            {
+                "quantity": 60.4,
+                "side": "SELL",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 11.07,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 18:28:05",
+        "start_qnt": 12,
+        "profit": 0.001,
+        "fees": 0.025130571013920182
+    },
+    "159059688534966792": {
+        "instructions": [
+            {
+                "quantity": 11.08,
+                "side": "BUY",
+                "symbol": "EURUSDT"
+            },
+            {
+                "quantity": 60.2,
+                "side": "BUY",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 60.2,
+                "side": "SELL",
+                "symbol": "XRPUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 18:28:05",
+        "start_qnt": 12,
+        "profit": 0.001,
+        "fees": 0.025108722800000004
+    },
+    "159059688571467048": {
+        "instructions": [
+            {
+                "quantity": 60.4,
+                "side": "BUY",
+                "symbol": "XRPUSDT"
+            },
+            {
+                "quantity": 60.4,
+                "side": "SELL",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 11.07,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 18:28:06",
+        "start_qnt": 12,
+        "profit": 0.001,
+        "fees": 0.025130571013920182
+    },
+    "159059688605366792": {
+        "instructions": [
+            {
+                "quantity": 11.08,
+                "side": "BUY",
+                "symbol": "EURUSDT"
+            },
+            {
+                "quantity": 60.2,
+                "side": "BUY",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 60.2,
+                "side": "SELL",
+                "symbol": "XRPUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 18:28:06",
+        "start_qnt": 12,
+        "profit": 0.001,
+        "fees": 0.025108722800000004
+    },
+    "159059688643667048": {
+        "instructions": [
+            {
+                "quantity": 60.4,
+                "side": "BUY",
+                "symbol": "XRPUSDT"
+            },
+            {
+                "quantity": 60.4,
+                "side": "SELL",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 11.07,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 18:28:06",
+        "start_qnt": 12,
+        "profit": 0.001,
+        "fees": 0.025130571013920182
+    },
+    "159059688678666792": {
+        "instructions": [
+            {
+                "quantity": 11.08,
+                "side": "BUY",
+                "symbol": "EURUSDT"
+            },
+            {
+                "quantity": 60.2,
+                "side": "BUY",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 60.2,
+                "side": "SELL",
+                "symbol": "XRPUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 18:28:07",
+        "start_qnt": 12,
+        "profit": 0.001,
+        "fees": 0.025108722800000004
+    },
+    "159059688721967048": {
+        "instructions": [
+            {
+                "quantity": 60.4,
+                "side": "BUY",
+                "symbol": "XRPUSDT"
+            },
+            {
+                "quantity": 60.4,
+                "side": "SELL",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 11.07,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 18:28:07",
+        "start_qnt": 12,
+        "profit": 0.001,
+        "fees": 0.025130571013920182
+    },
+    "159059688754166792": {
+        "instructions": [
+            {
+                "quantity": 11.08,
+                "side": "BUY",
+                "symbol": "EURUSDT"
+            },
+            {
+                "quantity": 60.2,
+                "side": "BUY",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 60.2,
+                "side": "SELL",
+                "symbol": "XRPUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 18:28:07",
+        "start_qnt": 12,
+        "profit": 0.001,
+        "fees": 0.025108722800000004
+    },
+    "159059688792267048": {
+        "instructions": [
+            {
+                "quantity": 60.4,
+                "side": "BUY",
+                "symbol": "XRPUSDT"
+            },
+            {
+                "quantity": 60.4,
+                "side": "SELL",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 11.07,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 18:28:08",
+        "start_qnt": 12,
+        "profit": 0.001,
+        "fees": 0.025131027553322006
+    },
+    "159059688824866792": {
+        "instructions": [
+            {
+                "quantity": 11.08,
+                "side": "BUY",
+                "symbol": "EURUSDT"
+            },
+            {
+                "quantity": 60.2,
+                "side": "BUY",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 60.2,
+                "side": "SELL",
+                "symbol": "XRPUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 18:28:08",
+        "start_qnt": 12,
+        "profit": 0.001,
+        "fees": 0.025108722800000004
+    },
+    "159059776643688584": {
+        "instructions": [
+            {
+                "quantity": 60.4,
+                "side": "BUY",
+                "symbol": "XRPUSDT"
+            },
+            {
+                "quantity": 60.4,
+                "side": "SELL",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 11.06,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 18:42:46",
+        "start_qnt": 12,
+        "profit": -0.06010359742399985,
+        "fees": 0.025119917424
+    },
+    "159060178888797032": {
+        "instructions": [
+            {
+                "quantity": 60.5,
+                "side": "BUY",
+                "symbol": "XRPUSDT"
+            },
+            {
+                "quantity": 60.5,
+                "side": "SELL",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 11.08,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 19:49:49",
+        "start_qnt": 12,
+        "profit": -0.059168473318998674,
+        "fees": 0.025139643319
+    },
+    "159060188551175208": {
+        "instructions": [
+            {
+                "quantity": 60.4,
+                "side": "BUY",
+                "symbol": "XRPUSDT"
+            },
+            {
+                "quantity": 60.4,
+                "side": "SELL",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 11.07,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 19:51:25",
+        "start_qnt": 12,
+        "profit": -0.051373904838401256,
+        "fees": 0.025116816838399995
+    },
+    "159060245644546600": {
+        "instructions": [
+            {
+                "quantity": 60.5,
+                "side": "BUY",
+                "symbol": "XRPUSDT"
+            },
+            {
+                "quantity": 60.5,
+                "side": "SELL",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 11.07,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 20:00:56",
+        "start_qnt": 12,
+        "profit": -0.05471281781999928,
+        "fees": 0.025140417820000004
+    },
+    "159060279361650664": {
+        "instructions": [
+            {
+                "quantity": 60.5,
+                "side": "BUY",
+                "symbol": "XRPUSDT"
+            },
+            {
+                "quantity": 60.5,
+                "side": "SELL",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 11.07,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 20:06:33",
+        "start_qnt": 12,
+        "profit": -0.0433980163284018,
+        "fees": 0.025123628328399997
+    },
+    "159060299263265960": {
+        "instructions": [
+            {
+                "quantity": 60.6,
+                "side": "BUY",
+                "symbol": "XRPUSDT"
+            },
+            {
+                "quantity": 60.6,
+                "side": "SELL",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 11.09,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 20:09:52",
+        "start_qnt": 12,
+        "profit": -0.03993833576435976,
+        "fees": 0.025167570564360003
+    },
+    "159060311701607144": {
+        "instructions": [
+            {
+                "quantity": 60.5,
+                "side": "BUY",
+                "symbol": "XRPUSDT"
+            },
+            {
+                "quantity": 60.5,
+                "side": "SELL",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 11.07,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 20:11:57",
+        "start_qnt": 12,
+        "profit": -0.04289826382630014,
+        "fees": 0.025126872826300002
+    },
+    "159060315853348456": {
+        "instructions": [
+            {
+                "quantity": 60.5,
+                "side": "BUY",
+                "symbol": "XRPUSDT"
+            },
+            {
+                "quantity": 60.5,
+                "side": "SELL",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 11.07,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 20:12:38",
+        "start_qnt": 12,
+        "profit": -0.05440046332630017,
+        "fees": 0.0251340723263
+    },
+    "159060341055592616": {
+        "instructions": [
+            {
+                "quantity": 60.5,
+                "side": "BUY",
+                "symbol": "XRPUSDT"
+            },
+            {
+                "quantity": 60.5,
+                "side": "SELL",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 11.07,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 20:16:51",
+        "start_qnt": 12,
+        "profit": -0.051269368828400705,
+        "fees": 0.025129980828399998
+    },
+    "159060375790245160": {
+        "instructions": [
+            {
+                "quantity": 60.5,
+                "side": "BUY",
+                "symbol": "XRPUSDT"
+            },
+            {
+                "quantity": 60.5,
+                "side": "SELL",
+                "symbol": "XRPEUR"
+            },
+            {
+                "quantity": 11.07,
+                "side": "SELL",
+                "symbol": "EURUSDT"
+            }
+        ],
+        "datetime": "2020/05/27 20:22:40",
+        "start_qnt": 12,
+        "profit": -0.05014151933890082,
+        "fees": 0.025117146338899998
+    }
+}

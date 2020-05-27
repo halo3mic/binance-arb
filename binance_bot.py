@@ -3,58 +3,66 @@ from binance.client import Client
 from binance.websockets import BinanceSocketManager
 from twisted.internet import reactor
 from collections import namedtuple
-import os
 import re
 import atexit
+from datetime import datetime
 
 import helpers as hp
-
-
-PUBLIC = os.getenv("BINANCE_KEY")
-SECRET = os.getenv("BINANCE_SECRET")
-SLACK_KEY = os.getenv("SLACK_KEY")
-SLACK_GROUP = "UHN9J9DLG"
-CHAINS = [["ETHUSDT", "ETHEUR", "EURUSDT"],
-          ["EURUSDT", "ETHEUR", "ETHUSDT"]]
-BASE = "USDT"
-START_AMOUNT = 12
-FEE = 0.0007
+from config import *
 
 
 class BinanceBot(BinanceSocketManager):
 
-    def __init__(self, chains):
-        self.client = Client(api_key=PUBLIC, api_secret=SECRET)
+    def __init__(self, chains, base, start_amount, execute=True, test_it=False):
+        self.client = Client(api_key=BINANCE_PUBLIC, api_secret=BINANCE_SECRET)
         self.chains = chains
+        self.base = base
+        self.start_amount = start_amount
+        self.execute = execute
+        self.test_it = test_it
+
+        self.busy = False  # Is the bot currently handling one of the books
         self.chain_assets = set([chain for subchain in self.chains for chain in subchain])
-        self.books = self.get_intial_books(self.chain_assets)
+        # self.books = self.get_intial_books(self.chain_assets)
+        self.books = {}
         self.decimal_limits = self.get_decimal_limits(self.chain_assets)
-        self.actions = [self.interpret_chain(chain, BASE) for chain in chains]  # Make sense of input list of pairs
+        self.actions = [self.interpret_chain(chain, base) for chain in chains]  # Make sense of input list of pairs
         BinanceSocketManager.__init__(self, self.client)
 
     def handle_message(self, msg):
         if msg.get("e") == 'error':
-            print("Error")
-        else:
+            raise Exception("Stream error")
+        elif not self.busy:
+            self.busy = True
             stream = msg["stream"]
             pair = re.findall(r"^[a-z]*", stream)[0].upper()
             self.books[pair] = msg["data"]
             if len(self.books) == len(self.chain_assets):
                 self.process_chain(self.books)
+            self.busy = False
 
     def process_chain(self, books):
         # This books variable is only an address to the storage - it could get overwritten before process is finished
+        os.system("clear")
         timestamp = int(time.time())
         print(f"NEW DATA: {timestamp}".center(50, "~"))
         print("\n".join([f"{pair}: {book['lastUpdateId']}" for pair, book in books.items()]))
         for action in self.actions:
             print(f"Action: {action}")
-            opp = self.find_opportunity(action)
-            profit = opp["final_balance"] - START_AMOUNT - opp["fees"]
-            print(f"Profit: {profit}")
-            if profit > 0:
-                msg = f"Timestamp: {timestamp}\nAction: {action}\nProfit: {profit}"
-                hp.send_to_slack(msg, SLACK_KEY, SLACK_GROUP, emoji=':blocky-money:')
+            opportunity = Opportunity(self, action)
+            opportunity.find_opportunity()
+
+            print(f"Profit: {opportunity.profit}")
+            if opportunity.profit > 0 or self.test_it:
+                if self.execute:
+                    opportunity.execute()
+                opportunity.to_slack()
+                opportunity.save()
+                hp.save_json(self.books, opportunity.id, BOOKS_SOURCE)
+                if self.test_it:
+                    # self.upon_closure()  # If testing, exit after an opportunity
+                    os._exit(1)
+                break  # The execution and saving slows takes some time, in which the order book can already change
 
     def start_listening(self):
         stream_names = [pair.lower() + "@depth10@100ms" for pair in self.chain_assets]
@@ -77,14 +85,14 @@ class BinanceBot(BinanceSocketManager):
 
         return decimal_limits
 
-    def get_intial_books(self, pairs):
-        if len(pairs) > 9:
-            raise Exception("Too many pairs to process at once.")
-        books = {}
-        for pair in pairs:
-            books[pair] = self.client.get_order_book(symbol=pair)
-
-        return books
+    # def get_intial_books(self, pairs):
+    #     if len(pairs) > 9:
+    #         raise Exception("Too many pairs to process at once.")
+    #     books = {}
+    #     for pair in pairs:
+    #         books[pair] = self.client.get_order_book(symbol=pair)
+    #
+    #     return books
 
     @staticmethod
     def interpret_chain(chain, base):
@@ -107,19 +115,36 @@ class BinanceBot(BinanceSocketManager):
 
         return actions
 
-    def find_opportunity(self, action):
+    def execute_order(self, instruction):
+        market_order = {"BUY": self.client.order_market_buy, "SELL": self.client.order_market_sell}[instruction.side]
+        response = market_order(symbol=instruction.symbol, quantity=instruction.quantity)
+
+        return response
+
+
+class Opportunity:
+
+    def __init__(self, bot, action):
+        self.bot = bot
+        self.action = action
+
+        self.profit = None
+        self.instructions = None
+        self.final_balance = None
+        self.fees = None
+        self.id = str(int(time.time()*1000)) + str(id(action))[10:]
+
+    def find_opportunity(self):
         """Find if chain is profitable based on fees, amount and current order books."""
         # Go through steps of trade to see if it would be profitable
-        results = self.simulate_trade(action, START_AMOUNT, BASE, FEE)
-        norm_wallet = self.normalize_wallet(results["wallet"], BASE)  # Convert all remaining assets to base asset
-        norm_fees = self.normalize_wallet(results["fees"], BASE)  # Convert all fees in different assets into base one
+        results = self.simulate_trade(self.action, self.bot.start_amount, self.bot.base, FEE)
+        norm_wallet = self.normalize_wallet(results["wallet"], self.bot.base)  # Convert all remaining assets to base asset
+        norm_fees = self.normalize_wallet(results["fees"], self.bot.base)  # Convert all fees in different assets into base one
         final_balance = sum(norm_wallet.values())  # No fees
-        result = {"instructions": results["instructions"],
-                  "final_balance": final_balance,
-                  "fees": sum(norm_fees.values())
-                  }
-        
-        return result
+        self.instructions = results["instructions"]
+        self.final_balance = final_balance
+        self.fees = sum(norm_fees.values())
+        self.profit = self.final_balance - self.bot.start_amount - self.fees
 
     def simulate_trade(self, actions, starting_amount, start_asset, fee):
 
@@ -171,21 +196,21 @@ class BinanceBot(BinanceSocketManager):
         for asset in wallet_:
             if asset == base or wallet_[asset] == 0: continue
             # Remove this after #17 is resolved
-            pair = [pair for pair in self.chain_assets if asset in pair and base in pair][0]
+            pair = [pair for pair in self.bot.chain_assets if asset in pair and base in pair][0]
             price = self.market_price(pair, "bids", wallet_[asset])
             norm_wallet[asset] = wallet_[asset] * price if pair.startswith(asset) else wallet_[asset] / price
 
         return norm_wallet
 
     def market_price(self, pair, side, amount, inverse=False):
-        if pair not in self.books:
+        if pair not in self.bot.books:
             raise Exception(f"Pair {pair} not in the books.")
-        orders = self.books[pair][side]
+        orders = self.bot.books[pair][side]
         return self.get_best_price(orders, amount, inverse=inverse)
 
     def apply_qnt_filter(self, qnt, pair, round_type='down'):
         rounding = {'even': round, 'up': hp.round_up, 'down': hp.round_down}
-        rounded = rounding[round_type](float(qnt), self.decimal_limits[pair])
+        rounded = rounding[round_type](float(qnt), self.bot.decimal_limits[pair])
         return rounded
 
     @staticmethod
@@ -195,19 +220,46 @@ class BinanceBot(BinanceSocketManager):
         money_out = 0
         for price, amount in orders:
             price, amount = float(price), float(amount)
-            diff = avl - (amount if not inverse else amount*price)
+            diff = avl - (amount if not inverse else amount * price)
             if diff <= 0:
-                money_out += avl*price if not inverse else avl/price
+                money_out += avl * price if not inverse else avl / price
                 avl = 0
                 break
             else:
-                money_out += (price*amount) if not inverse else amount
-                avl -= amount if not inverse else amount*price
+                money_out += (price * amount) if not inverse else amount
+                avl -= amount if not inverse else amount * price
         # If not enough orders
         if avl > 0:
             raise Exception('Try again with bigger limit on the order book.')
-        return money_out/money_in
+        return money_out / money_in
 
+    def to_slack(self):
+        msg = f"_Opportunity ID:_ *{self.id}*\n" \
+              f"_Action:_ *{' | '.join([step[0] + '-' + step[1] for step in self.action])}*\n" \
+              f"_Profit:_ *{self.profit:.5f}*\n" \
+              f"_Executed:_ *{self.bot.execute}*\n" \
+              f"_Start amount:_ *{self.bot.start_amount} {self.bot.base}*"
 
-bb = BinanceBot(CHAINS)
-bb.start_listening()
+        hp.send_to_slack(msg, SLACK_KEY, SLACK_GROUP, emoji=':blocky-money:')
+
+    def save(self):
+        # Save instructions in json file
+        instr_dicts = []
+        for i in self.instructions:
+            instr_dicts.append(dict(i._asdict()))
+        json_out = {"instructions": instr_dicts,
+                    "datetime": datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
+                    "start_qnt": self.bot.start_amount,
+                    "profit": self.profit,
+                    "fees": self.fees}
+        hp.save_json(json_out, self.id, OPPORTUNITIES_SOURCE)
+
+    def execute(self):
+        responses = []
+        for instruction in self.instructions:
+            market_order = {"BUY": self.bot.client.order_market_buy, "SELL": self.bot.client.order_market_sell}[instruction.side]
+            response = market_order(symbol=instruction.symbol, quantity=instruction.quantity)
+            responses.append(response)
+        hp.save_json(responses, self.id, RESPONSES_SOURCE)
+
+        return responses

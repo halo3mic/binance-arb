@@ -17,5 +17,6 @@ class BinanceAPIError(Exception):
 class BookTooSmall(Exception):
     pass
 
+
 class StopBot(Exception):
     pass
