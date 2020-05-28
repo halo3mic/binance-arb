@@ -11,7 +11,7 @@ start_amount = 12
 
 try:
     # make threads for each of the bot instance
-    bb = BinanceBot(chains, base, start_amount, execute=False)
+    bb = BinanceBot(chains, base, start_amount, execute=False, test_it=True)
     bb.start_listening()
 except Exception as e:
     hp.send_to_slack(str(e), SLACK_GROUP, SLACK_KEY)

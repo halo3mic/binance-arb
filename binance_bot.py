@@ -115,12 +115,6 @@ class BinanceBot(BinanceSocketManager):
 
         return actions
 
-    def execute_order(self, instruction):
-        market_order = {"BUY": self.client.order_market_buy, "SELL": self.client.order_market_sell}[instruction.side]
-        response = market_order(symbol=instruction.symbol, quantity=instruction.quantity)
-
-        return response
-
 
 class Opportunity:
 
@@ -132,7 +126,9 @@ class Opportunity:
         self.instructions = None
         self.final_balance = None
         self.fees = None
-        self.id = str(int(time.time()*1000)) + str(id(action))[10:]
+        self.execution_time = None
+        self.execution_review = None
+        self.id = f"{str(int(time.time()*1000))}-{str(hash(str(action)))[-4:]}"
 
     def find_opportunity(self):
         """Find if chain is profitable based on fees, amount and current order books."""
@@ -235,11 +231,13 @@ class Opportunity:
 
     def to_slack(self):
         msg = f"_Opportunity ID:_ *{self.id}*\n" \
-              f"_Action:_ *{' | '.join([step[0] + '-' + step[1] for step in self.action])}*\n" \
-              f"_Profit:_ *{self.profit:.5f}*\n" \
-              f"_Executed:_ *{self.bot.execute}*\n" \
-              f"_Start amount:_ *{self.bot.start_amount} {self.bot.base}*"
-
+              f"_Action:_ *{' > '.join([step[0] + '-' + step[1] for step in self.action])}*\n" \
+              f"_EstimatedProfit:_ *{self.profit:.5f} {self.bot.base}*\n" \
+              f"_RealProfit:_ *{self.execution_review['balance']:.5f} {self.bot.base}*\n" \
+              f"_Start timestamp:_ *{self.id[:-5]}*\n" \
+              f"_End timestamp:_ *{int(time.time()*1000)}*\n" \
+              f"_OrdersExecution time:_ *{self.execution_time}*\n" \
+              f"_Start amount:_ *{self.bot.start_amount} {self.bot.base}*\n"
         hp.send_to_slack(msg, SLACK_KEY, SLACK_GROUP, emoji=':blocky-money:')
 
     def save(self):
@@ -255,11 +253,50 @@ class Opportunity:
         hp.save_json(json_out, self.id, OPPORTUNITIES_SOURCE)
 
     def execute(self):
+        start_time = time.perf_counter_ns()
         responses = []
         for instruction in self.instructions:
             market_order = {"BUY": self.bot.client.order_market_buy, "SELL": self.bot.client.order_market_sell}[instruction.side]
             response = market_order(symbol=instruction.symbol, quantity=instruction.quantity)
             responses.append(response)
+        self.execution_time = str(time.perf_counter_ns() - start_time)[:-6] + " ms"
         hp.save_json(responses, self.id, RESPONSES_SOURCE)
+        self.execution_review = self.review_execution(responses)
 
         return responses
+
+    def review_execution(self, responses):
+        # Fee is from trade simulation. Calculating new one would require additional BNB books and produce
+        # almost if not the same result.
+
+        def rebalance(asset, qnt):
+            if asset not in wallet.keys():
+                wallet[asset] = qnt
+            else:
+                wallet[asset] += qnt
+
+        wallet = {}
+        orders_fills = {'BUY': {}, 'SELL': {}}
+
+        for order in responses:
+            if order['side'] == 'BUY':
+                money_out = -sum([float(fill['price']) * float(fill['qty']) for fill in order['fills']])
+                asset_out = order['symbol'][3:]
+                money_in = float(order['executedQty'])
+                asset_in = order['symbol'][:3]
+            else:
+                money_out = -float(order['executedQty'])
+                asset_out = order['symbol'][:3]
+                money_in = sum([float(fill['price']) * float(fill['qty']) for fill in order['fills']])
+                asset_in = order['symbol'][3:]
+
+            # Get prices
+            fills = [(fill['price'], fill['qty']) for fill in order['fills']]
+            orders_fills[order['side']][order['symbol']] = fills
+            rebalance(asset_out, money_out)
+            rebalance(asset_in, money_in)
+
+        norm_wallet = self.normalize_wallet(wallet, 'USDT')
+        norm_wallet["BNB"] = -self.fees
+
+        return {'end_wallet': norm_wallet, 'fills': orders_fills, 'balance': sum(norm_wallet.values())}
