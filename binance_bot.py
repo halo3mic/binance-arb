@@ -127,7 +127,8 @@ class Opportunity:
         self.final_balance = None
         self.fees = None
         self.execution_time = None
-        self.execution_review = None
+        self.actual_profit = None
+        self.execution_status = "NOT EXECUTED"
         self.id = f"{str(int(time.time()*1000))}-{str(hash(str(action)))[-4:]}"
 
     def find_opportunity(self):
@@ -150,7 +151,7 @@ class Opportunity:
             else:
                 wallet_[asset] += qnt
 
-        Instruction = namedtuple("Instruction", "quantity side symbol")
+        Instruction = namedtuple("Instruction", "price amount side symbol")
         instructions = []
         wallet = {start_asset: starting_amount}
         fees = {}
@@ -162,21 +163,23 @@ class Opportunity:
             # Change this after #17 is resolved
             cut = 4 if action[0].startswith("USDT") else 5 if action[0].startswith("STORM") else 3
             if action[1] == 'BUY':
-                price = self.market_price(action[0], side, holding, inverse=True)
+                best_orders, price = self.market_price(action[0], side, holding, inverse=True)
+                worst_price = min(best_orders, key=lambda x: x[0])[0]
                 money_in_full = holding * price
                 money_in = self.apply_qnt_filter(money_in_full, action[0])
                 asset_in = action[0][:cut]
                 money_out = money_in / price
                 asset_out = action[0][cut:]
-                instructions.append(Instruction(quantity=money_in, side="BUY", symbol=action[0]))
+                instructions.append(Instruction(price=worst_price, amount=money_in, side="BUY", symbol=action[0]))
             else:
-                price = self.market_price(action[0], side, holding)
+                best_orders, price = self.market_price(action[0], side, holding)
+                worst_price = max(best_orders, key=lambda x: x[0])[0]
                 money_out_full = holding
                 money_out = self.apply_qnt_filter(money_out_full, action[0])
                 asset_out = action[0][:cut]
                 money_in = money_out * price
                 asset_in = action[0][cut:]
-                instructions.append(Instruction(quantity=money_out, side="SELL", symbol=action[0]))
+                instructions.append(Instruction(price=worst_price, amount=money_out, side="SELL", symbol=action[0]))
 
             rebalance(wallet, asset_out, -money_out)
             rebalance(wallet, asset_in, money_in)
@@ -190,10 +193,10 @@ class Opportunity:
         # LOOKING UP THESE BOOKS MIGHT NOT CATCH THE BEST PRICE - TICKERS?
         norm_wallet = wallet_
         for asset in wallet_:
-            if asset == base or wallet_[asset] == 0: continue
+            if asset == base or wallet_[asset] < 10**-5: continue
             # Remove this after #17 is resolved
             pair = [pair for pair in self.bot.chain_assets if asset in pair and base in pair][0]
-            price = self.market_price(pair, "bids", wallet_[asset])
+            best_orders, price = self.market_price(pair, "bids", wallet_[asset])
             norm_wallet[asset] = wallet_[asset] * price if pair.startswith(asset) else wallet_[asset] / price
 
         return norm_wallet
@@ -202,7 +205,7 @@ class Opportunity:
         if pair not in self.bot.books:
             raise Exception(f"Pair {pair} not in the books.")
         orders = self.bot.books[pair][side]
-        return self.get_best_price(orders, amount, inverse=inverse)
+        return self.get_best_orders(orders, amount, inverse=inverse)
 
     def apply_qnt_filter(self, qnt, pair, round_type='down'):
         rounding = {'even': round, 'up': hp.round_up, 'down': hp.round_down}
@@ -210,33 +213,37 @@ class Opportunity:
         return rounded
 
     @staticmethod
-    def get_best_price(orders, money_in, inverse=False):
-        # Should it return tuples with amount and price?
+    def get_best_orders(orders, money_in, inverse=False):
         avl = money_in
-        money_out = 0
+        money_out = []
         for price, amount in orders:
             price, amount = float(price), float(amount)
             diff = avl - (amount if not inverse else amount * price)
+            # price = 1 / price if inverse else price
             if diff <= 0:
-                money_out += avl * price if not inverse else avl / price
+                avl = avl if not inverse else avl / price
+                money_out.append((price, round(avl, 5)))
                 avl = 0
                 break
             else:
-                money_out += (price * amount) if not inverse else amount
+                money_out.append((price, round(amount, 5)))
                 avl -= amount if not inverse else amount * price
         # If not enough orders
         if avl > 0:
             raise Exception('Try again with bigger limit on the order book.')
-        return money_out / money_in
+        price = hp.get_avg(money_out)
+        price = 1/price if inverse else price
+        return money_out, price
 
     def to_slack(self):
         msg = f"_Opportunity ID:_ *{self.id}*\n" \
               f"_Action:_ *{' > '.join([step[0] + '-' + step[1] for step in self.action])}*\n" \
               f"_EstimatedProfit:_ *{self.profit:.5f} {self.bot.base}*\n" \
-              f"_RealProfit:_ *{self.execution_review['balance']:.5f} {self.bot.base}*\n" \
+              f"_ActualProfit:_ *{self.actual_profit}*\n" \
               f"_Start timestamp:_ *{self.id[:-5]}*\n" \
               f"_End timestamp:_ *{int(time.time()*1000)}*\n" \
               f"_OrdersExecution time:_ *{self.execution_time}*\n" \
+              f"_Status_: *{self.execution_status}*\n" \
               f"_Start amount:_ *{self.bot.start_amount} {self.bot.base}*\n"
         hp.send_to_slack(msg, SLACK_KEY, SLACK_GROUP, emoji=':blocky-money:')
 
@@ -256,12 +263,21 @@ class Opportunity:
         start_time = time.perf_counter_ns()
         responses = []
         for instruction in self.instructions:
-            market_order = {"BUY": self.bot.client.order_market_buy, "SELL": self.bot.client.order_market_sell}[instruction.side]
-            response = market_order(symbol=instruction.symbol, quantity=instruction.quantity)
+            response = self.bot.client.create_order(symbol=instruction.symbol,
+                                                    side=instruction.side,
+                                                    type="LIMIT",
+                                                    timeInForce="FOK",
+                                                    quantity=instruction.amount,
+                                                    price=instruction.price)
+            if response["status"] == "EXPIRED":
+                self.execution_status = f"FAIL - {len(responses)} steps completed"
+                return responses
             responses.append(response)
+        else:
+            self.execution_status = "PASS"
         self.execution_time = str(time.perf_counter_ns() - start_time)[:-6] + " ms"
         hp.save_json(responses, self.id, RESPONSES_SOURCE)
-        self.execution_review = self.review_execution(responses)
+        self.actual_profit = format(self.review_execution(responses)["balance"], ".5f") + self.bot.base
 
         return responses
 

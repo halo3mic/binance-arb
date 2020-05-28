@@ -61,3 +61,7 @@ def save_json(content, key, filename):
     data[key] = content
     json.dump(data, jsonfile, indent=4)
     jsonfile.close()
+
+
+def get_avg(elements):
+    return sum([element[0] * element[1] for element in elements]) / sum([element[1] for element in elements])
