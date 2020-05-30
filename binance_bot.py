@@ -3,6 +3,7 @@ from binance.client import Client
 from binance.websockets import BinanceSocketManager
 from twisted.internet import reactor
 from collections import namedtuple
+import concurrent.futures
 import re
 import atexit
 from datetime import datetime
@@ -55,7 +56,8 @@ class BinanceBot(BinanceSocketManager):
             print(f"Profit: {opportunity.profit}")
             if opportunity.profit > 0 or self.test_it:
                 if self.execute:
-                    opportunity.execute()
+                    # opportunity.execute()
+                    opportunity.execute_async()
                 opportunity.to_slack()
                 opportunity.save()
                 hp.save_json(self.books, opportunity.id, BOOKS_SOURCE)
@@ -275,6 +277,40 @@ class Opportunity:
             responses.append(response)
         else:
             self.execution_status = "PASS"
+        self.execution_time = str(time.perf_counter_ns() - start_time)[:-6] + " ms"
+        hp.save_json(responses, self.id, RESPONSES_SOURCE)
+        self.actual_profit = format(self.review_execution(responses)["balance"], ".5f") + self.bot.base
+
+        return responses
+
+    def execute_async(self):
+        start_time = time.perf_counter_ns()
+        responses = []
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            threads = []
+            for instruction in self.instructions:
+                thread = executor.submit(self.bot.client.create_order,
+                                         symbol=instruction.symbol,
+                                         side=instruction.side,
+                                         type="LIMIT",
+                                         timeInForce="FOK",
+                                         quantity=instruction.amount,
+                                         price=instruction.price
+                                         )
+                threads.append(thread)
+
+        responses = []
+        failed_responses = []
+        for thread in threads:
+            response = thread.result()
+            responses.append(response)
+            if response["status"] == "EXPIRED":
+                failed_responses.append(response["symbol"])
+        if failed_responses:
+            self.execution_status = f"FAILED: {', '.join(failed_responses)}"
+        else:
+            self.execution_status = "PASS"
+
         self.execution_time = str(time.perf_counter_ns() - start_time)[:-6] + " ms"
         hp.save_json(responses, self.id, RESPONSES_SOURCE)
         self.actual_profit = format(self.review_execution(responses)["balance"], ".5f") + self.bot.base
