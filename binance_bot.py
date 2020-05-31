@@ -292,8 +292,8 @@ class Opportunity:
                 thread = executor.submit(self.bot.client.create_order,
                                          symbol=instruction.symbol,
                                          side=instruction.side,
-                                         type="LIMIT",
-                                         timeInForce="FOK",
+                                         type="MARKET",
+                                         timeInForce="GTC",
                                          quantity=instruction.amount,
                                          price=instruction.price
                                          )
