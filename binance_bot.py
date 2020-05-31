@@ -166,7 +166,7 @@ class Opportunity:
             cut = 4 if action[0].startswith("USDT") else 5 if action[0].startswith("STORM") else 3
             if action[1] == 'BUY':
                 best_orders, price = self.market_price(action[0], side, holding, inverse=True)
-                worst_price = min(best_orders, key=lambda x: x[0])[0]
+                worst_price = max(best_orders, key=lambda x: x[0])[0]
                 money_in_full = holding * price
                 money_in = self.apply_qnt_filter(money_in_full, action[0])
                 asset_in = action[0][:cut]
@@ -175,7 +175,7 @@ class Opportunity:
                 instructions.append(Instruction(price=worst_price, amount=money_in, side="BUY", symbol=action[0]))
             else:
                 best_orders, price = self.market_price(action[0], side, holding)
-                worst_price = max(best_orders, key=lambda x: x[0])[0]
+                worst_price = min(best_orders, key=lambda x: x[0])[0]
                 money_out_full = holding
                 money_out = self.apply_qnt_filter(money_out_full, action[0])
                 asset_out = action[0][:cut]
