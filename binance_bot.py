@@ -33,11 +33,10 @@ class BinanceBot(BinanceSocketManager):
     def handle_message(self, msg):
         if msg.get("e") == 'error':
             raise Exception("Stream error")
-        elif not self.busy:
+        pair = re.findall(r"^[a-z]*", msg["stream"])[0].upper()
+        self.books[pair] = msg["data"]  # Save new books (overwrite the old ones)
+        if not self.busy:
             self.busy = True
-            stream = msg["stream"]
-            pair = re.findall(r"^[a-z]*", stream)[0].upper()
-            self.books[pair] = msg["data"]
             if len(self.books) == len(self.chain_assets):
                 self.process_chain(self.books)
             self.busy = False
