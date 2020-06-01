@@ -319,11 +319,6 @@ class Opportunity:
                 failed_responses.append(response["symbol"])
         if failed_responses:
             self.execution_status = f"FAILED: {', '.join(failed_responses)}"
-            # Save last 500 trades
-            trades = {}
-            for pair in failed_responses:
-                trades[pair] = self.bot.client.get_recent_trades(symbol=pair, limit=100)
-            hp.save_json(trades, self.id, RECENT_TRADES_SOURCE)
         else:
             self.execution_status = "PASS"
 
