@@ -35,10 +35,10 @@ class BinanceBot(BinanceSocketManager):
             raise Exception("Stream error")
         pair = re.findall(r"^[a-z]*", msg["stream"])[0].upper()
         self.books[pair] = msg["data"]  # Save new books (overwrite the old ones)
-        if not self.busy:
+        # If not busy and all assets books are available
+        if not self.busy and len(self.books) == len(self.chain_assets):
             self.busy = True
-            if len(self.books) == len(self.chain_assets):
-                self.process_chain(self.books)
+            self.process_chain(self.books)
             self.busy = False
 
     def process_chain(self, books):
@@ -56,7 +56,7 @@ class BinanceBot(BinanceSocketManager):
             if opportunity.profit > 0 or self.test_it:
                 if self.execute:
                     # opportunity.execute()
-                    opportunity.execute_async()
+                    opportunity.execute(async_=True)
                 opportunity.to_slack()
                 opportunity.save()
                 hp.save_json(self.books, opportunity.id, BOOKS_SOURCE)
@@ -129,6 +129,7 @@ class Opportunity:
         self.fees = None
         self.execution_time = None
         self.actual_profit = None
+        self._async = False
         self.execution_status = "NOT EXECUTED"
         self.id = f"{str(int(time.time()*1000))}-{str(hash(str(action)))[-4:]}"
 
@@ -237,8 +238,9 @@ class Opportunity:
         return money_out, price
 
     def to_slack(self):
+        action_separator = " | " if self._async else " > "
         msg = f"_Opportunity ID:_ *{self.id}*\n" \
-              f"_Action:_ *{' > '.join([step[0] + '-' + step[1] for step in self.action])}*\n" \
+              f"_Action:_ *{action_separator.join([step[0] + '-' + step[1] for step in self.action])}*\n" \
               f"_EstimatedProfit:_ *{self.profit:.5f} {self.bot.base}*\n" \
               f"_ActualProfit:_ *{self.actual_profit}*\n" \
               f"_Start timestamp:_ *{self.id[:-5]}*\n" \
@@ -260,8 +262,17 @@ class Opportunity:
                     "fees": self.fees}
         hp.save_json(json_out, self.id, OPPORTUNITIES_SOURCE)
 
-    def execute(self):
+    def execute(self, async_=False):
+        self._async = async_
         start_time = time.perf_counter_ns()
+        responses = self._execute_async() if async_ else self._execute_sync()
+        self.execution_time = str(time.perf_counter_ns() - start_time)[:-6] + " ms"
+        hp.save_json(responses, self.id, RESPONSES_SOURCE)
+        self.actual_profit = format(self.review_execution(responses)["balance"], ".5f") + self.bot.base
+
+        return responses
+
+    def _execute_sync(self):
         responses = []
         for instruction in self.instructions:
             response = self.bot.client.create_order(symbol=instruction.symbol,
@@ -276,22 +287,17 @@ class Opportunity:
             responses.append(response)
         else:
             self.execution_status = "PASS"
-        self.execution_time = str(time.perf_counter_ns() - start_time)[:-6] + " ms"
-        hp.save_json(responses, self.id, RESPONSES_SOURCE)
-        self.actual_profit = format(self.review_execution(responses)["balance"], ".5f") + self.bot.base
 
         return responses
 
-    def execute_async(self):
-        start_time = time.perf_counter_ns()
-        responses = []
+    def _execute_async(self):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             threads = []
             for instruction in self.instructions:
                 thread = executor.submit(self.bot.client.create_order,
                                          symbol=instruction.symbol,
                                          side=instruction.side,
-                                         type="MARKET",
+                                         type="LIMIT",
                                          timeInForce="GTC",
                                          quantity=instruction.amount,
                                          price=instruction.price
@@ -309,10 +315,6 @@ class Opportunity:
             self.execution_status = f"FAILED: {', '.join(failed_responses)}"
         else:
             self.execution_status = "PASS"
-
-        self.execution_time = str(time.perf_counter_ns() - start_time)[:-6] + " ms"
-        hp.save_json(responses, self.id, RESPONSES_SOURCE)
-        self.actual_profit = format(self.review_execution(responses)["balance"], ".5f") + self.bot.base
 
         return responses
 
