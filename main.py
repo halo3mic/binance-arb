@@ -1,6 +1,6 @@
 from binance_bot import BinanceBot
 import helpers as hp
-from config import SLACK_GROUP, SLACK_KEY
+from config import SLACK_KEY, SLACK_GROUP
 
 
 # make chains a namedtuple object with chains, base and amount

@@ -1,9 +1,8 @@
 from binance_bot import BinanceBot
 import helpers as hp
-from config import *
+from config import SLACK_KEY, SLACK_GROUP_TEST
 
 
-SLACK_GROUP = "UHN9J9DLG"
 # make chains a namedtuple object with chains, base and amount
 chains_xrp = [["XRPUSDT", "XRPEUR", "EURUSDT"],
               ["EURUSDT", "XRPEUR", "XRPUSDT"]]
@@ -18,8 +17,7 @@ start_amount = 12
 
 try:
     # make threads for each of the bot instance
-    bb = BinanceBot(chains_bnb, base, start_amount, execute=1, test_it=1)
-    print(bb.books["ETHUSDT"])
+    bb = BinanceBot(chains_btc, base, start_amount, execute=0, test_it=1)
     bb.start_listening()
 except Exception as e:
-    hp.send_to_slack(str(repr(e)), SLACK_KEY, SLACK_GROUP, emoji=":blocky-grin:")
+    hp.send_to_slack(str(repr(e)), SLACK_KEY, SLACK_GROUP_TEST, emoji=":blocky-grin:")

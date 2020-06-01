@@ -15,6 +15,9 @@ from config import *
 class BinanceBot(BinanceSocketManager):
 
     def __init__(self, chains, base, start_amount, execute=True, test_it=False):
+        self.slack_group = SLACK_GROUP if not test_it else SLACK_GROUP_TEST
+        # TODO Add keys as attributes
+
         self.client = Client(api_key=BINANCE_PUBLIC, api_secret=BINANCE_SECRET)
         self.chains = chains
         self.base = base
@@ -50,6 +53,7 @@ class BinanceBot(BinanceSocketManager):
         for action in self.actions:
             print(f"Action: {action}")
             opportunity = Opportunity(self, action)
+            opportunity.bot.books = books.copy()
             opportunity.find_opportunity()
 
             print(f"Profit: {opportunity.profit}")
@@ -248,7 +252,7 @@ class Opportunity:
               f"_OrdersExecution time:_ *{self.execution_time}*\n" \
               f"_Status_: *{self.execution_status}*\n" \
               f"_Start amount:_ *{self.bot.start_amount} {self.bot.base}*\n"
-        hp.send_to_slack(msg, SLACK_KEY, SLACK_GROUP, emoji=':blocky-money:')
+        hp.send_to_slack(msg, SLACK_KEY, self.bot.slack_group, emoji=':blocky-money:')
 
     def save(self):
         # Save instructions in json file
@@ -274,6 +278,7 @@ class Opportunity:
         return responses
 
     def _execute_sync(self):
+        # TODO Needs to be refactored
         responses = []
         for instruction in self.instructions:
             response = self.bot.client.create_order(symbol=instruction.symbol,
@@ -314,6 +319,11 @@ class Opportunity:
                 failed_responses.append(response["symbol"])
         if failed_responses:
             self.execution_status = f"FAILED: {', '.join(failed_responses)}"
+            # Save last 500 trades
+            trades = {}
+            for pair in failed_responses:
+                trades[pair] = self.bot.client.get_recent_trades(symbol=pair, limit=100)
+            hp.save_json(trades, self.id, RECENT_TRADES_SOURCE)
         else:
             self.execution_status = "PASS"
 
