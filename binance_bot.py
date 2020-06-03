@@ -28,8 +28,8 @@ class BinanceBot(BinanceSocketManager):
 
         self.busy = False  # Is the bot currently handling one of the books
         self.chain_assets = set([chain for subchain in self.chains for chain in subchain])
-        # self.books = self.get_intial_books(self.chain_assets)
-        self.books = {}
+        self.books = self.get_intial_books(self.chain_assets)
+        # self.books = {}
         self.process_books = {}
         self.decimal_limits = self.get_decimal_limits(self.chain_assets)
         self.actions = [self.interpret_chain(chain, base) for chain in chains]  # Make sense of input list of pairs
@@ -67,7 +67,7 @@ class BinanceBot(BinanceSocketManager):
                 hp.save_json(self.process_books, opportunity.id, BOOKS_SOURCE)
                 if not self.loop:
                     os._exit(1)
-                self.books = {}  # TODO remove this after completing issue #57
+                self.books = self.get_intial_books(self.chain_assets)  # TODO remove this after completing issue #57
                 break  # The execution and saving slows takes some time, in which the order book can already change
 
     def start_listening(self):
@@ -91,14 +91,14 @@ class BinanceBot(BinanceSocketManager):
 
         return decimal_limits
 
-    # def get_intial_books(self, pairs):
-    #     if len(pairs) > 9:
-    #         raise Exception("Too many pairs to process at once.")
-    #     books = {}
-    #     for pair in pairs:
-    #         books[pair] = self.client.get_order_book(symbol=pair)
-    #
-    #     return books
+    def get_intial_books(self, pairs):
+        if len(pairs) > 9:
+            raise Exception("Too many pairs to process at once.")
+        books = {}
+        for pair in pairs:
+            books[pair] = self.client.get_order_book(symbol=pair)
+
+        return books
 
     @staticmethod
     def interpret_chain(chain, base):
@@ -187,7 +187,7 @@ class Opportunity:
                 money_in = money_out * price
                 asset_in = action[0][cut:]
                 instructions.append(Instruction(price=worst_price, amount=money_out, side="SELL", symbol=action[0]))
-
+            print(f"Asset in: {asset_in}; Asset out {asset_out}")
             rebalance(wallet, asset_out, -money_out)
             rebalance(wallet, asset_in, money_in)
             rebalance(fees, asset_in, money_in * fee)  # Is fee really on the money in?
@@ -247,7 +247,7 @@ class Opportunity:
         msg = f"_Opportunity ID:_ *{self.id}*\n" \
               f"_Action:_ *{action_separator.join([step[0] + '-' + step[1] for step in self.action])}*\n" \
               f"_EstimatedProfit:_ *{self.profit:.5f} {self.bot.base}*\n" \
-              f"_ActualProfit:_ *{self.actual_profit}*\n" \
+              f"_ActualProfit:_ * {self.actual_profit}*\n" \
               f"_Start timestamp:_ *{self.id[:-5]}*\n" \
               f"_End timestamp:_ *{int(time.time()*1000)}*\n" \
               f"_OrdersExecution time:_ *{self.execution_time}*\n" \
@@ -338,18 +338,18 @@ class Opportunity:
 
         wallet = {}
         orders_fills = {'BUY': {}, 'SELL': {}}
-
         for order in responses:
+            cut = 4 if order['symbol'].startswith("USDT") else 5 if order['symbol'].startswith("STORM") else 3
             if order['side'] == 'BUY':
                 money_out = -sum([float(fill['price']) * float(fill['qty']) for fill in order['fills']])
-                asset_out = order['symbol'][3:]
+                asset_out = order['symbol'][cut:]
                 money_in = float(order['executedQty'])
-                asset_in = order['symbol'][:3]
+                asset_in = order['symbol'][:cut]
             else:
                 money_out = -float(order['executedQty'])
-                asset_out = order['symbol'][:3]
+                asset_out = order['symbol'][:cut]
                 money_in = sum([float(fill['price']) * float(fill['qty']) for fill in order['fills']])
-                asset_in = order['symbol'][3:]
+                asset_in = order['symbol'][cut:]
 
             # Get prices
             fills = [(fill['price'], fill['qty']) for fill in order['fills']]
