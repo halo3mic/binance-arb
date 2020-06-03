@@ -55,12 +55,11 @@ def save_json(content, key, filename):
             data = json.load(jsonfile)
     except FileNotFoundError:
         data = {}
-    jsonfile = open(filename, 'w')
-    if key in data.keys():
-        raise Exception("Overwritting!")
-    data[key] = content
-    json.dump(data, jsonfile, indent=4)
-    jsonfile.close()
+    with open(filename, 'w') as jsonfile:
+        if key in data.keys():
+            raise Exception("Overwritting!")
+        data[key] = content
+        json.dump(data, jsonfile, indent=4)
 
 
 def get_avg(elements):

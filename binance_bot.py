@@ -14,7 +14,7 @@ from config import *
 
 class BinanceBot(BinanceSocketManager):
 
-    def __init__(self, chains, base, start_amount, execute=True, test_it=False):
+    def __init__(self, chains, base, start_amount, execute=True, test_it=False, loop=True):
         self.slack_group = SLACK_GROUP if not test_it else SLACK_GROUP_TEST
         # TODO Add keys as attributes
 
@@ -24,11 +24,13 @@ class BinanceBot(BinanceSocketManager):
         self.start_amount = start_amount
         self.execute = execute
         self.test_it = test_it
+        self.loop = loop
 
         self.busy = False  # Is the bot currently handling one of the books
         self.chain_assets = set([chain for subchain in self.chains for chain in subchain])
         # self.books = self.get_intial_books(self.chain_assets)
         self.books = {}
+        self.process_books = {}
         self.decimal_limits = self.get_decimal_limits(self.chain_assets)
         self.actions = [self.interpret_chain(chain, base) for chain in chains]  # Make sense of input list of pairs
         BinanceSocketManager.__init__(self, self.client)
@@ -41,19 +43,20 @@ class BinanceBot(BinanceSocketManager):
         # If not busy and all assets books are available
         if not self.busy and len(self.books) == len(self.chain_assets):
             self.busy = True
-            self.process_chain(self.books)
+            self.process_books = self.books.copy()
+            self.process_chain()
+            self.books = {}
             self.busy = False
 
-    def process_chain(self, books):
+    def process_chain(self):
         # This books variable is only an address to the storage - it could get overwritten before process is finished
         os.system("clear")
         timestamp = int(time.time())
         print(f"NEW DATA: {timestamp}".center(50, "~"))
-        print("\n".join([f"{pair}: {book['lastUpdateId']}" for pair, book in books.items()]))
+        print("\n".join([f"{pair}: {book['lastUpdateId']}" for pair, book in self.process_books.items()]))
         for action in self.actions:
             print(f"Action: {action}")
             opportunity = Opportunity(self, action)
-            opportunity.bot.books = books.copy()
             opportunity.find_opportunity()
 
             print(f"Profit: {opportunity.profit}")
@@ -63,8 +66,8 @@ class BinanceBot(BinanceSocketManager):
                     opportunity.execute(async_=True)
                 opportunity.to_slack()
                 opportunity.save()
-                hp.save_json(self.books, opportunity.id, BOOKS_SOURCE)
-                if self.test_it:
+                hp.save_json(self.process_books, opportunity.id, BOOKS_SOURCE)
+                if not self.loop:
                     # self.upon_closure()  # If testing, exit after an opportunity
                     os._exit(1)
                 break  # The execution and saving slows takes some time, in which the order book can already change
@@ -208,9 +211,9 @@ class Opportunity:
         return norm_wallet
 
     def market_price(self, pair, side, amount, inverse=False):
-        if pair not in self.bot.books:
+        if pair not in self.bot.process_books:
             raise Exception(f"Pair {pair} not in the books.")
-        orders = self.bot.books[pair][side]
+        orders = self.bot.process_books[pair][side]
         return self.get_best_orders(orders, amount, inverse=inverse)
 
     def apply_qnt_filter(self, qnt, pair, round_type='down'):
