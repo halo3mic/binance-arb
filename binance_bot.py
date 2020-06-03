@@ -187,7 +187,6 @@ class Opportunity:
                 money_in = money_out * price
                 asset_in = action[0][cut:]
                 instructions.append(Instruction(price=worst_price, amount=money_out, side="SELL", symbol=action[0]))
-            print(f"Asset in: {asset_in}; Asset out {asset_out}")
             rebalance(wallet, asset_out, -money_out)
             rebalance(wallet, asset_in, money_in)
             rebalance(fees, asset_in, money_in * fee)  # Is fee really on the money in?
