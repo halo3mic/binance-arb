@@ -203,7 +203,7 @@ class Opportunity:
             if asset == base or wallet_[asset] < 10**-5: continue
             # Remove this after #17 is resolved
             pair = [pair for pair in self.bot.chain_assets if asset in pair and base in pair][0]
-            best_orders, price = self.market_price(pair, "bids", wallet_[asset])  # TODO It is now always "bids"
+            best_orders, price = self.market_price(pair, "bids", wallet_[asset])  # TODO It is not always "bids"
             norm_wallet[asset] = wallet_[asset] * price if pair.startswith(asset) else wallet_[asset] / price
 
         return norm_wallet
@@ -273,8 +273,9 @@ class Opportunity:
         responses = self._execute_async() if async_ else self._execute_sync()
         self.execution_time = str(time.perf_counter_ns() - start_time)[:-6] + " ms"
         hp.save_json(responses, self.id, RESPONSES_SOURCE)
-        if self.execution_status == "PASS":
-            self.actual_profit = format(self.review_execution(responses)["balance"], ".5f") + self.bot.base
+        self.actual_profit = format(self.review_execution(responses)["balance"], ".5f") + " " + self.bot.base
+        if self.execution_status != "PASS":
+            self.actual_profit = "*" + self.actual_profit
 
         return responses
 
@@ -319,7 +320,7 @@ class Opportunity:
             if response["status"] == "EXPIRED":
                 failed_responses.append(response["symbol"])
         if failed_responses:
-            self.execution_status = f"FAILED: {', '.join(failed_responses)}"
+            self.execution_status = f"MISSED: {', '.join(failed_responses)}"
         else:
             self.execution_status = "PASS"
 
@@ -358,4 +359,5 @@ class Opportunity:
 
         norm_wallet = self.normalize_wallet(wallet, 'USDT')
         norm_wallet["BNB"] = -self.fees
+        print(norm_wallet)
         return {'end_wallet': norm_wallet, 'fills': orders_fills, 'balance': sum(norm_wallet.values())}
