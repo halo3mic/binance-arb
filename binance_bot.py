@@ -199,7 +199,7 @@ class Opportunity:
         # LOOKING UP THESE BOOKS MIGHT NOT CATCH THE BEST PRICE - TICKERS?
         norm_wallet = wallet_
         for asset in wallet_:
-            if asset == base or wallet_[asset] < 10**-5: continue
+            if asset == base or abs(wallet_[asset]) < 10**-5: continue
             # Remove this after #17 is resolved
             pair = [pair for pair in self.bot.chain_assets if asset in pair and base in pair][0]
             best_orders, price = self.market_price(pair, "bids", wallet_[asset])  # TODO It is not always "bids"
@@ -358,5 +358,5 @@ class Opportunity:
 
         norm_wallet = self.normalize_wallet(wallet, 'USDT')
         norm_wallet["BNB"] = -self.fees
-        print(norm_wallet)
+        
         return {'end_wallet': norm_wallet, 'fills': orders_fills, 'balance': sum(norm_wallet.values())}
