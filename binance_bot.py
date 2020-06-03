@@ -45,7 +45,6 @@ class BinanceBot(BinanceSocketManager):
             self.busy = True
             self.process_books = self.books.copy()
             self.process_chain()
-            self.books = {}
             self.busy = False
 
     def process_chain(self):
@@ -62,14 +61,13 @@ class BinanceBot(BinanceSocketManager):
             print(f"Profit: {opportunity.profit}")
             if opportunity.profit > 0 or self.test_it:
                 if self.execute:
-                    # opportunity.execute()
                     opportunity.execute(async_=True)
                 opportunity.to_slack()
                 opportunity.save()
                 hp.save_json(self.process_books, opportunity.id, BOOKS_SOURCE)
                 if not self.loop:
-                    # self.upon_closure()  # If testing, exit after an opportunity
                     os._exit(1)
+                self.books = {}  # TODO remove this after completing issue #57
                 break  # The execution and saving slows takes some time, in which the order book can already change
 
     def start_listening(self):
