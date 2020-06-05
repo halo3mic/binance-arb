@@ -42,7 +42,7 @@ def latest_prices(timestamp):
 
 
 def save_rows(rows, dataset, table):
-	error = appendRows("exchanges", "prices", rows)
+	error = appendRows(dataset, table, rows)
 	if error:
 		return error
 
@@ -65,6 +65,7 @@ if __name__ == "__main__":
 	# Errors
 	if error_price or error_balances:
 		print("Insertion failed".center(50, "~"))
-		pprint(errors)
+		pprint(error_price)
+		pprint(error_balances)
 	else:
 		print("Insertion successful")
