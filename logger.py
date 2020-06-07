@@ -4,7 +4,7 @@ from pprint import pprint
 import time
 
 from config import *
-from helpers import appendRows
+from helpers import append_rows
 
 
 def account_balances(timestamp):
@@ -40,24 +40,18 @@ def latest_prices(timestamp):
 	return prices_rows
 
 
-def save_rows(rows, dataset, table):
-	error = appendRows(dataset, table, rows)
-	if error:
-		return error
-
-
 if __name__ == "__main__":
 	client = Client(api_key=BINANCE_PUBLIC, api_secret=BINANCE_SECRET)
 	EXCHANGE = "binance"
-	timestamp = int(time.time())  # In seconds since there is 0.5s diff between the calls anyway
+	timestamp = time.time()  # In seconds since there is 0.5s diff between the calls anyway
 
 	# Gather data
 	balances_rows = account_balances(timestamp)  # Functions share timestamp so it doesn't change while fetching data
 	prices_rows = latest_prices(timestamp)
 
 	# Insert data
-	error_price = save_rows(prices_rows, dataset="exchanges", table="prices")
-	error_balances = save_rows(balances_rows, dataset="bullseye", table="balances")
+	error_price = append_rows(rows=prices_rows, dataset="exchanges", table="prices")
+	error_balances = append_rows(rows=balances_rows, dataset="bullseye", table="balances")
 
 	# Errors
 	if error_price or error_balances:

@@ -1,6 +1,8 @@
+import os
 import requests
 import hmac, hashlib
 import json
+from sys import platform
 from google.cloud import bigquery
 from dotenv import load_dotenv
 
@@ -8,6 +10,8 @@ from exceptions import BinanceAPIError
 
 
 load_dotenv()  # Load env variables - GOOGLE_APPLICATION_CREDENTIALS are required
+if platform == "linux" or platform == "linux2":
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_LINUX")
 client = bigquery.Client(project='blocklytics-data')
 
 
@@ -72,17 +76,15 @@ def get_avg(elements):
     return sum([element[0] * element[1] for element in elements]) / sum([element[1] for element in elements])
 
 
-def appendRows(dataset_id, table_id, rows_to_insert):
-  if len(rows_to_insert) == 0:
-    return
+def append_rows(dataset, table, rows):
+    if not rows:
+        return
+    table_ref = client.dataset(dataset).table(table)
+    job_config = bigquery.QueryJobConfig()
+    job_config.destination = table_ref
+    job_config.write_disposition = bigquery.WriteDisposition.WRITE_APPEND
+    table = client.get_table(table_ref)  # API request
+    errors = client.insert_rows(table, rows)  # API request
 
-  table_ref = client.dataset(dataset_id).table(table_id)
-  job_config = bigquery.QueryJobConfig()
-  job_config.destination = table_ref
-  job_config.write_disposition = bigquery.WriteDisposition.WRITE_APPEND
-
-  table = client.get_table(table_ref)  # API request
-  errors = client.insert_rows(table, rows_to_insert)  # API request
-
-  return errors
+    return errors
 

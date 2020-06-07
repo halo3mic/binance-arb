@@ -6,7 +6,6 @@ from collections import namedtuple
 import concurrent.futures
 import re
 import atexit
-from datetime import datetime
 
 import helpers as hp
 from config import *
@@ -40,6 +39,7 @@ class BinanceBot(BinanceSocketManager):
             raise Exception("Stream error")
         pair = re.findall(r"^[a-z]*", msg["stream"])[0].upper()
         self.books[pair] = msg["data"]  # Save new books (overwrite the old ones)
+        self.books[pair]["timestamp"] = time.time()
         # If not busy and all assets books are available
         if not self.busy and len(self.books) == len(self.chain_assets):
             self.busy = True
@@ -63,8 +63,8 @@ class BinanceBot(BinanceSocketManager):
                 if self.execute:
                     opportunity.execute(async_=True)
                 opportunity.to_slack()
-                opportunity.save()
-                hp.save_json(self.process_books, opportunity.id, BOOKS_SOURCE)
+                opportunity.log_opportunity()
+                opportunity.log_books()
                 if not self.loop:
                     os._exit(1)
                 self.books = self.get_intial_books(self.chain_assets)  # TODO remove this after completing issue #57
@@ -97,6 +97,7 @@ class BinanceBot(BinanceSocketManager):
         books = {}
         for pair in pairs:
             books[pair] = self.client.get_order_book(symbol=pair)
+            books[pair]["timestamp"] = time.time()
 
         return books
 
@@ -134,9 +135,11 @@ class Opportunity:
         self.fees = None
         self.execution_time = None
         self.actual_profit = None
+        self.success_ratio = None
         self._async = False
         self.execution_status = "NOT EXECUTED"
-        self.id = f"{str(int(time.time()*1000))}-{str(hash(str(action)))[-4:]}"
+        self.timestamp = time.time()
+        self.id = f"{str(int(self.timestamp*1000))}-{str(hash(str(action)))[-4:]}"
 
     def find_opportunity(self):
         """Find if chain is profitable based on fees, amount and current order books."""
@@ -199,7 +202,7 @@ class Opportunity:
         # LOOKING UP THESE BOOKS MIGHT NOT CATCH THE BEST PRICE - TICKERS?
         norm_wallet = wallet_
         for asset in wallet_:
-            if asset == base: continue
+            if asset == base or wallet_[asset] == 0: continue
             # Remove this after #17 is resolved
             pair = [pair for pair in self.bot.chain_assets if asset in pair and base in pair][0]
             best_orders, price = self.market_price(pair, "bids", wallet_[asset])  # TODO It is not always "bids"
@@ -254,24 +257,12 @@ class Opportunity:
               f"_Start amount:_ *{self.bot.start_amount} {self.bot.base}*\n"
         hp.send_to_slack(msg, SLACK_KEY, self.bot.slack_group, emoji=':blocky-money:')
 
-    def save(self):
-        # Save instructions in json file
-        instr_dicts = []
-        for i in self.instructions:
-            instr_dicts.append(dict(i._asdict()))
-        json_out = {"instructions": instr_dicts,
-                    "datetime": datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
-                    "start_qnt": self.bot.start_amount,
-                    "profit": self.profit,
-                    "fees": self.fees}
-        hp.save_json(json_out, self.id, OPPORTUNITIES_SOURCE)
-
     def execute(self, async_=False):
         self._async = async_
         start_time = time.perf_counter_ns()
         responses = self._execute_async() if async_ else self._execute_sync()
         self.execution_time = str(time.perf_counter_ns() - start_time)[:-6] + " ms"
-        hp.save_json(responses, self.id, RESPONSES_SOURCE)
+        self.log_responses(responses)
         self.actual_profit = format(self.review_execution(responses)["balance"], ".5f") + " " + self.bot.base
         if self.execution_status != "PASS":
             self.actual_profit = "*" + self.actual_profit
@@ -315,6 +306,7 @@ class Opportunity:
         failed_responses = []
         for thread in threads:
             response = thread.result()
+            response["localTimestamp"] = time.time()
             responses.append(response)
             if response["status"] == "EXPIRED":
                 failed_responses.append(response["symbol"])
@@ -322,6 +314,7 @@ class Opportunity:
             self.execution_status = f"MISSED: {', '.join(failed_responses)}"
         else:
             self.execution_status = "PASS"
+        self.success_ratio = (len(responses)-len(failed_responses)) / len(responses)
 
         return responses
 
@@ -335,6 +328,7 @@ class Opportunity:
             else:
                 wallet[asset] += qnt
 
+        fees = self.success_ratio * self.fees
         wallet = {}
         orders_fills = {'BUY': {}, 'SELL': {}}
         for order in responses:
@@ -357,6 +351,52 @@ class Opportunity:
             rebalance(asset_in, money_in)
 
         norm_wallet = self.normalize_wallet(wallet, 'USDT')
-        rebalance("BNB", -self.fees)
+        rebalance("BNB", -fees)
 
         return {'end_wallet': norm_wallet, 'fills': orders_fills, 'balance': sum(norm_wallet.values())}
+
+    def log_responses(self, responses):
+        responses_rows = []
+        for response in responses:
+            response["id"] = hash(str(response["orderId"]) + response["symbol"] + PLATFORM)
+            response["exchangeTimestamp"] = response["transactTime"] / 10 ** 3
+            response["exchange"] = PLATFORM
+            response["opportunityId"] = self.id
+            del response["clientOrderId"]
+            del response["transactTime"]
+            del response["orderListId"]
+            del response["cummulativeQuoteQty"]
+            responses_rows.append(response)
+        errors = hp.append_rows(rows=responses_rows, dataset="bullseye", table="trades")
+        if errors:
+            raise Exception(errors)
+
+    def log_opportunity(self):
+        opportunity = {
+            "id": self.id,
+            "foundAtTimestamp": self.timestamp,
+            "amountIn": self.bot.start_amount,
+            "estimatedAmountOutAfterFee": round(self.final_balance - self.fees, 9),
+            "fee": round(self.fees, 9)
+        }
+        errors = hp.append_rows(rows=[opportunity], dataset="bullseye", table="opportunities")
+        if errors:
+            raise Exception(errors)
+
+    def log_books(self):
+        books = self.bot.process_books
+        books_rows = []
+        for symbol, book in books.items():
+            book_row = {
+                "id": hash(str(book["lastUpdateId"]) + symbol + "BINANCE"),
+                "receivedAtTimestamp": book["timestamp"],
+                "opportunityId": self.id,
+                "exchange": PLATFORM,
+                "symbol": symbol,
+                "bids": [{"price": order[0], "qty": order[1]} for order in book["bids"]],
+                "asks": [{"price": order[0], "qty": order[1]} for order in book["asks"]]
+            }
+            books_rows.append(book_row)
+        errors = hp.append_rows(rows=books_rows, dataset="bullseye", table="books")
+        if errors:
+            raise Exception(errors)
