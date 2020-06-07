@@ -2,10 +2,12 @@ import requests
 import hmac, hashlib
 import json
 from google.cloud import bigquery
+from dotenv import load_dotenv
 
 from exceptions import BinanceAPIError
 
 
+load_dotenv()  # Load env variables - GOOGLE_APPLICATION_CREDENTIALS are required
 client = bigquery.Client(project='blocklytics-data')
 
 

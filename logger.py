@@ -1,7 +1,6 @@
 from binance.client import Client 
 
 from pprint import pprint
-from dotenv import load_dotenv
 import time
 
 from config import *
@@ -48,8 +47,6 @@ def save_rows(rows, dataset, table):
 
 
 if __name__ == "__main__":
-	load_dotenv()  # Load env variables - GOOGLE_APPLICATION_CREDENTIALS are required
-
 	client = Client(api_key=BINANCE_PUBLIC, api_secret=BINANCE_SECRET)
 	EXCHANGE = "binance"
 	timestamp = int(time.time())  # In seconds since there is 0.5s diff between the calls anyway
