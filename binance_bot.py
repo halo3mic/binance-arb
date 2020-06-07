@@ -199,7 +199,7 @@ class Opportunity:
         # LOOKING UP THESE BOOKS MIGHT NOT CATCH THE BEST PRICE - TICKERS?
         norm_wallet = wallet_
         for asset in wallet_:
-            if asset == base or abs(wallet_[asset]) < 10**-5: continue
+            if asset == base: continue
             # Remove this after #17 is resolved
             pair = [pair for pair in self.bot.chain_assets if asset in pair and base in pair][0]
             best_orders, price = self.market_price(pair, "bids", wallet_[asset])  # TODO It is not always "bids"
@@ -228,11 +228,11 @@ class Opportunity:
             # price = 1 / price if inverse else price
             if diff <= 0:
                 avl = avl if not inverse else avl / price
-                money_out.append((price, round(avl, 5)))
+                money_out.append((price, avl))
                 avl = 0
                 break
             else:
-                money_out.append((price, round(amount, 5)))
+                money_out.append((price, amount))
                 avl -= amount if not inverse else amount * price
         # If not enough orders
         if avl > 0:
