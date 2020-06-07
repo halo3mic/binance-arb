@@ -2,3 +2,4 @@ python-binance==0.7.5
 Twisted==20.3.0
 requests==2.23.0
 python-dotenv==0.13.0
+google-cloud-bigquery==1.24.0
