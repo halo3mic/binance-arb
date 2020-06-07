@@ -340,12 +340,12 @@ class Opportunity:
         for order in responses:
             cut = 4 if order['symbol'].startswith("USDT") else 5 if order['symbol'].startswith("STORM") else 3
             if order['side'] == 'BUY':
-                money_out = -sum([float(fill['price']) * float(fill['qty']) for fill in order['fills']])
+                money_out = sum([float(fill['price']) * float(fill['qty']) for fill in order['fills']])
                 asset_out = order['symbol'][cut:]
                 money_in = float(order['executedQty'])
                 asset_in = order['symbol'][:cut]
             else:
-                money_out = -float(order['executedQty'])
+                money_out = float(order['executedQty'])
                 asset_out = order['symbol'][:cut]
                 money_in = sum([float(fill['price']) * float(fill['qty']) for fill in order['fills']])
                 asset_in = order['symbol'][cut:]
@@ -353,10 +353,10 @@ class Opportunity:
             # Get prices
             fills = [(fill['price'], fill['qty']) for fill in order['fills']]
             orders_fills[order['side']][order['symbol']] = fills
-            rebalance(asset_out, money_out)
+            rebalance(asset_out, -money_out)
             rebalance(asset_in, money_in)
 
         norm_wallet = self.normalize_wallet(wallet, 'USDT')
-        norm_wallet["BNB"] = -self.fees
-        
+        rebalance("BNB", -self.fees)
+
         return {'end_wallet': norm_wallet, 'fills': orders_fills, 'balance': sum(norm_wallet.values())}
