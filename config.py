@@ -4,10 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()  # Loads env vars from .env file
 
-OPPORTUNITIES_SOURCE = "data/opportunities.json"
-RESPONSES_SOURCE = "data/responses.json"
-BOOKS_SOURCE = "data/books.json"
-RECENT_TRADES_SOURCE = "data/recent_trades.json"
+SYMBOLS_INFO_SOURCE = "data/symbols_info.json"
 
 BINANCE_PUBLIC = os.getenv("BINANCE_KEY")
 BINANCE_SECRET = os.getenv("BINANCE_SECRET")

@@ -29,9 +29,8 @@ commands = {"bnb": chains_bnb_rub + chains_bnb_eur,
             "btc": chains_btc_rub + chains_btc_eur,
             "xrp": chains_xrp_rub + chains_xrp_eur}
 
-try:
-    # make threads for each of the bot instance
-    bb = BinanceBot(commands[key], base, start_amount, execute=1, test_it=1, loop=0)
-    bb.start_listening()
-except Exception as e:
-    hp.send_to_slack(str(repr(e)), SLACK_KEY, SLACK_GROUP_TEST, emoji=":blocky-grin:")
+
+# TODO make threads for each of the bot instance
+bb = BinanceBot(commands[key], base, start_amount, execute=0, test_it=1, loop=0)
+bb.start_listening()
+
