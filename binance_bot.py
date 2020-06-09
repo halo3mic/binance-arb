@@ -6,6 +6,7 @@ from collections import namedtuple
 import concurrent.futures
 import re
 import atexit
+import json
 
 import helpers as hp
 from config import *
@@ -24,15 +25,25 @@ class BinanceBot(BinanceSocketManager):
         self.execute = execute
         self.test_it = test_it
         self.loop = loop
-
         self.busy = False  # Is the bot currently handling one of the books
-        self.chain_assets = set([chain for subchain in self.chains for chain in subchain])
-        self.books = self.get_intial_books(self.chain_assets)
+
+        self.chain_markets = set([chain for subchain in self.chains for chain in subchain])
+        self.symbols_info = self.fetch_symbol_info()
+        self.books = self.get_intial_books(self.chain_markets)
         # self.books = {}
         self.process_books = {}
-        self.decimal_limits = self.get_decimal_limits(self.chain_assets)
+        self.decimal_limits = self.get_decimal_limits(self.chain_markets)
         self.actions = [self.interpret_chain(chain, base) for chain in chains]  # Make sense of input list of pairs
+
         BinanceSocketManager.__init__(self, self.client)
+
+    def fetch_symbol_info(self):
+        with open(SYMBOLS_INFO_SOURCE) as symbols_info_file:
+            symbols_info = json.load(symbols_info_file)
+            # Store only symbols that the bot will use
+            relevant = dict([(symbol, data) for symbol, data in symbols_info.items() if symbol in self.chain_markets])
+
+        return relevant
 
     def handle_message(self, msg):
         if msg.get("e") == 'error':
@@ -41,7 +52,7 @@ class BinanceBot(BinanceSocketManager):
         self.books[pair] = msg["data"]  # Save new books (overwrite the old ones)
         self.books[pair]["timestamp"] = time.time()
         # If not busy and all assets books are available
-        if not self.busy and len(self.books) == len(self.chain_assets):
+        if not self.busy and len(self.books) == len(self.chain_markets):
             self.busy = True
             self.process_books = self.books.copy()
             self.process_chain()
@@ -67,11 +78,11 @@ class BinanceBot(BinanceSocketManager):
                 opportunity.log_books()
                 if not self.loop:
                     os._exit(1)
-                self.books = self.get_intial_books(self.chain_assets)  # TODO remove this after completing issue #57
+                self.books = self.get_intial_books(self.chain_markets)  # TODO remove this after completing issue #57
                 break  # The execution and saving slows takes some time, in which the order book can already change
 
     def start_listening(self):
-        stream_names = [pair.lower() + "@depth10@100ms" for pair in self.chain_assets]
+        stream_names = [pair.lower() + "@depth10@100ms" for pair in self.chain_markets]
         self.start_multiplex_socket(stream_names, self.handle_message)
         self.start()
         atexit.register(self.upon_closure)  # Close the sockets when you close the terminal
@@ -101,16 +112,13 @@ class BinanceBot(BinanceSocketManager):
 
         return books
 
-    @staticmethod
-    def interpret_chain(chain, base):
+    def interpret_chain(self, chain, base):
         """Interpret which pairs to buy and which to sell."""
         actions = []
         current_asset = base
         for pair in chain:
-            # Remove this after #17 is done
-            cut = 4 if pair.startswith("USDT") or pair.startswith("USDC") else 5 if pair.startswith("STORM") else 3
-            asset1 = pair[:cut]
-            asset2 = pair[cut:]
+            asset1 = self.symbols_info[pair]["base"]
+            asset2 = self.symbols_info[pair]["quote"]
             sell = asset1 == current_asset
             buy = asset2 == current_asset
             if (buy or sell) and not (buy and sell):
@@ -169,26 +177,24 @@ class Opportunity:
 
         for action in actions:
             side = {"BUY": "asks", "SELL": "bids"}[action[1]]
-            # orders = self.books[action[0]][side]
-            # Change this after #17 is resolved
-            cut = 4 if action[0].startswith("USDT") else 5 if action[0].startswith("STORM") else 3
+
             if action[1] == 'BUY':
                 best_orders, price = self.market_price(action[0], side, holding, inverse=True)
                 worst_price = max(best_orders, key=lambda x: x[0])[0]
                 money_in_full = holding * price
                 money_in = self.apply_qnt_filter(money_in_full, action[0])
-                asset_in = action[0][:cut]
+                asset_in = self.bot.symbols_info[action[0]]["base"]
                 money_out = money_in / price
-                asset_out = action[0][cut:]
+                asset_out = self.bot.symbols_info[action[0]]["quote"]
                 instructions.append(Instruction(price=worst_price, amount=money_in, side="BUY", symbol=action[0]))
             else:
                 best_orders, price = self.market_price(action[0], side, holding)
                 worst_price = min(best_orders, key=lambda x: x[0])[0]
                 money_out_full = holding
                 money_out = self.apply_qnt_filter(money_out_full, action[0])
-                asset_out = action[0][:cut]
+                asset_out = self.bot.symbols_info[action[0]]["base"]
                 money_in = money_out * price
-                asset_in = action[0][cut:]
+                asset_in = self.bot.symbols_info[action[0]]["quote"]
                 instructions.append(Instruction(price=worst_price, amount=money_out, side="SELL", symbol=action[0]))
             rebalance(wallet, asset_out, -money_out)
             rebalance(wallet, asset_in, money_in)
@@ -204,7 +210,7 @@ class Opportunity:
         for asset in wallet_:
             if asset == base or wallet_[asset] == 0: continue
             # Remove this after #17 is resolved
-            pair = [pair for pair in self.bot.chain_assets if asset in pair and base in pair][0]
+            pair = [pair for pair in self.bot.chain_markets if asset in pair and base in pair][0]
             best_orders, price = self.market_price(pair, "bids", wallet_[asset])  # TODO It is not always "bids"
             norm_wallet[asset] = wallet_[asset] * price if pair.startswith(asset) else wallet_[asset] / price
 
@@ -332,17 +338,16 @@ class Opportunity:
         wallet = {}
         orders_fills = {'BUY': {}, 'SELL': {}}
         for order in responses:
-            cut = 4 if order['symbol'].startswith("USDT") else 5 if order['symbol'].startswith("STORM") else 3
             if order['side'] == 'BUY':
                 money_out = sum([float(fill['price']) * float(fill['qty']) for fill in order['fills']])
-                asset_out = order['symbol'][cut:]
+                asset_out = self.bot.symbols_info[order['symbol']]["quote"]
                 money_in = float(order['executedQty'])
-                asset_in = order['symbol'][:cut]
+                asset_in = self.bot.symbols_info[order['symbol']]["base"]
             else:
                 money_out = float(order['executedQty'])
-                asset_out = order['symbol'][:cut]
+                asset_out = self.bot.symbols_info[order['symbol']]["base"]
                 money_in = sum([float(fill['price']) * float(fill['qty']) for fill in order['fills']])
-                asset_in = order['symbol'][cut:]
+                asset_in = self.bot.symbols_info[order['symbol']]["quote"]
 
             # Get prices
             fills = [(fill['price'], fill['qty']) for fill in order['fills']]
@@ -377,7 +382,8 @@ class Opportunity:
             "foundAtTimestamp": self.timestamp,
             "amountIn": self.bot.start_amount,
             "estimatedAmountOutAfterFee": round(self.final_balance - self.fees, 9),
-            "fee": round(self.fees, 9)
+            "fee": round(self.fees, 9),
+            "strategyType": "TEST" if self.bot.test_it else "ARBITRAGE"
         }
         errors = hp.append_rows(rows=[opportunity], dataset="bullseye", table="opportunities")
         if errors:
