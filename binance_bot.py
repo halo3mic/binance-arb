@@ -311,6 +311,8 @@ class Opportunity:
                     failed_asset = failed_action.base if failed_action.side == "BUY" else failed_action.quote
                     hp.send_to_slack(f"> *{failed_asset}* balance is too low!", SLACK_KEY, self.bot.slack_group, emoji=':blocky-sweat:')
                     return responses
+                else:
+                    raise e
         else:
             self.execution_status = "PASS"
         self.success_ratio = (len(responses)-len(failed_responses)) / len(responses)
