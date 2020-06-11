@@ -1,37 +1,32 @@
-from binance_bot import BinanceBot
+import json
+
+from binance_bot import BinanceBot, Plan
 import helpers as hp
-from config import SLACK_KEY, SLACK_GROUP
+from config import SLACK_KEY, SLACK_GROUP, DEPLOYMENT_SETTINGS_SOURCE, EXCHANGE_INFO_SOURCE
 
 
-# TODO make chains a namedtuple object with chains, base and amount
-chains_xrp_eur = [["XRPUSDT", "XRPEUR", "EURUSDT"],
-                  ["EURUSDT", "XRPEUR", "XRPUSDT"]]
-chains_xrp_rub = [["XRPUSDT", "XRPRUB", "USDTRUB"],
-                  ["USDTRUB", "XRPRUB", "XRPUSDT"]]
-chains_btc_eur = [["BTCUSDT", "BTCEUR", "EURUSDT"],
-                  ["EURUSDT", "BTCEUR", "BTCUSDT"]]
-chains_btc_rub = [["BTCUSDT", "BTCRUB", "USDTRUB"],
-                  ["USDTRUB", "BTCRUB", "BTCUSDT"]]
-chains_eth_eur = [["ETHUSDT", "ETHEUR", "EURUSDT"],
-                  ["EURUSDT", "ETHEUR", "ETHUSDT"]]
-chains_eth_rub = [["ETHUSDT", "ETHRUB", "USDTRUB"],
-                  ["USDTRUB", "ETHRUB", "ETHUSDT"]]
-chains_bnb_eur = [["BNBUSDT", "BNBEUR", "EURUSDT"],
-                  ["EURUSDT", "BNBEUR", "BNBUSDT"]]
-chains_bnb_rub = [["BNBUSDT", "BNBRUB", "USDTRUB"],
-                  ["USDTRUB", "BNBRUB", "BNBUSDT"]]
-base = "USDT"
-start_amount = 12
+def main(settings):
+    # TODO add exchange in json file when plans are saved?
+    symbols_info = hp.fetch_symbols_info(EXCHANGE_INFO_SOURCE)
 
-key = input()
-commands = {"bnb": chains_bnb_rub + chains_bnb_eur,
-            "eth": chains_eth_rub + chains_eth_eur,
-            "btc": chains_btc_rub + chains_btc_eur,
-            "xrp": chains_xrp_rub + chains_xrp_eur}
+    plans = []
+    for plan in settings["plans"]:
+        plans.append(Plan(path=plan["markets"],
+                          start_amount=float(plan["start_amount"]),
+                          home_asset=plan["start_currency"],
+                          symbols_info=symbols_info,
+                          instance_id=settings["instance_id"],
+                          strategy="TEST"))
+    try:
+        bb = BinanceBot(plans, execute=1, test_it=0, loop=1, settings=settings["global_settings"])
+        bb.start_listening()
+    except Exception as e:
+        hp.send_to_slack(str(e), SLACK_KEY, SLACK_GROUP, emoji=":blocky-grin:")
 
-try:
-    # make threads for each of the bot instance
-    bb = BinanceBot(commands[key], base, start_amount, execute=True, test_it=False)
-    bb.start_listening()
-except Exception as e:
-    hp.send_to_slack(str(e), SLACK_KEY, SLACK_GROUP, emoji=":blocky-grin:")
+
+if __name__ == "__main__":
+    with open(DEPLOYMENT_SETTINGS_SOURCE) as ds_file:
+        deployment_settings = json.load(ds_file)
+
+    main(deployment_settings)
+

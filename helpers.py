@@ -10,12 +10,12 @@ from exceptions import BinanceAPIError
 
 
 load_dotenv()  # Load env variables - GOOGLE_APPLICATION_CREDENTIALS are required
-if (platform == "linux" or platform == "linux2") and not os.getenv("GOOGLE_APPLICATION_CREDENTIALS"):
+if (platform == "linux" or platform == "linux2") and os.getenv("GOOGLE_APPLICATION_CREDENTIALS") is not None:
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_LINUX")
 client = bigquery.Client(project='blocklytics-data')
 
 
-def make_request(path, query={}, headers=None, method='GET'):
+def make_request(path, query=None, headers=None, method='GET'):
     if method == 'GET':    
         response = requests.get(path, query, headers=headers)
     else:
@@ -87,4 +87,13 @@ def append_rows(dataset, table, rows):
     errors = client.insert_rows(table, rows)  # API request
 
     return errors
+
+
+def fetch_symbols_info(path):
+    # TODO Fetch these info directly from API - make a function that initializes the bot
+    # TODO Dont do this for each path seperatly --> way too slow
+    with open(path) as exchange_info_file:
+        exchange_info = json.load(exchange_info_file)
+
+    return exchange_info
 

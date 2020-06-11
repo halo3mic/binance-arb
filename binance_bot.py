@@ -7,6 +7,7 @@ import concurrent.futures
 import re
 import atexit
 import json
+from pprint import pprint
 
 import helpers as hp
 from config import *
@@ -14,36 +15,26 @@ from config import *
 
 class BinanceBot(BinanceSocketManager):
 
-    def __init__(self, chains, base, start_amount, execute=True, test_it=False, loop=True):
+    def __init__(self, plans, execute=True, test_it=False, loop=True, settings=None):
         self.slack_group = SLACK_GROUP if not test_it else SLACK_GROUP_TEST
         # TODO Add keys as attributes
 
         self.client = Client(api_key=BINANCE_PUBLIC, api_secret=BINANCE_SECRET)
-        self.chains = chains
-        self.base = base
-        self.start_amount = start_amount
-        self.execute = execute
-        self.test_it = test_it
-        self.loop = loop
+        # Conditions
+        self.execute = execute  # If false no opportunity gets executed
+        self.test_it = test_it  # Opportunity gets executed even if unprofitable
+        self.loop = loop  # If false it will only check one book update
         self.busy = False  # Is the bot currently handling one of the books
+        # self.settings = settings
 
-        self.chain_markets = set([chain for subchain in self.chains for chain in subchain])
-        self.symbols_info = self.fetch_symbol_info()
-        self.books = self.get_intial_books(self.chain_markets)
+        self.plans = plans
+        self.plan_markets = set([market for plan in plans for market in plan.path])
+        self.books = self.get_intial_books(self.plan_markets)
         # self.books = {}
         self.process_books = {}
-        self.decimal_limits = self.get_decimal_limits(self.chain_markets)
-        self.actions = [self.interpret_chain(chain, base) for chain in chains]  # Make sense of input list of pairs
+        self.current_statuses = {}
 
         BinanceSocketManager.__init__(self, self.client)
-
-    def fetch_symbol_info(self):
-        with open(SYMBOLS_INFO_SOURCE) as symbols_info_file:
-            symbols_info = json.load(symbols_info_file)
-            # Store only symbols that the bot will use
-            relevant = dict([(symbol, data) for symbol, data in symbols_info.items() if symbol in self.chain_markets])
-
-        return relevant
 
     def handle_message(self, msg):
         if msg.get("e") == 'error':
@@ -52,25 +43,29 @@ class BinanceBot(BinanceSocketManager):
         self.books[pair] = msg["data"]  # Save new books (overwrite the old ones)
         self.books[pair]["timestamp"] = time.time()
         # If not busy and all assets books are available
-        if not self.busy and len(self.books) == len(self.chain_markets):
+        if not self.busy and len(self.books) == len(self.plan_markets):
             self.busy = True
             self.process_books = self.books.copy()
-            self.process_chain()
+            self.process_plans(pair)
             self.busy = False
 
-    def process_chain(self):
+    def process_plans(self, pair):
         # This books variable is only an address to the storage - it could get overwritten before process is finished
+        valid_plans = [plan for plan in self.plans if pair in plan.path]  # Only proccess plans which include updated market
         os.system("clear")
         timestamp = int(time.time())
         print(f"NEW DATA: {timestamp}".center(50, "~"))
-        print("\n".join([f"{pair}: {book['lastUpdateId']}" for pair, book in self.process_books.items()]))
-        for action in self.actions:
-            print(f"Action: {action}")
-            opportunity = Opportunity(self, action)
+        print(f"Updated book for market {pair}")
+
+        for plan in valid_plans:
+            status = ""
+            status += f"Path: {plan.path}\n"
+            opportunity = Opportunity(self, plan)
             opportunity.find_opportunity()
 
-            print(f"Profit: {opportunity.profit}")
+            status += f"Profit: {opportunity.profit:.5f}  |  "
             if opportunity.profit > 0 or self.test_it:
+                print("PROFIT FOUND!".center(80, "~"))
                 if self.execute:
                     opportunity.execute(async_=True)
                 opportunity.to_slack()
@@ -78,11 +73,15 @@ class BinanceBot(BinanceSocketManager):
                 opportunity.log_books()
                 if not self.loop:
                     os._exit(1)
-                self.books = self.get_intial_books(self.chain_markets)  # TODO remove this after completing issue #57
+                self.books = self.get_intial_books(self.plan_markets)  # TODO remove this after completing issue #57
+                # self.books = {}
                 break  # The execution and saving slows takes some time, in which the order book can already change
+            self.current_statuses[hash(str(plan.path))] = status
+        print("".join(self.current_statuses.values()))
+
 
     def start_listening(self):
-        stream_names = [pair.lower() + "@depth10@100ms" for pair in self.chain_markets]
+        stream_names = [pair.lower() + "@depth10@100ms" for pair in self.plan_markets]
         self.start_multiplex_socket(stream_names, self.handle_message)
         self.start()
         atexit.register(self.upon_closure)  # Close the sockets when you close the terminal
@@ -92,50 +91,33 @@ class BinanceBot(BinanceSocketManager):
         reactor.stop()
         print("GOODBYE!")
 
-    def get_decimal_limits(self, pairs):
-        exhange_info = self.client.get_exchange_info()
-        decimal_limits = {}
-        for symbol in exhange_info['symbols']:
-            if symbol['symbol'] in pairs:
-                step_size = symbol['filters'][2]['stepSize'].rstrip("0")
-                decimal_limits[symbol['symbol']] = step_size.count("0")
-
-        return decimal_limits
-
     def get_intial_books(self, pairs):
-        if len(pairs) > 9:
-            raise Exception("Too many pairs to process at once.")
+        print("Fetching initial books".center(80, "~"))
+        t1 = time.time()
+        # if len(pairs) > 9:
+        #     raise Exception("Too many pairs to process at once.")
         books = {}
+        counter = 0
         for pair in pairs:
+            print(f"{pair} fetched!")
             books[pair] = self.client.get_order_book(symbol=pair)
             books[pair]["timestamp"] = time.time()
+            if counter == 5 and (time.time()-t1 < 1):
+                time.sleep(1)
+                counter = 0
+                t1 = time.time()
+            else:
+                counter += 1
+        print(f"Finished! Time taken: {time.time() - t1} sec.")
 
         return books
-
-    def interpret_chain(self, chain, base):
-        """Interpret which pairs to buy and which to sell."""
-        actions = []
-        current_asset = base
-        for pair in chain:
-            asset1 = self.symbols_info[pair]["base"]
-            asset2 = self.symbols_info[pair]["quote"]
-            sell = asset1 == current_asset
-            buy = asset2 == current_asset
-            if (buy or sell) and not (buy and sell):
-                action_type = "BUY" if buy else "SELL"
-                actions.append((pair, action_type))
-                current_asset = asset1 if buy else asset2
-            else:
-                raise Exception("Invalid chain.")
-
-        return actions
 
 
 class Opportunity:
 
-    def __init__(self, bot, action):
+    def __init__(self, bot, plan):
         self.bot = bot
-        self.action = action
+        self.plan = plan
 
         self.profit = None
         self.instructions = None
@@ -147,19 +129,19 @@ class Opportunity:
         self._async = False
         self.execution_status = "NOT EXECUTED"
         self.timestamp = time.time()
-        self.id = f"{str(int(self.timestamp*1000))}-{str(hash(str(action)))[-4:]}"
+        self.id = f"{str(int(self.timestamp*1000))}-{str(hash(str([action.symbol for action in plan.actions])))[-4:]}"
 
     def find_opportunity(self):
         """Find if chain is profitable based on fees, amount and current order books."""
         # Go through steps of trade to see if it would be profitable
-        results = self.simulate_trade(self.action, self.bot.start_amount, self.bot.base, FEE)
-        norm_wallet = self.normalize_wallet(results["wallet"], self.bot.base)  # Convert all remaining assets to base asset
-        norm_fees = self.normalize_wallet(results["fees"], self.bot.base)  # Convert all fees in different assets into base one
+        results = self.simulate_trade(self.plan.actions, self.plan.start_amount, self.plan.home_asset, FEE)
+        norm_wallet = self.normalize_wallet(results["wallet"], self.plan.home_asset)  # Convert all remaining assets to base asset
+        norm_fees = self.normalize_wallet(results["fees"], self.plan.home_asset)  # Convert all fees in different assets into base one
         final_balance = sum(norm_wallet.values())  # No fees
         self.instructions = results["instructions"]
         self.final_balance = final_balance
         self.fees = sum(norm_fees.values())
-        self.profit = self.final_balance - self.bot.start_amount - self.fees
+        self.profit = self.final_balance - self.plan.start_amount - self.fees
 
     def simulate_trade(self, actions, starting_amount, start_asset, fee):
 
@@ -176,26 +158,26 @@ class Opportunity:
         holding = starting_amount
 
         for action in actions:
-            side = {"BUY": "asks", "SELL": "bids"}[action[1]]
+            side = {"BUY": "asks", "SELL": "bids"}[action.side]
 
-            if action[1] == 'BUY':
-                best_orders, price = self.market_price(action[0], side, holding, inverse=True)
+            if action.side == 'BUY':
+                best_orders, price = self.market_price(action.symbol, side, holding, inverse=True)
                 worst_price = max(best_orders, key=lambda x: x[0])[0]
                 money_in_full = holding * price
-                money_in = self.apply_qnt_filter(money_in_full, action[0])
-                asset_in = self.bot.symbols_info[action[0]]["base"]
+                money_in = self.apply_qnt_filter(money_in_full, action)
+                asset_in = action.base
                 money_out = money_in / price
-                asset_out = self.bot.symbols_info[action[0]]["quote"]
-                instructions.append(Instruction(price=worst_price, amount=money_in, side="BUY", symbol=action[0]))
+                asset_out = action.quote
+                instructions.append(Instruction(price=worst_price, amount=money_in, side="BUY", symbol=action.symbol))
             else:
-                best_orders, price = self.market_price(action[0], side, holding)
+                best_orders, price = self.market_price(action.symbol, side, holding)
                 worst_price = min(best_orders, key=lambda x: x[0])[0]
                 money_out_full = holding
-                money_out = self.apply_qnt_filter(money_out_full, action[0])
-                asset_out = self.bot.symbols_info[action[0]]["base"]
+                money_out = self.apply_qnt_filter(money_out_full, action)
+                asset_out = action.base
                 money_in = money_out * price
-                asset_in = self.bot.symbols_info[action[0]]["quote"]
-                instructions.append(Instruction(price=worst_price, amount=money_out, side="SELL", symbol=action[0]))
+                asset_in = action.quote
+                instructions.append(Instruction(price=worst_price, amount=money_out, side="SELL", symbol=action.symbol))
             rebalance(wallet, asset_out, -money_out)
             rebalance(wallet, asset_in, money_in)
             rebalance(fees, asset_in, money_in * fee)  # Is fee really on the money in?
@@ -203,16 +185,20 @@ class Opportunity:
 
         return {"wallet": wallet, "fees": fees, "instructions": instructions}
 
-    def normalize_wallet(self, wallet_, base):
+    def normalize_wallet(self, wallet_, normalizing_to):
         # In normalization the current average price is used
         # LOOKING UP THESE BOOKS MIGHT NOT CATCH THE BEST PRICE - TICKERS?
         norm_wallet = wallet_
         for asset in wallet_:
-            if asset == base or wallet_[asset] == 0: continue
-            # Remove this after #17 is resolved
-            pair = [pair for pair in self.bot.chain_markets if asset in pair and base in pair][0]
-            best_orders, price = self.market_price(pair, "bids", wallet_[asset])  # TODO It is not always "bids"
-            norm_wallet[asset] = wallet_[asset] * price if pair.startswith(asset) else wallet_[asset] / price
+            if asset == normalizing_to or wallet_[asset] == 0: continue
+            if asset+normalizing_to in self.bot.plan_markets:
+                pair = asset+normalizing_to
+                inverse = False
+            else:
+                pair = normalizing_to+asset
+                inverse = True
+            best_orders, price = self.market_price(pair, "bids", wallet_[asset], inverse=inverse)  # TODO It is not always "bids"
+            norm_wallet[asset] = wallet_[asset] * price
 
         return norm_wallet
 
@@ -222,9 +208,9 @@ class Opportunity:
         orders = self.bot.process_books[pair][side]
         return self.get_best_orders(orders, amount, inverse=inverse)
 
-    def apply_qnt_filter(self, qnt, pair, round_type='down'):
+    def apply_qnt_filter(self, qnt, action, round_type='down'):
         rounding = {'even': round, 'up': hp.round_up, 'down': hp.round_down}
-        rounded = rounding[round_type](float(qnt), self.bot.decimal_limits[pair])
+        rounded = rounding[round_type](float(qnt), action.decimals)
         return rounded
 
     @staticmethod
@@ -253,14 +239,14 @@ class Opportunity:
     def to_slack(self):
         action_separator = " | " if self._async else " > "
         msg = f"_Opportunity ID:_ *{self.id}*\n" \
-              f"_Action:_ *{action_separator.join([step[0] + '-' + step[1] for step in self.action])}*\n" \
-              f"_EstimatedProfit:_ *{self.profit:.5f} {self.bot.base}*\n" \
+              f"_Action:_ *{action_separator.join([(step.symbol + '-' + step.side) for step in self.plan.actions])}*\n" \
+              f"_EstimatedProfit:_ *{self.profit:.5f} {self.plan.home_asset}*\n" \
               f"_ActualProfit:_ * {self.actual_profit}*\n" \
               f"_Start timestamp:_ *{self.id[:-5]}*\n" \
               f"_End timestamp:_ *{int(time.time()*1000)}*\n" \
               f"_OrdersExecution time:_ *{self.execution_time}*\n" \
               f"_Status_: *{self.execution_status}*\n" \
-              f"_Start amount:_ *{self.bot.start_amount} {self.bot.base}*\n"
+              f"_Start amount:_ *{self.plan.start_amount} {self.plan.home_asset}*\n"
         hp.send_to_slack(msg, SLACK_KEY, self.bot.slack_group, emoji=':blocky-money:')
 
     def execute(self, async_=False):
@@ -269,7 +255,7 @@ class Opportunity:
         responses = self._execute_async() if async_ else self._execute_sync()
         self.execution_time = str(time.perf_counter_ns() - start_time)[:-6] + " ms"
         self.log_responses(responses)
-        self.actual_profit = format(self.review_execution(responses)["balance"], ".5f") + " " + self.bot.base
+        self.actual_profit = format(self.review_execution(responses)["balance"], ".5f") + " " + self.plan.home_asset
         if self.execution_status != "PASS":
             self.actual_profit = "*" + self.actual_profit
 
@@ -338,16 +324,17 @@ class Opportunity:
         wallet = {}
         orders_fills = {'BUY': {}, 'SELL': {}}
         for order in responses:
+            action = [action for action in self.plan.actions if action.symbol == order["symbol"]][0]  # TODO Improve this
             if order['side'] == 'BUY':
                 money_out = sum([float(fill['price']) * float(fill['qty']) for fill in order['fills']])
-                asset_out = self.bot.symbols_info[order['symbol']]["quote"]
+                asset_out = action.quote
                 money_in = float(order['executedQty'])
-                asset_in = self.bot.symbols_info[order['symbol']]["base"]
+                asset_in = action.base
             else:
                 money_out = float(order['executedQty'])
-                asset_out = self.bot.symbols_info[order['symbol']]["base"]
+                asset_out = action.base
                 money_in = sum([float(fill['price']) * float(fill['qty']) for fill in order['fills']])
-                asset_in = self.bot.symbols_info[order['symbol']]["quote"]
+                asset_in = action.quote
 
             # Get prices
             fills = [(fill['price'], fill['qty']) for fill in order['fills']]
@@ -355,7 +342,7 @@ class Opportunity:
             rebalance(asset_out, -money_out)
             rebalance(asset_in, money_in)
 
-        norm_wallet = self.normalize_wallet(wallet, 'USDT')
+        norm_wallet = self.normalize_wallet(wallet, self.plan.home_asset)
         rebalance("BNB", -fees)
 
         return {'end_wallet': norm_wallet, 'fills': orders_fills, 'balance': sum(norm_wallet.values())}
@@ -380,10 +367,11 @@ class Opportunity:
         opportunity = {
             "id": self.id,
             "foundAtTimestamp": self.timestamp,
-            "amountIn": self.bot.start_amount,
+            "amountIn": self.plan.start_amount,
             "estimatedAmountOutAfterFee": round(self.final_balance - self.fees, 9),
             "fee": round(self.fees, 9),
-            "strategyType": "TEST" if self.bot.test_it else "ARBITRAGE"
+            "strategyType": self.plan.strategy,
+            "instance_id": self.plan.instance_id
         }
         errors = hp.append_rows(rows=[opportunity], dataset="bullseye", table="opportunities")
         if errors:
@@ -406,3 +394,40 @@ class Opportunity:
         errors = hp.append_rows(rows=books_rows, dataset="bullseye", table="books")
         if errors:
             raise Exception(errors)
+
+
+class Plan:
+
+    def __init__(self, path, home_asset, start_amount, symbols_info, instance_id, strategy):
+        self.path = path
+        self.home_asset = home_asset
+        self.start_amount = start_amount
+        self.instance_id = instance_id
+        self.strategy = strategy
+        self.actions = self._get_actions(symbols_info)
+
+    def _get_actions(self, symbols_info):
+        Action = namedtuple("Action", "symbol side quote base decimals exchange")
+
+        current_asset = self.home_asset
+        actions = []
+        for market in self.path:
+            base = symbols_info[market["symbol"]]["base"]
+            quote = symbols_info[market["symbol"]]["quote"]
+            sell = base == current_asset
+            buy = quote == current_asset
+            if (buy or sell) and not (buy and sell):
+                side = "BUY" if buy else "SELL"
+                current_asset = base if buy else quote
+            else:
+                raise Exception("Invalid chain.")
+
+            actions.append(Action(symbol=market["symbol"],
+                                  side=side,
+                                  quote=quote,
+                                  base=base,
+                                  decimals=symbols_info[market["symbol"]]["decimals"],
+                                  exchange=market["exchange"]))
+        self.path = [market["symbol"] for market in self.path]
+
+        return actions
