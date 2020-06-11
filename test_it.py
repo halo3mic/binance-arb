@@ -30,6 +30,10 @@ if __name__ == "__main__":
         deployment_settings = json.load(ds_file)
 
     all_plans = deployment_settings["plans"]
-    deployment_settings["plans"] = [plan for plan in all_plans if plan["plan_no"] == PLAN_NO or PLAN_NO == -1]
+    plans = [plan for plan in all_plans if plan["plan_no"] == PLAN_NO or PLAN_NO == -1]
+    # plan = plans[0]
+    # plan["start_amount"] = 1
+    # plans = [plan]
+    deployment_settings["plans"] = plans
 
     main(deployment_settings)

@@ -1,5 +1,5 @@
 import time
-from binance.client import Client 
+from binance.client import Client, BinanceAPIException
 from binance.websockets import BinanceSocketManager
 from twisted.internet import reactor
 from collections import namedtuple
@@ -56,14 +56,13 @@ class BinanceBot(BinanceSocketManager):
         timestamp = int(time.time())
         print(f"NEW DATA: {timestamp}".center(50, "~"))
         print(f"Updated book for market {pair}")
-
         for plan in valid_plans:
-            status = ""
-            status += f"Path: {plan.path}\n"
+            # status = ""
             opportunity = Opportunity(self, plan)
             opportunity.find_opportunity()
 
-            status += f"Profit: {opportunity.profit:.5f}  |  "
+            # status += f"Profit: {opportunity.profit:.5f}  |  "
+            # status += f"Path: {plan.path}\n"
             if opportunity.profit > 0 or self.test_it:
                 print("PROFIT FOUND!".center(80, "~"))
                 if self.execute:
@@ -76,8 +75,9 @@ class BinanceBot(BinanceSocketManager):
                 self.books = self.get_intial_books(self.plan_markets)  # TODO remove this after completing issue #57
                 # self.books = {}
                 break  # The execution and saving slows takes some time, in which the order book can already change
-            self.current_statuses[hash(str(plan.path))] = status
-        print("".join(self.current_statuses.values()))
+            # self.current_statuses[hash(str(plan.path))] = status
+
+        # print("".join(self.current_statuses.values()))
 
 
     def start_listening(self):
@@ -253,6 +253,8 @@ class Opportunity:
         self._async = async_
         start_time = time.perf_counter_ns()
         responses = self._execute_async() if async_ else self._execute_sync()
+        if not responses:
+            return None
         self.execution_time = str(time.perf_counter_ns() - start_time)[:-6] + " ms"
         self.log_responses(responses)
         self.actual_profit = format(self.review_execution(responses)["balance"], ".5f") + " " + self.plan.home_asset
@@ -262,7 +264,7 @@ class Opportunity:
         return responses
 
     def _execute_sync(self):
-        # TODO Needs to be refactored
+        # TODO Needs to be updated
         responses = []
         for instruction in self.instructions:
             response = self.bot.client.create_order(symbol=instruction.symbol,
@@ -297,13 +299,18 @@ class Opportunity:
         responses = []
         failed_responses = []
         for thread in threads:
-            response = thread.result()
-            response["localTimestamp"] = time.time()
-            responses.append(response)
-            if response["status"] == "EXPIRED":
-                failed_responses.append(response["symbol"])
-        if failed_responses:
-            self.execution_status = f"MISSED: {', '.join(failed_responses)}"
+            try:
+                response = thread.result()
+                response["localTimestamp"] = time.time()
+                responses.append(response)
+                if response["status"] == "EXPIRED":
+                    failed_responses.append(response["symbol"])
+            except BinanceAPIException as e:
+                if e.code == -2010:
+                    failed_action = self.plan.actions[len(responses)]
+                    failed_asset = failed_action.base if failed_action.side == "BUY" else failed_action.quote
+                    hp.send_to_slack(f"> *{failed_asset}* balance is too low!", SLACK_KEY, self.bot.slack_group, emoji=':blocky-sweat:')
+                    return responses
         else:
             self.execution_status = "PASS"
         self.success_ratio = (len(responses)-len(failed_responses)) / len(responses)
