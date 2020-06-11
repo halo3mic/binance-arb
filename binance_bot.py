@@ -253,7 +253,7 @@ class Opportunity:
         self._async = async_
         start_time = time.perf_counter_ns()
         responses = self._execute_async() if async_ else self._execute_sync()
-        if not responses:
+        if responses is None:
             return None
         self.execution_time = str(time.perf_counter_ns() - start_time)[:-6] + " ms"
         self.log_responses(responses)
@@ -308,9 +308,11 @@ class Opportunity:
             except BinanceAPIException as e:
                 if e.code == -2010:
                     failed_action = self.plan.actions[len(responses)]
-                    failed_asset = failed_action.base if failed_action.side == "BUY" else failed_action.quote
+                    failed_asset = failed_action.base if failed_action.side == "SELL" else failed_action.quote
                     hp.send_to_slack(f"> *{failed_asset}* balance is too low!", SLACK_KEY, self.bot.slack_group, emoji=':blocky-sweat:')
-                    return responses
+                    # If no responses happened till now
+                    if not responses:
+                        return None
                 else:
                     raise e
         else:
