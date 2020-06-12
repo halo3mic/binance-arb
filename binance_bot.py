@@ -72,8 +72,8 @@ class BinanceBot(BinanceSocketManager):
                 opportunity.log_books()
                 if not self.loop:
                     os._exit(1)
-                self.books = self.get_intial_books(self.plan_markets)  # TODO remove this after completing issue #57
-                # self.books = {}
+                # self.books = self.get_intial_books(self.plan_markets)  # TODO remove this after completing issue #57
+                self.books = {}
                 break  # The execution and saving slows takes some time, in which the order book can already change
             # self.current_statuses[hash(str(plan.path))] = status
 
