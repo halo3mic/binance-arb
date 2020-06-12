@@ -11,7 +11,7 @@ EXCHANGE = "BINANCE"
 
 def process_message(msg):
     if msg['e'] == 'error':
-        hp.send_to_slack(msg, SLACK_KEY, SLACK_GROUP_TEST, emoji=':blocky-sweat:')  # TODO change to main version 
+        hp.send_to_slack(msg, SLACK_KEY, SLACK_GROUP, emoji=':blocky-sweat:')
     elif msg["e"] == "outboundAccountInfo":
         log_account_balance(msg)
 
@@ -31,7 +31,7 @@ def log_account_balance(account_info_raw):
     rows = [account_info]
     errors = hp.append_rows(rows=rows, dataset="bullseye", table="balances")
     if errors:
-        hp.send_to_slack(errors, SLACK_KEY, SLACK_GROUP_TEST, emoji=':blocky-sweat:')  # TODO change to main version 
+        hp.send_to_slack(errors, SLACK_KEY, SLACK_GROUP, emoji=':blocky-sweat:')
 
 
 if __name__ == "__main__":
