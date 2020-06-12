@@ -31,7 +31,9 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.58855",
+            "start_amount": "10.73249",
+            "fee_asset": "EUR",
+            "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
             "plan_no": 19
         },
@@ -60,7 +62,9 @@
                 }
             ],
             "start_currency": "BNB",
-            "start_amount": "0.68865",
+            "start_amount": "0.71757",
+            "fee_asset": "BNB",
+            "profit_asset": "BNB",
             "strategy": "ARBITRAGE",
             "plan_no": 97
         },
@@ -89,7 +93,9 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "815.88",
+            "start_amount": "831.816",
+            "fee_asset": "RUB",
+            "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
             "plan_no": 176
         },
@@ -118,7 +124,9 @@
                 }
             ],
             "start_currency": "BNB",
-            "start_amount": "0.68865",
+            "start_amount": "0.71757",
+            "fee_asset": "BNB",
+            "profit_asset": "BNB",
             "strategy": "ARBITRAGE",
             "plan_no": 265
         },
@@ -148,6 +156,8 @@
             ],
             "start_currency": "USDT",
             "start_amount": "12",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
             "plan_no": 319
         },
@@ -177,6 +187,8 @@
             ],
             "start_currency": "USDT",
             "start_amount": "12",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
             "plan_no": 332
         },
@@ -205,7 +217,9 @@
                 }
             ],
             "start_currency": "BNB",
-            "start_amount": "0.68865",
+            "start_amount": "0.71757",
+            "fee_asset": "BNB",
+            "profit_asset": "BNB",
             "strategy": "ARBITRAGE",
             "plan_no": 408
         },
@@ -234,7 +248,9 @@
                 }
             ],
             "start_currency": "BNB",
-            "start_amount": "0.68865",
+            "start_amount": "0.71757",
+            "fee_asset": "BNB",
+            "profit_asset": "BNB",
             "strategy": "ARBITRAGE",
             "plan_no": 421
         },
@@ -263,7 +279,9 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.58855",
+            "start_amount": "10.73249",
+            "fee_asset": "EUR",
+            "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
             "plan_no": 523
         },
@@ -292,7 +310,9 @@
                 }
             ],
             "start_currency": "BTC",
-            "start_amount": "0.00121",
+            "start_amount": "0.00126",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
             "strategy": "ARBITRAGE",
             "plan_no": 568
         },
@@ -321,7 +341,9 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "815.88",
+            "start_amount": "831.816",
+            "fee_asset": "RUB",
+            "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
             "plan_no": 680
         },
@@ -350,7 +372,9 @@
                 }
             ],
             "start_currency": "BTC",
-            "start_amount": "0.00121",
+            "start_amount": "0.00126",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
             "strategy": "ARBITRAGE",
             "plan_no": 736
         },
@@ -380,6 +404,8 @@
             ],
             "start_currency": "USDT",
             "start_amount": "12",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
             "plan_no": 823
         },
@@ -409,6 +435,8 @@
             ],
             "start_currency": "USDT",
             "start_amount": "12",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
             "plan_no": 836
         },
@@ -437,7 +465,9 @@
                 }
             ],
             "start_currency": "BTC",
-            "start_amount": "0.00121",
+            "start_amount": "0.00126",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
             "strategy": "ARBITRAGE",
             "plan_no": 879
         },
@@ -466,7 +496,9 @@
                 }
             ],
             "start_currency": "BTC",
-            "start_amount": "0.00121",
+            "start_amount": "0.00126",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
             "strategy": "ARBITRAGE",
             "plan_no": 892
         },
@@ -495,7 +527,9 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.58855",
+            "start_amount": "10.73249",
+            "fee_asset": "EUR",
+            "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
             "plan_no": 1027
         },
@@ -524,7 +558,9 @@
                 }
             ],
             "start_currency": "ETH",
-            "start_amount": "0.04844",
+            "start_amount": "0.05046",
+            "fee_asset": "ETH",
+            "profit_asset": "ETH",
             "strategy": "ARBITRAGE",
             "plan_no": 1039
         },
@@ -553,7 +589,9 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "815.88",
+            "start_amount": "831.816",
+            "fee_asset": "RUB",
+            "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
             "plan_no": 1184
         },
@@ -582,7 +620,9 @@
                 }
             ],
             "start_currency": "ETH",
-            "start_amount": "0.04844",
+            "start_amount": "0.05046",
+            "fee_asset": "ETH",
+            "profit_asset": "ETH",
             "strategy": "ARBITRAGE",
             "plan_no": 1207
         },
@@ -612,6 +652,8 @@
             ],
             "start_currency": "USDT",
             "start_amount": "12",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
             "plan_no": 1327
         },
@@ -641,6 +683,8 @@
             ],
             "start_currency": "USDT",
             "start_amount": "12",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
             "plan_no": 1340
         },
@@ -669,7 +713,9 @@
                 }
             ],
             "start_currency": "ETH",
-            "start_amount": "0.04844",
+            "start_amount": "0.05046",
+            "fee_asset": "ETH",
+            "profit_asset": "ETH",
             "strategy": "ARBITRAGE",
             "plan_no": 1350
         },
@@ -698,7 +744,9 @@
                 }
             ],
             "start_currency": "ETH",
-            "start_amount": "0.04844",
+            "start_amount": "0.05046",
+            "fee_asset": "ETH",
+            "profit_asset": "ETH",
             "strategy": "ARBITRAGE",
             "plan_no": 1363
         },
@@ -728,6 +776,8 @@
             ],
             "start_currency": "USDT",
             "start_amount": "12",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
             "plan_no": 1405
         },
@@ -756,7 +806,9 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.58855",
+            "start_amount": "10.73249",
+            "fee_asset": "EUR",
+            "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
             "plan_no": 1428
         },
@@ -786,6 +838,8 @@
             ],
             "start_currency": "USDT",
             "start_amount": "12",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
             "plan_no": 1444
         },
@@ -814,7 +868,9 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.58855",
+            "start_amount": "10.73249",
+            "fee_asset": "EUR",
+            "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
             "plan_no": 1467
         },
@@ -844,6 +900,8 @@
             ],
             "start_currency": "USDT",
             "start_amount": "12",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
             "plan_no": 1483
         },
@@ -872,7 +930,9 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.58855",
+            "start_amount": "10.73249",
+            "fee_asset": "EUR",
+            "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
             "plan_no": 1506
         },
@@ -902,6 +962,8 @@
             ],
             "start_currency": "USDT",
             "start_amount": "12",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
             "plan_no": 1535
         },
@@ -930,7 +992,9 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.58855",
+            "start_amount": "10.73249",
+            "fee_asset": "EUR",
+            "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
             "plan_no": 1558
         },
@@ -960,6 +1024,8 @@
             ],
             "start_currency": "USDT",
             "start_amount": "12",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
             "plan_no": 1573
         },
@@ -988,7 +1054,9 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "815.88",
+            "start_amount": "831.816",
+            "fee_asset": "RUB",
+            "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
             "plan_no": 1585
         },
@@ -1018,6 +1086,8 @@
             ],
             "start_currency": "USDT",
             "start_amount": "12",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
             "plan_no": 1612
         },
@@ -1046,7 +1116,9 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "815.88",
+            "start_amount": "831.816",
+            "fee_asset": "RUB",
+            "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
             "plan_no": 1624
         },
@@ -1076,6 +1148,8 @@
             ],
             "start_currency": "USDT",
             "start_amount": "12",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
             "plan_no": 1651
         },
@@ -1104,7 +1178,9 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "815.88",
+            "start_amount": "831.816",
+            "fee_asset": "RUB",
+            "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
             "plan_no": 1663
         },
@@ -1134,6 +1210,8 @@
             ],
             "start_currency": "USDT",
             "start_amount": "12",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
             "plan_no": 1703
         },
@@ -1162,7 +1240,9 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "815.88",
+            "start_amount": "831.816",
+            "fee_asset": "RUB",
+            "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
             "plan_no": 1715
         },
@@ -1191,7 +1271,9 @@
                 }
             ],
             "start_currency": "XRP",
-            "start_amount": "59.26219",
+            "start_amount": "61.76016",
+            "fee_asset": "XRP",
+            "profit_asset": "XRP",
             "strategy": "ARBITRAGE",
             "plan_no": 1835
         },
@@ -1220,7 +1302,9 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.58855",
+            "start_amount": "10.73249",
+            "fee_asset": "EUR",
+            "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
             "plan_no": 1869
         },
@@ -1249,7 +1333,9 @@
                 }
             ],
             "start_currency": "XRP",
-            "start_amount": "59.26219",
+            "start_amount": "61.76016",
+            "fee_asset": "XRP",
+            "profit_asset": "XRP",
             "strategy": "ARBITRAGE",
             "plan_no": 2003
         },
@@ -1278,7 +1364,9 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "815.88",
+            "start_amount": "831.816",
+            "fee_asset": "RUB",
+            "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
             "plan_no": 2026
         },
@@ -1307,7 +1395,9 @@
                 }
             ],
             "start_currency": "XRP",
-            "start_amount": "59.26219",
+            "start_amount": "61.76016",
+            "fee_asset": "XRP",
+            "profit_asset": "XRP",
             "strategy": "ARBITRAGE",
             "plan_no": 2146
         },
@@ -1336,7 +1426,9 @@
                 }
             ],
             "start_currency": "XRP",
-            "start_amount": "59.26219",
+            "start_amount": "61.76016",
+            "fee_asset": "XRP",
+            "profit_asset": "XRP",
             "strategy": "ARBITRAGE",
             "plan_no": 2159
         },
@@ -1366,6 +1458,8 @@
             ],
             "start_currency": "USDT",
             "start_amount": "12",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
             "plan_no": 2169
         },
@@ -1395,6 +1489,8 @@
             ],
             "start_currency": "USDT",
             "start_amount": "12",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
             "plan_no": 2182
         }

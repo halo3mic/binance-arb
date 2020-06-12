@@ -14,6 +14,8 @@ HEADER = {
         "global_settings": {"fees": {"BINANCE": "0.00075"}},
         "plans": []
 	}
+FEE_ASSET = "START_ASSET"
+PROFIT_ASSET = "START_ASSET"
 
 client = Client(api_key=BINANCE_PUBLIC, api_secret=BINANCE_SECRET)
 prices_raw = client.get_all_tickers()
@@ -53,7 +55,9 @@ for plan_no, path in enumerate(paths_all):
 		start_amount = round(NORMALIZED_START_AMOUNT * price, 5)
 		plan = {"markets": actions, 
 				"start_currency": start_asset, 
-				"start_amount": str(start_amount), 
+				"start_amount": str(start_amount),
+				"fee_asset": start_asset if FEE_ASSET == "START_ASSET" else FEE_ASSET,
+				"profit_asset": start_asset if PROFIT_ASSET == "START_ASSET" else PROFIT_ASSET, 
 				"strategy": "ARBITRAGE", 
 				"plan_no": plan_no}
 		plans.append(plan)

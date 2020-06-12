@@ -19,7 +19,9 @@ def main(settings):
                           home_asset=plan["start_currency"],
                           symbols_info=symbols_info,
                           instance_id=settings["instance_id"],
-                          strategy="TEST"))
+                          strategy="TEST",
+                          profit_asset=plan["profit_asset"],
+                          fee_asset=plan["fee_asset"]))
 
     bb = BinanceBot(plans, execute=1, test_it=1, loop=0, settings=settings["global_settings"])
     bb.start_listening()

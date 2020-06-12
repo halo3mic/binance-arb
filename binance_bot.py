@@ -311,21 +311,17 @@ class Opportunity:
                     failed_action = self.plan.actions[len(responses)]
                     failed_asset = failed_action.base if failed_action.side == "SELL" else failed_action.quote
                     hp.send_to_slack(f"> *{failed_asset}* balance is too low!", SLACK_KEY, self.bot.slack_group, emoji=':blocky-sweat:')
-                    # If no responses happened till now
-                    self.execution_status = "OUT_OF_FUNDS"
                     failed_responses.append(failed_action.symbol)
-                    # Will not display a symbol that wasn't executed because the loop ended early
-                    self.execution_msg = f"OUT_OF_FUNDS | MISSED: {', '.join(failed_responses)}"
-                    self.success_ratio = (len(responses) - len(failed_responses)) / len(responses)
-                    return responses
                 else:
                     raise e
+        # TODO to increase the speed of execution we should get results first and only then analyse them
+
         if failed_responses:
             self.execution_status = "MISSED"
             self.execution_msg = f"MISSED: {', '.join(failed_responses)}"
         else:
             self.execution_status = self.execution_msg = "PASS"
-        self.success_ratio = (len(responses)-len(failed_responses)) / len(responses)
+        self.success_ratio = (len(self.instructions)-len(failed_responses)) / len(self.instructions)
 
         return responses
 
@@ -386,11 +382,14 @@ class Opportunity:
         opportunity = {
             "id": self.id,
             "foundAtTimestamp": self.timestamp,
-            "amountIn": self.plan.start_amount,
-            "estimatedAmountOutAfterFee": round(self.final_balance - self.fees, 9),
-            "fee": round(self.fees, 9),
+            "startAmount": self.plan.start_amount,
+            "startCurrency": self.plan.home_asset,
+            "estimatedProfitAmount": round(self.final_balance - self.fees, 9),
+            "estimatedProfitCurrency": self.plan.profit_asset,
+            "estimatedFeeAmount": round(self.fees, 9),
+            "estimatedFeeCurrency": self.plan.fee_asset,
             "strategyType": self.plan.strategy,
-            "instance_id": self.plan.instance_id
+            "botId": self.plan.instance_id
         }
         errors = hp.append_rows(rows=[opportunity], dataset="bullseye", table="opportunities")
         if errors:
@@ -417,13 +416,15 @@ class Opportunity:
 
 class Plan:
 
-    def __init__(self, path, home_asset, start_amount, symbols_info, instance_id, strategy):
+    def __init__(self, path, home_asset, start_amount, symbols_info, instance_id, strategy, profit_asset, fee_asset):
         self.path = path
         self.home_asset = home_asset
         self.start_amount = start_amount
         self.instance_id = instance_id
         self.strategy = strategy
         self.actions = self._get_actions(symbols_info)
+        self.profit_asset = profit_asset
+        self.fee_asset = fee_asset
 
     def _get_actions(self, symbols_info):
         Action = namedtuple("Action", "symbol side quote base decimals exchange")
