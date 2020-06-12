@@ -310,12 +310,18 @@ class Opportunity:
                 if e.code == -2010:
                     failed_action = self.plan.actions[len(responses)]
                     failed_asset = failed_action.base if failed_action.side == "SELL" else failed_action.quote
-                    hp.send_to_slack(f"> *{failed_asset}* balance is too low!", SLACK_KEY, self.bot.slack_group, emoji=':blocky-sweat:')
+                    msg = f"> *{failed_asset}* balance is too low!"
                     failed_responses.append(failed_action.symbol)
                 else:
-                    raise e
-        # TODO to increase the speed of execution we should get results first and only then analyse them
+                    msg = f"_status_code_: *{e.status_code}*\n" \
+                          f"_status_: *{e.status}*\n" \
+                          f"_code_: *{e.code}*\n" \
+                          f"_message_: *{e.message}*\n"
 
+                hp.send_to_slack(msg, SLACK_KEY, self.bot.slack_group, emoji=':blocky-sweat:')
+                if e.status_code == 429: exit()  # Exit if limit is reached
+
+        # TODO to increase the speed of execution we should get results first and only then analyse them
         if failed_responses:
             self.execution_status = "MISSED"
             self.execution_msg = f"MISSED: {', '.join(failed_responses)}"
