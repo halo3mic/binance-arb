@@ -126,6 +126,7 @@ class Opportunity:
         self.execution_time = None
         self.actual_profit = None
         self.success_ratio = None
+        self.execution_msg = ""
         self._async = False
         self.execution_status = "NOT EXECUTED"
         self.timestamp = time.time()
@@ -240,12 +241,12 @@ class Opportunity:
         action_separator = " | " if self._async else " > "
         msg = f"_Opportunity ID:_ *{self.id}*\n" \
               f"_Action:_ *{action_separator.join([(step.symbol + '-' + step.side) for step in self.plan.actions])}*\n" \
-              f"_EstimatedProfit:_ *{self.profit:.5f} {self.plan.home_asset}*\n" \
+              f"_EstimatedProfit:_ *{self.profit:.8f} {self.plan.home_asset}*\n" \
               f"_ActualProfit:_ * {self.actual_profit}*\n" \
               f"_Start timestamp:_ *{self.id[:-5]}*\n" \
               f"_End timestamp:_ *{int(time.time()*1000)}*\n" \
               f"_OrdersExecution time:_ *{self.execution_time}*\n" \
-              f"_Status_: *{self.execution_status}*\n" \
+              f"_Status_: *{self.execution_msg}*\n" \
               f"_Start amount:_ *{self.plan.start_amount} {self.plan.home_asset}*\n"
         hp.send_to_slack(msg, SLACK_KEY, self.bot.slack_group, emoji=':blocky-money:')
 
@@ -253,11 +254,11 @@ class Opportunity:
         self._async = async_
         start_time = time.perf_counter_ns()
         responses = self._execute_async() if async_ else self._execute_sync()
-        if responses is None:
+        if not responses:
             return None
         self.execution_time = str(time.perf_counter_ns() - start_time)[:-6] + " ms"
         self.log_responses(responses)
-        self.actual_profit = format(self.review_execution(responses)["balance"], ".5f") + " " + self.plan.home_asset
+        self.actual_profit = format(self.review_execution(responses)["balance"], ".8f") + " " + self.plan.home_asset
         if self.execution_status != "PASS":
             self.actual_profit = "*" + self.actual_profit
 
@@ -311,12 +312,19 @@ class Opportunity:
                     failed_asset = failed_action.base if failed_action.side == "SELL" else failed_action.quote
                     hp.send_to_slack(f"> *{failed_asset}* balance is too low!", SLACK_KEY, self.bot.slack_group, emoji=':blocky-sweat:')
                     # If no responses happened till now
-                    if not responses:
-                        return None
+                    self.execution_status = "OUT_OF_FUNDS"
+                    failed_responses.append(failed_action.symbol)
+                    # Will not display a symbol that wasn't executed because the loop ended early
+                    self.execution_msg = f"OUT_OF_FUNDS | MISSED: {', '.join(failed_responses)}"
+                    self.success_ratio = (len(responses) - len(failed_responses)) / len(responses)
+                    return responses
                 else:
                     raise e
+        if failed_responses:
+            self.execution_status = "MISSED"
+            self.execution_msg = f"MISSED: {', '.join(failed_responses)}"
         else:
-            self.execution_status = "PASS"
+            self.execution_status = self.execution_msg = "PASS"
         self.success_ratio = (len(responses)-len(failed_responses)) / len(responses)
 
         return responses

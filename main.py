@@ -16,7 +16,7 @@ def main(settings):
                           home_asset=plan["start_currency"],
                           symbols_info=symbols_info,
                           instance_id=settings["instance_id"],
-                          strategy="TEST"))
+                          strategy="ARBITRAGE"))
     try:
         bb = BinanceBot(plans, execute=1, test_it=0, loop=1, settings=settings["global_settings"])
         bb.start_listening()
