@@ -33,6 +33,7 @@ class BinanceBot(BinanceSocketManager):
         # self.books = {}
         self.process_books = {}
         self.current_statuses = {}
+        self.last_book_update = None
 
         BinanceSocketManager.__init__(self, self.client)
 
@@ -42,6 +43,7 @@ class BinanceBot(BinanceSocketManager):
         pair = re.findall(r"^[a-z]*", msg["stream"])[0].upper()
         self.books[pair] = msg["data"]  # Save new books (overwrite the old ones)
         self.books[pair]["timestamp"] = time.time()
+        self.last_book_update = time.time()
         # If not busy and all assets books are available
         if not self.busy and len(self.books) == len(self.plan_markets):
             self.busy = True
@@ -85,6 +87,13 @@ class BinanceBot(BinanceSocketManager):
         self.start_multiplex_socket(stream_names, self.handle_message)
         self.start()
         atexit.register(self.upon_closure)  # Close the sockets when you close the terminal
+        self.last_book_update = time.time()
+        while 1:
+            limit = 60
+            if time.time() - self.last_book_update > limit:
+                msg = f"No book update for more than {limit} sec."
+                hp.send_to_slack(msg, SLACK_KEY, self.slack_group, emoji=':blocky-sweat:')
+            time.sleep(1)
 
     def upon_closure(self):
         self.close()

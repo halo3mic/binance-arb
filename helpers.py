@@ -10,7 +10,7 @@ from exceptions import BinanceAPIError
 
 
 load_dotenv()  # Load env variables - GOOGLE_APPLICATION_CREDENTIALS are required
-if (platform == "linux" or platform == "linux2") and (os.getenv("GOOGLE_APPLICATION_CREDENTIALS") is None):
+if (platform == "linux" or platform == "linux2") and (os.getenv("GOOGLE_APPLICATION_CREDENTIALS").startswith("C:")):
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_LINUX")
 client = bigquery.Client(project='blocklytics-data')
 
