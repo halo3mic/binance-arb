@@ -13,6 +13,7 @@ def process_message(msg):
     if msg['e'] == 'error':
         hp.send_to_slack(msg, SLACK_KEY, SLACK_GROUP, emoji=':blocky-sweat:')
     elif msg["e"] == "outboundAccountInfo":
+        print(f"Change in balance found at {time.time()}")
         log_account_balance(msg)
 
 
@@ -21,7 +22,7 @@ def log_account_balance(account_info_raw):
     account_info = {
         "id": BINANCE_PUBLIC,  # Unique account identifier - changes with new API
         "exchange": EXCHANGE,
-        "timestamp": time.time(),  # Timestamp of the upload tim
+        "timestamp": time.time(),  # Timestamp of the upload time
         "balances": []  # List of individual accounts balances
     }
     account_info["balances"] = [{"symbol": balance["a"], "amount": float(balance["f"])}
