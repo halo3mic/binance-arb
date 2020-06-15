@@ -35,6 +35,7 @@ class BinanceBot(BinanceSocketManager):
         self.process_books = {}
         self.current_statuses = {}
         self.last_book_update = None
+        self.exceptions = []
 
         BinanceSocketManager.__init__(self, self.client)
 
@@ -50,31 +51,39 @@ class BinanceBot(BinanceSocketManager):
             self.busy = True
             self.process_books = self.books.copy()
             Thread(target=self.process_plans, args=(pair,)).start()
+        # Take all the exceptions from threads and message them to Slack group
+        if self.exceptions:
+            msg = " >" + "\n".join([repr(exc) for exc in self.exceptions])
+            hp.send_to_slack(msg, SLACK_KEY, self.bot.slack_group, emoji=':blocky-money:')
 
     def process_plans(self, pair):
-        valid_plans = [plan for plan in self.plans if pair in plan.path]  # Only proccess plans which include updated market
-        os.system("clear")
-        timestamp = int(time.time())
-        print(f"NEW DATA: {timestamp}".center(50, "~"))
-        print(f"Updated book for market {pair}")
-        for plan in valid_plans:
-            opportunity = Opportunity(self, plan)
-            opportunity.find_opportunity()
+        try:
+            valid_plans = [plan for plan in self.plans if pair in plan.path]  # Only proccess plans which include updated market
+            os.system("clear")
+            timestamp = int(time.time())
+            print(f"NEW DATA: {timestamp}".center(50, "~"))
+            for plan in valid_plans:
+                opportunity = Opportunity(self, plan)
+                opportunity.find_opportunity()
 
-            if opportunity.profit > 0 or self.test_it:
-                if self.execute:
-                    Thread(target=self.execute_opportunity, args=(opportunity,)).start()
-            if not self.loop:
-                os._exit(1)
-
-        self.busy = False
+                if opportunity.profit > 0 or self.test_it:
+                    if self.execute:
+                        Thread(target=self.execute_opportunity, args=(opportunity,)).start()
+                if not self.loop:
+                    os._exit(1)
+        except Exception as e:
+            self.exceptions.append(e)
+        finally:
+            self.busy = False
 
     def execute_opportunity(self, opportunity_):
-        print("PROFIT FOUND!".center(80, "~"))
-        opportunity_.execute(async_=True)
-        opportunity_.to_slack()
-        opportunity_.log_opportunity()
-        opportunity_.log_books()
+        try:
+            opportunity_.execute(async_=True)
+            opportunity_.to_slack()
+            opportunity_.log_opportunity()
+            opportunity_.log_books()
+        except Exception as e:
+            self.exceptions.append(e)
 
     def start_listening(self):
         stream_names = [pair.lower() + "@depth10@100ms" for pair in self.plan_markets]
@@ -83,6 +92,7 @@ class BinanceBot(BinanceSocketManager):
         atexit.register(self.upon_closure)  # Close the sockets when you close the terminal
         self.books = self.get_intial_books(self.plan_markets)  # Get initial books
         self.last_book_update = time.time()
+
 
     def upon_closure(self):
         self.close()
