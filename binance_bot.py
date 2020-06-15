@@ -314,7 +314,6 @@ class Opportunity:
                     failed_responses.append(failed_action.symbol)
                 else:
                     msg = f"_status_code_: *{e.status_code}*\n" \
-                          f"_status_: *{e.status}*\n" \
                           f"_code_: *{e.code}*\n" \
                           f"_message_: *{e.message}*\n"
 

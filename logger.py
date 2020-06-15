@@ -19,19 +19,22 @@ def process_message(msg):
 def log_account_balance(account_info_raw):
     """Log account balance in markets where amount is greater than zero."""
     account_info = {
-        "id": hash(BINANCE_PUBLIC),  # Unique account identifier - changes with new API
+        "id": BINANCE_PUBLIC,  # Unique account identifier - changes with new API
         "exchange": EXCHANGE,
         "timestamp": time.time(),  # Timestamp of the upload tim
-        "balances": {}  # List of individual accounts balances
+        "balances": []  # List of individual accounts balances
     }
     account_info["balances"] = [{"symbol": balance["a"], "amount": float(balance["f"])}
                                 for balance in account_info_raw["B"]
                                 if float(balance["f"]) > 0
                                 ]
     rows = [account_info]
+    from pprint import pprint
+
+    pprint(rows)
     errors = hp.append_rows(rows=rows, dataset="bullseye", table="balances")
     if errors:
-        hp.send_to_slack(errors, SLACK_KEY, SLACK_GROUP, emoji=':blocky-sweat:')
+        hp.send_to_slack(str(errors), SLACK_KEY, SLACK_GROUP, emoji=':blocky-sweat:')
 
 
 if __name__ == "__main__":
