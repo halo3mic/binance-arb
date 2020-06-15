@@ -3,6 +3,7 @@ import json
 from binance_bot import BinanceBot, Plan
 import helpers as hp
 from config import SLACK_KEY, SLACK_GROUP, DEPLOYMENT_SETTINGS_SOURCE, EXCHANGE_INFO_SOURCE
+import time
 
 
 def main(settings):
@@ -22,8 +23,21 @@ def main(settings):
     try:
         bb = BinanceBot(plans, execute=1, test_it=0, loop=1, settings=settings["global_settings"])
         bb.start_listening()
+        while 1:
+            limit = 60
+            if time.time() - bb.last_book_update > limit:
+                msg = f"No book update for more than {limit} sec."
+                hp.send_to_slack(msg, SLACK_KEY, SLACK_GROUP, emoji=':blocky-sweat:')
+                # Restart the bot
+                bb.close()
+                del bb
+                bb = BinanceBot(plans, execute=1, test_it=0, loop=1, settings=settings["global_settings"])
+                bb.start_listening()
+                hp.send_to_slack("Bot restarted", SLACK_KEY, SLACK_GROUP, emoji=':blocky-angel:')
+            time.sleep(1)
     except Exception as e:
         hp.send_to_slack(str(e), SLACK_KEY, SLACK_GROUP, emoji=":blocky-grin:")
+        exit()
 
 
 if __name__ == "__main__":

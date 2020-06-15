@@ -7,11 +7,13 @@ from config import *
 
 
 EXCHANGE = "BINANCE"
+TIME_LIMIT = 82800  # 23 hours
+RUNNING = False
 
-
+# TODO make it a class
 def process_message(msg):
     if msg['e'] == 'error':
-        hp.send_to_slack(msg, SLACK_KEY, SLACK_GROUP, emoji=':blocky-sweat:')
+        hp.send_to_slack(msg["m"], SLACK_KEY, SLACK_GROUP, emoji=':blocky-sweat:')
     elif msg["e"] == "outboundAccountInfo":
         print(f"Change in balance found at {time.time()}")
         log_account_balance(msg)
@@ -38,9 +40,23 @@ def log_account_balance(account_info_raw):
         hp.send_to_slack(str(errors), SLACK_KEY, SLACK_GROUP, emoji=':blocky-sweat:')
 
 
-if __name__ == "__main__":
-    client = Client(api_key=BINANCE_PUBLIC, api_secret=BINANCE_SECRET)
-    bm = BinanceSocketManager(client)
-    bm.start_user_socket(process_message)
-    bm.start()
+def start_logger(client_):
+    global RUNNING, start_time
+    socket_ = BinanceSocketManager(client_)
+    if RUNNING:
+        socket_.close()
+    start_time = time.time()
+    socket_.start_user_socket(process_message)
+    socket_.start()
     print("Listening for account balance updates ...")
+
+
+if __name__ == "__main__":
+    CLIENT = Client(api_key=BINANCE_PUBLIC, api_secret=BINANCE_SECRET)
+    start_time = time.time()
+    start_logger(CLIENT)
+    while 1:
+        if time.time() - start_time > TIME_LIMIT:
+            start_logger(CLIENT)
+            hp.send_to_slack("Logger restarted", SLACK_KEY, SLACK_GROUP, emoji=':blocky-angel:')
+
