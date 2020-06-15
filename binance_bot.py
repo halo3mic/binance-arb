@@ -299,7 +299,7 @@ class Opportunity:
 
         responses = []
         failed_responses = []
-        for thread in threads:
+        for loop_num, thread in enumerate(threads):
             try:
                 response = thread.result()
                 response["localTimestamp"] = time.time()
@@ -308,7 +308,7 @@ class Opportunity:
                     failed_responses.append(response["symbol"])
             except BinanceAPIException as e:
                 if e.code == -2010:
-                    failed_action = self.plan.actions[len(responses)]
+                    failed_action = self.plan.actions[loop_num]
                     failed_asset = failed_action.base if failed_action.side == "SELL" else failed_action.quote
                     msg = f"> *{failed_asset}* balance is too low!"
                     failed_responses.append(failed_action.symbol)
