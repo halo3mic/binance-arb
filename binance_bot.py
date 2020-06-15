@@ -1,6 +1,7 @@
 import time
 from binance.client import Client, BinanceAPIException
 from binance.websockets import BinanceSocketManager
+from threading import Thread
 from twisted.internet import reactor
 from collections import namedtuple
 import concurrent.futures
@@ -48,46 +49,39 @@ class BinanceBot(BinanceSocketManager):
         if not self.busy and len(self.books) == len(self.plan_markets):
             self.busy = True
             self.process_books = self.books.copy()
-            self.process_plans(pair)
-            self.busy = False
+            Thread(target=self.process_plans, args=(pair,)).start()
 
     def process_plans(self, pair):
-        # This books variable is only an address to the storage - it could get overwritten before process is finished
         valid_plans = [plan for plan in self.plans if pair in plan.path]  # Only proccess plans which include updated market
         os.system("clear")
         timestamp = int(time.time())
         print(f"NEW DATA: {timestamp}".center(50, "~"))
         print(f"Updated book for market {pair}")
         for plan in valid_plans:
-            # status = ""
             opportunity = Opportunity(self, plan)
             opportunity.find_opportunity()
 
-            # status += f"Profit: {opportunity.profit:.5f}  |  "
-            # status += f"Path: {plan.path}\n"
             if opportunity.profit > 0 or self.test_it:
-                print("PROFIT FOUND!".center(80, "~"))
                 if self.execute:
-                    opportunity.execute(async_=True)
-                opportunity.to_slack()
-                opportunity.log_opportunity()
-                opportunity.log_books()
-                if not self.loop:
-                    os._exit(1)
-                # self.books = self.get_intial_books(self.plan_markets)  # TODO remove this after completing issue #57
-                self.books = {}
-                break  # The execution and saving slows takes some time, in which the order book can already change
-            # self.current_statuses[hash(str(plan.path))] = status
+                    Thread(target=self.execute_opportunity, args=(opportunity,)).start()
+            if not self.loop:
+                os._exit(1)
 
-        # print("".join(self.current_statuses.values()))
+        self.busy = False
 
+    def execute_opportunity(self, opportunity_):
+        print("PROFIT FOUND!".center(80, "~"))
+        opportunity_.execute(async_=True)
+        opportunity_.to_slack()
+        opportunity_.log_opportunity()
+        opportunity_.log_books()
 
     def start_listening(self):
         stream_names = [pair.lower() + "@depth10@100ms" for pair in self.plan_markets]
         self.start_multiplex_socket(stream_names, self.handle_message)
         self.start()
         atexit.register(self.upon_closure)  # Close the sockets when you close the terminal
-        self.books = self.get_intial_books(self.plan_markets)
+        self.books = self.get_intial_books(self.plan_markets)  # Get initial books
         self.last_book_update = time.time()
 
     def upon_closure(self):
