@@ -7,7 +7,7 @@ from config import *
 
 
 EXCHANGE = "BINANCE"
-TIME_LIMIT = 5  # 23 hours
+TIME_LIMIT = 3600  # 1 hour
 SOCKET = None
 
 # TODO make it a class
@@ -42,9 +42,10 @@ def log_account_balance(account_info_raw):
 
 def start_logger(client_):
     global SOCKET, start_time
-    socket_ = BinanceSocketManager(client_)
-    if SOCKET: SOCKET.close()
+    if SOCKET:
+        SOCKET.close()
     start_time = time.time()
+    socket_ = BinanceSocketManager(client_)
     socket_.start_user_socket(process_message)
     socket_.start()
     SOCKET = socket_
@@ -59,4 +60,5 @@ if __name__ == "__main__":
         if time.time() - start_time > TIME_LIMIT:
             start_logger(CLIENT)
             hp.send_to_slack("Logger restarted", SLACK_KEY, SLACK_GROUP, emoji=':blocky-angel:')
+        time.sleep(1200)  # Sleep for 20min to save the CPU
 
