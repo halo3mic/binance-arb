@@ -53,8 +53,8 @@ class BinanceBot(BinanceSocketManager):
             Thread(target=self.process_plans, args=(pair,)).start()
         # Take all the exceptions from threads and message them to Slack group
         if self.exceptions:
-            msg = " >" + "\n".join([repr(exc) for exc in self.exceptions])
-            hp.send_to_slack(msg, SLACK_KEY, self.bot.slack_group, emoji=':blocky-money:')
+            msg = " >" + "\n".join([str(exc) for exc in self.exceptions])
+            hp.send_to_slack(msg, SLACK_KEY, self.slack_group, emoji=':blocky-money:')
 
     def process_plans(self, pair):
         try:
@@ -65,16 +65,25 @@ class BinanceBot(BinanceSocketManager):
             for plan in valid_plans:
                 opportunity = Opportunity(self, plan)
                 opportunity.find_opportunity()
-
+                t1 = None
                 if opportunity.profit > 0 or self.test_it:
                     if self.execute:
-                        Thread(target=self.execute_opportunity, args=(opportunity,)).start()
-                if not self.loop:
-                    os._exit(1)
+                        t1 = Thread(target=self.execute_opportunity, args=(opportunity,))
+                        t1.start()
+                        # TODO Run all of them and execute only the one with the best profit
+                        self.loop = 1
+                        if not self.loop:
+                            if t1: t1.join()
+                            os._exit(1)
+                        else:
+                            t1.join()
+                            break
+
         except Exception as e:
             self.exceptions.append(e)
         finally:
-            self.busy = False
+            if not self.test_it:
+                self.busy = False
 
     def execute_opportunity(self, opportunity_):
         try:
@@ -293,8 +302,10 @@ class Opportunity:
         return responses
 
     def _execute_async(self):
+        responses = []
+        failed_responses = []
+        threads = []
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            threads = []
             for instruction in self.instructions:
                 thread = executor.submit(self.bot.client.create_order,
                                          symbol=instruction.symbol,
@@ -305,10 +316,7 @@ class Opportunity:
                                          price=instruction.price
                                          )
                 threads.append(thread)
-
-        responses = []
-        failed_responses = []
-        for loop_num, thread in enumerate(threads):
+        for num, thread in enumerate(threads):
             try:
                 response = thread.result()
                 response["localTimestamp"] = time.time()
@@ -317,17 +325,18 @@ class Opportunity:
                     failed_responses.append(response["symbol"])
             except BinanceAPIException as e:
                 if e.code == -2010:
-                    failed_action = self.plan.actions[loop_num]
+                    failed_action = self.plan.actions[num]
                     failed_asset = failed_action.base if failed_action.side == "SELL" else failed_action.quote
                     msg = f"> *{failed_asset}* balance is too low!"
                     failed_responses.append(failed_action.symbol)
                 else:
-                    msg = f"_status_code_: *{e.status_code}*\n" \
-                          f"_code_: *{e.code}*\n" \
-                          f"_message_: *{e.message}*\n"
+                    msg = f"_Status_code_: *{e.status_code}*\n" \
+                          f"_Code_: *{e.code}*\n" \
+                          f"_Message_: *{e.message}*\n"
 
                 hp.send_to_slack(msg, SLACK_KEY, self.bot.slack_group, emoji=':blocky-sweat:')
-                if e.status_code == 429: exit()  # Exit if limit is reached
+                if e.status_code == 429: os._exit(1)  # Exit if limit is reached
+
 
         # TODO to increase the speed of execution we should get results first and only then analyse them
         if failed_responses:
