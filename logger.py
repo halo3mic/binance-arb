@@ -1,5 +1,7 @@
 from binance.client import Client, BinanceAPIException
 from binance.websockets import BinanceSocketManager
+from twisted.internet import reactor
+from threading import Thread
 import time
 
 import helpers as hp
@@ -7,8 +9,7 @@ from config import *
 
 
 EXCHANGE = "BINANCE"
-TIME_LIMIT = 3600  # 1 hour
-SOCKET = None
+USER_TIMEOUT = 40 * 60  # 40 min
 
 # TODO make it a class
 def process_message(msg):
@@ -32,33 +33,25 @@ def log_account_balance(account_info_raw):
                                 if float(balance["f"]) > 0
                                 ]
     rows = [account_info]
-    from pprint import pprint
 
-    pprint(rows)
     errors = hp.append_rows(rows=rows, dataset="bullseye", table="balances")
     if errors:
         hp.send_to_slack(str(errors), SLACK_KEY, SLACK_GROUP, emoji=':blocky-sweat:')
 
 
-def start_logger(client_):
-    global SOCKET, start_time
-    if SOCKET:
-        SOCKET.close()
-    start_time = time.time()
-    socket_ = BinanceSocketManager(client_)
+def start_logger():
+    CLIENT = Client(api_key=BINANCE_PUBLIC, api_secret=BINANCE_SECRET)
+    socket_ = BinanceSocketManager(CLIENT, user_timeout=USER_TIMEOUT)
     socket_.start_user_socket(process_message)
     socket_.start()
-    SOCKET = socket_
+    listen_key = socket_._listen_keys["user"]
+
     print("Listening for account balance updates ...")
+
+    while 1:
+        time.sleep(USER_TIMEOUT)
+        CLIENT.stream_keepalive(listen_key)
 
 
 if __name__ == "__main__":
-    CLIENT = Client(api_key=BINANCE_PUBLIC, api_secret=BINANCE_SECRET)
-    start_time = time.time()
-    start_logger(CLIENT)
-    while 1:
-        if time.time() - start_time > TIME_LIMIT:
-            start_logger(CLIENT)
-            hp.send_to_slack("Logger restarted", SLACK_KEY, SLACK_GROUP, emoji=':blocky-angel:')
-        time.sleep(1200)  # Sleep for 20min to save the CPU
-
+    start_logger()

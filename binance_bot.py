@@ -66,11 +66,11 @@ class BinanceBot(BinanceSocketManager):
                 opportunity = Opportunity(self, plan)
                 opportunity.find_opportunity()
                 if opportunity.profit > 0 or self.test_it:
-                    if self.execute:
+                    if self.execute:  # TODO: remove redundant condition
                         t1 = Thread(target=self.execute_opportunity, args=(opportunity,))
                         t1.start()
                         t1.join()  # Wait for the execution to finish
-                        break  # TODO Run all of them and execute only the one with the best profit
+                        break  # TODO: Run all of them and execute only the one with the best profit
 
         except Exception as e:
             self.exceptions.append(e)
@@ -90,7 +90,7 @@ class BinanceBot(BinanceSocketManager):
     def start_listening(self):
         stream_names = [pair.lower() + "@depth10@100ms" for pair in self.plan_markets]
         self.start_multiplex_socket(stream_names, self.handle_message)
-        self.start()
+        if not reactor.running: self.start()
         atexit.register(self.upon_closure)  # Close the sockets when you close the terminal
         self.books = self.get_intial_books(self.plan_markets)  # Get initial books
         self.last_book_update = time.time()
@@ -98,8 +98,7 @@ class BinanceBot(BinanceSocketManager):
 
     def upon_closure(self):
         self.close()
-        if reactor.running:
-            reactor.stop()
+        if reactor.running: reactor.stop()
         print("GOODBYE!")
 
     def get_intial_books(self, pairs):
@@ -209,7 +208,7 @@ class Opportunity:
             else:
                 pair = normalizing_to+asset
                 inverse = True
-            best_orders, price = self.market_price(pair, "bids", wallet_[asset], inverse=inverse)  # TODO It is not always "bids"
+            _, price = self.market_price(pair, "bids", wallet_[asset], inverse=inverse)  # TODO It is not always "bids"
             norm_wallet[asset] = wallet_[asset] * price
 
         return norm_wallet
