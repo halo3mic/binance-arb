@@ -7,8 +7,8 @@ from config import *
 
 
 EXCHANGE = "BINANCE"
-TIME_LIMIT = 82800  # 23 hours
-RUNNING = False
+TIME_LIMIT = 5  # 23 hours
+SOCKET = None
 
 # TODO make it a class
 def process_message(msg):
@@ -41,13 +41,13 @@ def log_account_balance(account_info_raw):
 
 
 def start_logger(client_):
-    global RUNNING, start_time
+    global SOCKET, start_time
     socket_ = BinanceSocketManager(client_)
-    if RUNNING:
-        socket_.close()
+    if SOCKET: SOCKET.close()
     start_time = time.time()
     socket_.start_user_socket(process_message)
     socket_.start()
+    SOCKET = socket_
     print("Listening for account balance updates ...")
 
 
