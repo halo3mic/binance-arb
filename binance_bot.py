@@ -65,24 +65,17 @@ class BinanceBot(BinanceSocketManager):
             for plan in valid_plans:
                 opportunity = Opportunity(self, plan)
                 opportunity.find_opportunity()
-                t1 = None
                 if opportunity.profit > 0 or self.test_it:
                     if self.execute:
                         t1 = Thread(target=self.execute_opportunity, args=(opportunity,))
                         t1.start()
-                        # TODO Run all of them and execute only the one with the best profit
-                        self.loop = 1
-                        if not self.loop:
-                            if t1: t1.join()
-                            os._exit(1)
-                        else:
-                            t1.join()
-                            break
+                        t1.join()  # Wait for the execution to finish
+                        break  # TODO Run all of them and execute only the one with the best profit
 
         except Exception as e:
             self.exceptions.append(e)
         finally:
-            if not self.test_it:
+            if self.loop:
                 self.busy = False
 
     def execute_opportunity(self, opportunity_):
