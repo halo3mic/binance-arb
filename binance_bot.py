@@ -54,6 +54,7 @@ class BinanceBot(BinanceSocketManager):
         # Take all the exceptions from threads and message them to Slack group
         if self.exceptions:
             msg = " >" + "\n".join([str(exc) for exc in self.exceptions])
+            self.exceptions = []
             hp.send_to_slack(msg, SLACK_KEY, self.slack_group, emoji=':blocky-money:')
 
     def process_plans(self, pair):
@@ -69,11 +70,12 @@ class BinanceBot(BinanceSocketManager):
                     if self.execute:
                         responses = opportunity.execute(async_=True)
                         if self.loop:
+                            used_books = self.process_books.copy()
                             self.busy = False  # Remove the lock 
                         opportunity.actual_profit = format(opportunity.review_execution(responses)["balance"], ".8f") + " " + opportunity.plan.home_asset
                         opportunity.log_responses(responses)
                     opportunity.log_opportunity()
-                    opportunity.log_books()
+                    opportunity.log_books(used_books)
                     opportunity.to_slack()
 
         except Exception as e:
@@ -404,8 +406,7 @@ class Opportunity:
         if errors:
             raise Exception(errors)
 
-    def log_books(self):
-        books = self.bot.process_books
+    def log_books(self, books):
         books_rows = []
         for symbol, book in books.items():
             book_row = {
