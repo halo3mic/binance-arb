@@ -66,29 +66,20 @@ class BinanceBot(BinanceSocketManager):
                 opportunity = Opportunity(self, plan)
                 opportunity.find_opportunity()
                 if opportunity.profit > 0 or self.test_it:
-                    if self.execute:  # TODO: remove redundant condition
-                        t1 = Thread(target=self.execute_opportunity, args=(opportunity,))
-                        t1.start()
-                        t1.join()  # Wait for the execution to finish
-                        break  # TODO: Run all of them and execute only the one with the best profit
+                    if self.execute:
+                        responses = opportunity.execute(async_=True)
+                        if self.loop:
+                            self.busy = False  # Remove the lock 
+                        opportunity.actual_profit = format(opportunity.review_execution(responses)["balance"], ".8f") + " " + opportunity.plan.home_asset
+                        opportunity.log_responses(responses)
+                    opportunity.log_opportunity()
+                    opportunity.log_books()
+                    opportunity.to_slack()
 
         except Exception as e:
             self.exceptions.append(e)
-        finally:
             if self.loop:
                 self.busy = False
-
-    def execute_opportunity(self, opportunity_):
-        try:
-            opportunity_.execute(async_=True)
-            # TODO with multiple executions at once all of them should finish before lock is released
-            if self.loop:
-                self.busy = False
-            opportunity_.to_slack()
-            opportunity_.log_opportunity()
-            opportunity_.log_books()
-        except Exception as e:
-            self.exceptions.append(e)
 
 
     def start_listening(self):
@@ -252,6 +243,8 @@ class Opportunity:
         return money_out, price
 
     def to_slack(self):
+        if self.execution_status != "PASS":
+            self.actual_profit = "*" + self.actual_profit
         action_separator = " | " if self._async else " > "
         msg = f"_Opportunity ID:_ *{self.id}*\n" \
               f"_Action:_ *{action_separator.join([(step.symbol + '-' + step.side) for step in self.plan.actions])}*\n" \
@@ -271,11 +264,7 @@ class Opportunity:
         if not responses:
             return None
         self.execution_time = str(time.perf_counter_ns() - start_time)[:-6] + " ms"
-        self.log_responses(responses)
-        self.actual_profit = format(self.review_execution(responses)["balance"], ".8f") + " " + self.plan.home_asset
-        if self.execution_status != "PASS":
-            self.actual_profit = "*" + self.actual_profit
-
+        
         return responses
 
     def _execute_sync(self):
