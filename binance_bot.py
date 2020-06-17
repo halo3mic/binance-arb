@@ -59,9 +59,9 @@ class BinanceBot(BinanceSocketManager):
     def process_plans(self, pair):
         try:
             valid_plans = [plan for plan in self.plans if pair in plan.path]  # Only proccess plans which include updated market
-            os.system("clear")
-            timestamp = int(time.time())
-            print(f"NEW DATA: {timestamp}".center(50, "~"))
+            # os.system("clear")
+            # timestamp = int(time.time())
+            # print(f"NEW DATA: {timestamp}".center(50, "~"))
             for plan in valid_plans:
                 opportunity = Opportunity(self, plan)
                 opportunity.find_opportunity()
@@ -78,6 +78,7 @@ class BinanceBot(BinanceSocketManager):
 
         except Exception as e:
             self.exceptions.append(e)
+        finally:
             if self.loop:
                 self.busy = False
 
