@@ -81,11 +81,15 @@ class BinanceBot(BinanceSocketManager):
     def execute_opportunity(self, opportunity_):
         try:
             opportunity_.execute(async_=True)
+            # TODO with multiple executions at once all of them should finish before lock is released
+            if self.loop:
+                self.busy = False
             opportunity_.to_slack()
             opportunity_.log_opportunity()
             opportunity_.log_books()
         except Exception as e:
             self.exceptions.append(e)
+
 
     def start_listening(self):
         stream_names = [pair.lower() + "@depth10@100ms" for pair in self.plan_markets]
