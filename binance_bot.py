@@ -12,7 +12,7 @@ from pprint import pprint
 
 import helpers as hp
 from config import *
-
+import rebalance
 
 class BinanceBot(BinanceSocketManager):
 
@@ -69,8 +69,8 @@ class BinanceBot(BinanceSocketManager):
                 if opportunity.profit > 0 or self.test_it:
                     if self.execute:
                         responses = opportunity.execute(async_=True)
+                        used_books = self.process_books.copy()  # Copy the books before removing the lock - so they dont get overwritten
                         if self.loop:
-                            used_books = self.process_books.copy()
                             self.busy = False  # Remove the lock 
                         opportunity.actual_profit = format(opportunity.review_execution(responses)["balance"], ".8f") + " " + opportunity.plan.home_asset
                         opportunity.log_responses(responses)
@@ -316,6 +316,7 @@ class Opportunity:
                     failed_action = self.plan.actions[num]
                     failed_asset = failed_action.base if failed_action.side == "SELL" else failed_action.quote
                     msg = f"> *{failed_asset}* balance is too low!"
+                    msg += f"\n```{rebalance.main()}```"
                     failed_responses.append(failed_action.symbol)
                 else:
                     msg = f"_Status_code_: *{e.status_code}*\n" \
