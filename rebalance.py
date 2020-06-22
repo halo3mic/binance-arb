@@ -8,6 +8,7 @@ from helpers import append_rows
 
 
 BOTTOM_LIMIT = 36
+MIN_TRADING_AMOUNT = 10  # In normalizing asset
 NORMALIZING_ASSET = "USDT"
 CONNECTIONS = {'BNB': ['BTC', 'EUR', 'ETH', 'XRP', 'RUB', 'USDT'],
                'BTC': ['EUR', 'ETH', 'XRP', 'RUB', 'BNB', 'USDT'],
@@ -63,20 +64,22 @@ def get_latest_prices(client_):
 
 def get_rebalance_instructions(balances_, connections):
     # What amount could an asset possible obtain through direct connections
-    get_reach = lambda asset1: sum([balances_[asset2] - BOTTOM_LIMIT for asset2 in connections[asset1] if asset2 in balances_ and balances_[asset2] > BOTTOM_LIMIT])
+    get_reach = lambda asset1: sum([balances_[asset2] - BOTTOM_LIMIT for asset2 in connections[asset1] if asset2 in balances_ and balances_[asset2] > (BOTTOM_LIMIT + MIN_TRADING_AMOUNT)])
     # Balances with amounts under the BOTTOM_LIMIT will be regarded as red-balances and others as green-balances
     red_balances = [{"asset": k, "relative_balance": v - BOTTOM_LIMIT, "reach": get_reach(k)} for k, v in balances_.items() if v < BOTTOM_LIMIT]
-    green_balances = [{"asset": k, "relative_balance": v - BOTTOM_LIMIT, "reach": get_reach(k)} for k, v in balances_.items() if v >= BOTTOM_LIMIT]
+    green_balances = [{"asset": k, "relative_balance": v - BOTTOM_LIMIT, "reach": get_reach(k)} for k, v in balances_.items() if v > (BOTTOM_LIMIT + MIN_TRADING_AMOUNT)]
     red_balances.sort(key=lambda x: (x["reach"], x["relative_balance"]))
 
     instructions = []
     for balance in red_balances:
         # print(balance["asset"].center(50, "~"))
         relative_balance = balance["relative_balance"]
-        while relative_balance != 0:
+        while abs(relative_balance) > MIN_TRADING_AMOUNT:
             # print(f"Relative balance: {relative_balance} (in {balance['asset']})")
             helping_balance = max(green_balances, key=lambda x: x["relative_balance"])
             giving = helping_balance["relative_balance"] if helping_balance["relative_balance"] <= abs(relative_balance) else abs(relative_balance)
+            if giving <= MIN_TRADING_AMOUNT:
+                break
             # print(f"Giving: {giving} (in {helping_balance['asset']})")
             relative_balance += giving
             helping_asset_index = green_balances.index(helping_balance)
