@@ -1,3 +1,6 @@
+"""All global settings for Binance bot are saved here."""
+
+
 import os
 from dotenv import load_dotenv
 

@@ -31,7 +31,7 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.73249",
+            "start_amount": "10.77877",
             "fee_asset": "EUR",
             "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
@@ -62,7 +62,7 @@
                 }
             ],
             "start_currency": "BNB",
-            "start_amount": "0.71757",
+            "start_amount": "0.76416",
             "fee_asset": "BNB",
             "profit_asset": "BNB",
             "strategy": "ARBITRAGE",
@@ -93,7 +93,7 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "831.816",
+            "start_amount": "845.856",
             "fee_asset": "RUB",
             "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
@@ -124,7 +124,7 @@
                 }
             ],
             "start_currency": "BNB",
-            "start_amount": "0.71757",
+            "start_amount": "0.76416",
             "fee_asset": "BNB",
             "profit_asset": "BNB",
             "strategy": "ARBITRAGE",
@@ -217,7 +217,7 @@
                 }
             ],
             "start_currency": "BNB",
-            "start_amount": "0.71757",
+            "start_amount": "0.76416",
             "fee_asset": "BNB",
             "profit_asset": "BNB",
             "strategy": "ARBITRAGE",
@@ -248,7 +248,7 @@
                 }
             ],
             "start_currency": "BNB",
-            "start_amount": "0.71757",
+            "start_amount": "0.76416",
             "fee_asset": "BNB",
             "profit_asset": "BNB",
             "strategy": "ARBITRAGE",
@@ -279,7 +279,7 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.73249",
+            "start_amount": "10.77877",
             "fee_asset": "EUR",
             "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
@@ -310,7 +310,7 @@
                 }
             ],
             "start_currency": "BTC",
-            "start_amount": "0.00126",
+            "start_amount": "0.00131",
             "fee_asset": "BTC",
             "profit_asset": "BTC",
             "strategy": "ARBITRAGE",
@@ -341,7 +341,7 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "831.816",
+            "start_amount": "845.856",
             "fee_asset": "RUB",
             "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
@@ -372,7 +372,7 @@
                 }
             ],
             "start_currency": "BTC",
-            "start_amount": "0.00126",
+            "start_amount": "0.00131",
             "fee_asset": "BTC",
             "profit_asset": "BTC",
             "strategy": "ARBITRAGE",
@@ -465,7 +465,7 @@
                 }
             ],
             "start_currency": "BTC",
-            "start_amount": "0.00126",
+            "start_amount": "0.00131",
             "fee_asset": "BTC",
             "profit_asset": "BTC",
             "strategy": "ARBITRAGE",
@@ -496,7 +496,7 @@
                 }
             ],
             "start_currency": "BTC",
-            "start_amount": "0.00126",
+            "start_amount": "0.00131",
             "fee_asset": "BTC",
             "profit_asset": "BTC",
             "strategy": "ARBITRAGE",
@@ -527,7 +527,7 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.73249",
+            "start_amount": "10.77877",
             "fee_asset": "EUR",
             "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
@@ -558,7 +558,7 @@
                 }
             ],
             "start_currency": "ETH",
-            "start_amount": "0.05046",
+            "start_amount": "0.05215",
             "fee_asset": "ETH",
             "profit_asset": "ETH",
             "strategy": "ARBITRAGE",
@@ -589,7 +589,7 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "831.816",
+            "start_amount": "845.856",
             "fee_asset": "RUB",
             "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
@@ -620,7 +620,7 @@
                 }
             ],
             "start_currency": "ETH",
-            "start_amount": "0.05046",
+            "start_amount": "0.05215",
             "fee_asset": "ETH",
             "profit_asset": "ETH",
             "strategy": "ARBITRAGE",
@@ -713,7 +713,7 @@
                 }
             ],
             "start_currency": "ETH",
-            "start_amount": "0.05046",
+            "start_amount": "0.05215",
             "fee_asset": "ETH",
             "profit_asset": "ETH",
             "strategy": "ARBITRAGE",
@@ -744,7 +744,7 @@
                 }
             ],
             "start_currency": "ETH",
-            "start_amount": "0.05046",
+            "start_amount": "0.05215",
             "fee_asset": "ETH",
             "profit_asset": "ETH",
             "strategy": "ARBITRAGE",
@@ -806,7 +806,7 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.73249",
+            "start_amount": "10.77877",
             "fee_asset": "EUR",
             "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
@@ -868,7 +868,7 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.73249",
+            "start_amount": "10.77877",
             "fee_asset": "EUR",
             "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
@@ -930,7 +930,7 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.73249",
+            "start_amount": "10.77877",
             "fee_asset": "EUR",
             "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
@@ -992,7 +992,7 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.73249",
+            "start_amount": "10.77877",
             "fee_asset": "EUR",
             "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
@@ -1054,7 +1054,7 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "831.816",
+            "start_amount": "845.856",
             "fee_asset": "RUB",
             "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
@@ -1116,7 +1116,7 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "831.816",
+            "start_amount": "845.856",
             "fee_asset": "RUB",
             "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
@@ -1178,7 +1178,7 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "831.816",
+            "start_amount": "845.856",
             "fee_asset": "RUB",
             "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
@@ -1240,7 +1240,7 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "831.816",
+            "start_amount": "845.856",
             "fee_asset": "RUB",
             "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
@@ -1271,7 +1271,7 @@
                 }
             ],
             "start_currency": "XRP",
-            "start_amount": "61.76016",
+            "start_amount": "65.62756",
             "fee_asset": "XRP",
             "profit_asset": "XRP",
             "strategy": "ARBITRAGE",
@@ -1302,7 +1302,7 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.73249",
+            "start_amount": "10.77877",
             "fee_asset": "EUR",
             "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
@@ -1333,7 +1333,7 @@
                 }
             ],
             "start_currency": "XRP",
-            "start_amount": "61.76016",
+            "start_amount": "65.62756",
             "fee_asset": "XRP",
             "profit_asset": "XRP",
             "strategy": "ARBITRAGE",
@@ -1364,7 +1364,7 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "831.816",
+            "start_amount": "845.856",
             "fee_asset": "RUB",
             "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
@@ -1395,7 +1395,7 @@
                 }
             ],
             "start_currency": "XRP",
-            "start_amount": "61.76016",
+            "start_amount": "65.62756",
             "fee_asset": "XRP",
             "profit_asset": "XRP",
             "strategy": "ARBITRAGE",
@@ -1426,7 +1426,7 @@
                 }
             ],
             "start_currency": "XRP",
-            "start_amount": "61.76016",
+            "start_amount": "65.62756",
             "fee_asset": "XRP",
             "profit_asset": "XRP",
             "strategy": "ARBITRAGE",

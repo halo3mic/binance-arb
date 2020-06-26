@@ -17,10 +17,25 @@ HEADER = {
 FEE_ASSET = "START_ASSET"
 PROFIT_ASSET = "START_ASSET"
 
+
+def format_exchange_info(exchange_info_raw_):
+	exchange_info = {}
+	for symbol_data in exchange_info_raw_["symbols"]:
+		step_size = symbol_data['filters'][2]['stepSize'].rstrip("0")
+		exchange_info[symbol_data["symbol"]] = {"quote": symbol_data["quoteAsset"], 
+											  "base": symbol_data["baseAsset"],
+											  "decimals": step_size.count("0")
+											 }
+	relavant = dict([(symbol, data) for symbol, data in exchange_info.items() if symbol in SUPPORTED_MARKETS])
+
+	return relavant
+
+
 client = Client(api_key=BINANCE_PUBLIC, api_secret=BINANCE_SECRET)
 prices_raw = client.get_all_tickers()
 prices_dict = dict([(market["symbol"], market["price"]) for market in prices_raw])
-symbols_info = hp.fetch_symbols_info(EXCHANGE_INFO_SOURCE)
+exchange_info_raw = client.get_exchange_info()
+exchange_info = format_exchange_info(exchange_info_raw)
 paths_all = it.permutations(SUPPORTED_MARKETS, 3)
 
 plans = []
@@ -28,8 +43,8 @@ for plan_no, path in enumerate(paths_all):
 	actions = []
 	for i in range(len(path)):
 		next_index = 0 if i == len(path)-1 else i + 1
-		quote = symbols_info[path[i]]["quote"]
-		base = symbols_info[path[i]]["base"]
+		quote = exchange_info[path[i]]["quote"]
+		base = exchange_info[path[i]]["base"]
 		cond1 =  quote in path[next_index] and quote not in path[i-1]
 		cond2 = base in path[next_index] and base not in path[i-1]
 		if not (cond1 or cond2):
@@ -37,7 +52,7 @@ for plan_no, path in enumerate(paths_all):
 		actions.append({"symbol": path[i], 
 						"quote": quote, 
 						"base": base, 
-						"decimals": symbols_info[path[i]]["decimals"], 
+						"decimals": exchange_info[path[i]]["decimals"], 
 						"exchange": "BINANCE"})
 	else:
 		start_asset = actions[0]["base"] if actions[0]["base"] in actions[-1]["symbol"] else actions[0]["quote"]

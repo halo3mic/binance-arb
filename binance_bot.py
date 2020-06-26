@@ -1,115 +1,118 @@
-import time
+"""Heart of the Binance bot."""
+
+
 from binance.client import Client, BinanceAPIException
 from binance.websockets import BinanceSocketManager
 from threading import Thread
 from twisted.internet import reactor
 from collections import namedtuple
-import concurrent.futures
+import time
+import concurrent.futures  # For threading and multiprocessing
 import re
 import atexit
-import json
-from pprint import pprint
 
 import helpers as hp
-from config import *
+from config import *  # Settings are stored here
 import rebalance
+import traceback
+
 
 class BinanceBot(BinanceSocketManager):
 
     def __init__(self, plans, execute=True, test_it=False, loop=True, settings=None):
         self.slack_group = SLACK_GROUP if not test_it else SLACK_GROUP_TEST
-        # TODO Add keys as attributes
-
+        # TODO Add keys to the settings 
         self.client = Client(api_key=BINANCE_PUBLIC, api_secret=BINANCE_SECRET)
-        # Conditions
+
         self.execute = execute  # If false no opportunity gets executed
         self.test_it = test_it  # Opportunity gets executed even if unprofitable
         self.loop = loop  # If false it will only check one book update
         self.busy = False  # Is the bot currently handling one of the books
-        # self.settings = settings
-
         self.plans = plans
-        self.plan_markets = set([market for plan in plans for market in plan.path])
-        self.books = {}
-        # self.books = {}
-        self.process_books = {}
-        self.current_statuses = {}
-        self.last_book_update = None
-        self.exceptions = []
+
+        self.plan_markets = {market for plan in plans for market in plan.path}  # All markets that will be checked by the instance
+        self.books = {}  # Latest books 
+        self.process_books = {}  # Books that will be processed 
+        self.last_book_update = None  # Timestamp of the last book update
+        self.exceptions = []  # Store exceptions from all threads here
 
         BinanceSocketManager.__init__(self, self.client)
 
     def handle_message(self, msg):
+        """React to the book update."""
         if msg.get("e") == 'error':
             hp.send_to_slack(str(msg), SLACK_KEY, SLACK_GROUP, emoji=':blocky-sweat:')
-        pair = re.findall(r"^[a-z]*", msg["stream"])[0].upper()
-        self.books[pair] = msg["data"]  # Save new books (overwrite the old ones)
-        self.books[pair]["timestamp"] = time.time()
-        self.last_book_update = time.time()
+        pair = re.findall(r"^[a-z]*", msg["stream"])[0].upper()  # Find out for which market was the book update
+        self.books[pair] = msg["data"]  # Save new books (and overwrite the old ones)
+        self.last_book_update = self.books[pair]["timestamp"] = time.time()
+
         # If not busy and all assets books are available
         if not self.busy and len(self.books) == len(self.plan_markets):
-            self.busy = True
-            self.process_books = self.books.copy()
+            self.busy = True  # Acts as a lock 
+            self.process_books = self.books.copy()  # Makes sure these books won't be overwritten while processing
             Thread(target=self.process_plans, args=(pair,)).start()
-        # Take all the exceptions from threads and message them to Slack group
+
         if self.exceptions:
+            # Take all the exceptions from threads and message them to Slack group
             msg = " >" + "\n".join([str(exc) for exc in self.exceptions])
             self.exceptions = []
             hp.send_to_slack(msg, SLACK_KEY, self.slack_group, emoji=':blocky-money:')
 
     def process_plans(self, pair):
+        """Check if book updates produced profitable opportunities and act if so."""
         try:
             valid_plans = [plan for plan in self.plans if pair in plan.path]  # Only proccess plans which include updated market
-            # os.system("clear")
-            # timestamp = int(time.time())
-            # print(f"NEW DATA: {timestamp}".center(50, "~"))
+
             for plan in valid_plans:
                 opportunity = Opportunity(self, plan)
                 opportunity.find_opportunity()
-                if opportunity.profit > 0 or self.test_it:
+                if opportunity.profit > 0 or (self.test_it and plan == valid_plans[-1]):
+                    # Save used books before releasing the lock, so they dont get overwritten
+                    used_markets = {market for plan in valid_plans for market in plan.path}
+                    used_books = dict([(market, book) for market, book in self.process_books.items()
+                                       if market in used_markets])
                     if self.execute:
                         responses = opportunity.execute(async_=True)
-                        used_books = self.process_books.copy()  # Copy the books before removing the lock - so they dont get overwritten
-                        if self.loop:
-                            self.busy = False  # Remove the lock 
                         opportunity.actual_profit = format(opportunity.review_execution(responses)["balance"], ".8f") + " " + opportunity.plan.home_asset
                         opportunity.log_responses(responses)
+                    # Log data even if execution is turned off
                     opportunity.log_opportunity()
                     opportunity.log_books(used_books)
                     opportunity.to_slack()
 
         except Exception as e:
-            self.exceptions.append(e)
+            e_str = traceback.format_exc()
+            self.exceptions.append(e_str)
         finally:
-            if self.loop:
-                self.busy = False
-
+            # Release the lock if even if exception was raised
+            self.busy = False if self.loop else True
 
     def start_listening(self):
+        """Start the websocket."""
         stream_names = [pair.lower() + "@depth10@100ms" for pair in self.plan_markets]
         self.start_multiplex_socket(stream_names, self.handle_message)
-        if not reactor.running: self.start()
+        if not reactor.running: self.start()  # Start the reactor if not running (for the restart)
         atexit.register(self.upon_closure)  # Close the sockets when you close the terminal
         self.books = self.get_intial_books(self.plan_markets)  # Get initial books
         self.last_book_update = time.time()
 
-
     def upon_closure(self):
+        """Exit the thread and stop the reactor when the bot stops."""
         self.close()
         if reactor.running: reactor.stop()
         print("GOODBYE!")
 
     def get_intial_books(self, pairs):
+        """Return the initial books for all markets via REST API calls."""
         print("Fetching initial books".center(80, "~"))
         t1 = time.time()
-        # if len(pairs) > 9:
-        #     raise Exception("Too many pairs to process at once.")
         books = {}
         counter = 0
         for pair in pairs:
             print(f"{pair} fetched!")
             books[pair] = self.client.get_order_book(symbol=pair)
             books[pair]["timestamp"] = time.time()
+            # If there were 5 API calls in less than a second wait a second before continuing
             if counter == 5 and (time.time()-t1 < 1):
                 time.sleep(1)
                 counter = 0
@@ -117,15 +120,17 @@ class BinanceBot(BinanceSocketManager):
             else:
                 counter += 1
         print(f"Finished! Time taken: {time.time() - t1} sec.")
+        os.system("clear")
 
         return books
 
 
 class Opportunity:
+    """Plan with the current markets' books."""
 
     def __init__(self, bot, plan):
-        self.bot = bot
-        self.plan = plan
+        self.bot = bot  # Instance of the bot
+        self.plan = plan  # Opportunity's plan
 
         self.profit = None
         self.instructions = None
@@ -138,32 +143,37 @@ class Opportunity:
         self._async = False
         self.execution_status = "NOT EXECUTED"
         self.timestamp = time.time()
+        # TODO Improve the id generation method
         self.id = f"{str(int(self.timestamp*1000))}-{str(hash(str([action.symbol for action in plan.actions])))[-4:]}"
 
     def find_opportunity(self):
-        """Find if chain is profitable based on fees, amount and current order books."""
-        # Go through steps of trade to see if it would be profitable
+        """Find if plan is profitable based on current order books."""
         results = self.simulate_trade(self.plan.actions, self.plan.start_amount, self.plan.home_asset, FEE)
-        norm_wallet = self.normalize_wallet(results["wallet"], self.plan.home_asset)  # Convert all remaining assets to base asset
-        norm_fees = self.normalize_wallet(results["fees"], self.plan.home_asset)  # Convert all fees in different assets into base one
-        final_balance = sum(norm_wallet.values())  # No fees
+        norm_wallet = self.normalize_wallet(results["wallet"], self.plan.home_asset)  # Convert all remaining assets to normalizing asset
+        norm_fees = self.normalize_wallet(results["fees"], self.plan.home_asset)  # Convert all fee assets into normalizing asset
+        final_balance = sum(norm_wallet.values())  # Final balance, without the fees
+
         self.instructions = results["instructions"]
         self.final_balance = final_balance
         self.fees = sum(norm_fees.values())
         self.profit = self.final_balance - self.plan.start_amount - self.fees
 
     def simulate_trade(self, actions, starting_amount, start_asset, fee):
+        """Simulate plan execution with the current order books and return the results."""
 
-        def rebalance(wallet_, asset, qnt):
+        def rebalance_wallet(wallet_, asset, qnt):
+            """Add the asset amount to the wallet and return rebalanced wallet."""
             if asset not in wallet_.keys():
                 wallet_[asset] = qnt
             else:
                 wallet_[asset] += qnt
 
+            return wallet_
+
         Instruction = namedtuple("Instruction", "price amount side symbol")
         instructions = []
         wallet = {start_asset: starting_amount}
-        fees = {}
+        fees = {}  # Separate wallet for the fees
         holding = starting_amount
 
         for action in actions:
@@ -171,9 +181,11 @@ class Opportunity:
 
             if action.side == 'BUY':
                 best_orders, price = self.market_price(action.symbol, side, holding, inverse=True)
+                # If multiple orders with different prices fill our action then select the one with the lowest price
+                # This works because the the platform looks for order with specified price or better one
                 worst_price = max(best_orders, key=lambda x: x[0])[0]
-                money_in_full = holding * price
-                money_in = self.apply_qnt_filter(money_in_full, action)
+                money_in_full = holding * price  # Amount before the qnt_filter is applied
+                money_in = self.apply_qnt_filter(money_in_full, action)  # Rounds to the allowed decimal place for the market
                 asset_in = action.base
                 money_out = money_in / price
                 asset_out = action.quote
@@ -187,52 +199,56 @@ class Opportunity:
                 money_in = money_out * price
                 asset_in = action.quote
                 instructions.append(Instruction(price=worst_price, amount=money_out, side="SELL", symbol=action.symbol))
-            rebalance(wallet, asset_out, -money_out)
-            rebalance(wallet, asset_in, money_in)
-            rebalance(fees, asset_in, money_in * fee)  # Is fee really on the money in?
+            # Rebalance the wallets
+            wallet = rebalance_wallet(wallet, asset_out, -money_out)
+            wallet = rebalance_wallet(wallet, asset_in, money_in)
+            fees = rebalance_wallet(fees, asset_in, money_in * fee)
             holding = money_in
 
         return {"wallet": wallet, "fees": fees, "instructions": instructions}
 
     def normalize_wallet(self, wallet_, normalizing_to):
-        # In normalization the current average price is used
-        # LOOKING UP THESE BOOKS MIGHT NOT CATCH THE BEST PRICE - TICKERS?
+        """Return wallet in which all assets are normalized to one normalizing asset."""
         norm_wallet = wallet_
         for asset in wallet_:
             if asset == normalizing_to or wallet_[asset] == 0: continue
-            if asset+normalizing_to in self.bot.plan_markets:
-                pair = asset+normalizing_to
+            # TODO Find a better, smoother way of doing the below
+            if asset + normalizing_to in self.bot.plan_markets:
+                pair = asset + normalizing_to
                 inverse = False
             else:
-                pair = normalizing_to+asset
+                pair = normalizing_to + asset
                 inverse = True
-            _, price = self.market_price(pair, "bids", wallet_[asset], inverse=inverse)  # TODO It is not always "bids"
+            side = "asks" if inverse else "bids"
+            _, price = self.market_price(pair, side, wallet_[asset], inverse=inverse)  # TODO It is not always "bids"
             norm_wallet[asset] = wallet_[asset] * price
 
         return norm_wallet
 
     def market_price(self, pair, side, amount, inverse=False):
+        """Returns the best price for the action and amount."""
         if pair not in self.bot.process_books:
             raise Exception(f"Pair {pair} not in the books.")
         orders = self.bot.process_books[pair][side]
         return self.get_best_orders(orders, amount, inverse=inverse)
 
     def apply_qnt_filter(self, qnt, action, round_type='down'):
+        """Return the amount rounded based on market decimal limit."""
         rounding = {'even': round, 'up': hp.round_up, 'down': hp.round_down}
         rounded = rounding[round_type](float(qnt), action.decimals)
         return rounded
 
     @staticmethod
     def get_best_orders(orders, money_in, inverse=False):
+        """Return best orders and overall price for the orders and input-amount."""
         avl = money_in
-        money_out = []
+        money_out = []  # Best orders (price, amount)
         for price, amount in orders:
             price, amount = float(price), float(amount)
             diff = avl - (amount if not inverse else amount * price)
-            # price = 1 / price if inverse else price
             if diff <= 0:
-                avl = avl if not inverse else avl / price
-                money_out.append((price, avl))
+                remaining = avl if not inverse else avl / price
+                money_out.append((price, remaining))
                 avl = 0
                 break
             else:
@@ -243,11 +259,13 @@ class Opportunity:
             raise Exception('Try again with bigger limit on the order book.')
         price = hp.get_avg(money_out)
         price = 1/price if inverse else price
+        # If inverse then return inversed price, but NOT inversed orders
         return money_out, price
 
     def to_slack(self):
+        """Send opportunity to Slack."""
         if self.execution_status != "PASS":
-            self.actual_profit = "*" + self.actual_profit
+            self.actual_profit = f"*{self.actual_profit}"
         action_separator = " | " if self._async else " > "
         msg = f"_Opportunity ID:_ *{self.id}*\n" \
               f"_Action:_ *{action_separator.join([(step.symbol + '-' + step.side) for step in self.plan.actions])}*\n" \
@@ -261,6 +279,7 @@ class Opportunity:
         hp.send_to_slack(msg, SLACK_KEY, self.bot.slack_group, emoji=':blocky-money:')
 
     def execute(self, async_=False):
+        """Execute the opportunity and return the response."""
         self._async = async_
         start_time = time.perf_counter_ns()
         responses = self._execute_async() if async_ else self._execute_sync()
@@ -271,6 +290,7 @@ class Opportunity:
         return responses
 
     def _execute_sync(self):
+        """Execute opportunity synchronously."""
         # TODO Needs to be updated
         responses = []
         for instruction in self.instructions:
@@ -290,6 +310,7 @@ class Opportunity:
         return responses
 
     def _execute_async(self):
+        """Execute an opportunity asynchronously."""
         responses = []
         failed_responses = []
         threads = []
@@ -304,27 +325,35 @@ class Opportunity:
                                          price=instruction.price
                                          )
                 threads.append(thread)
-        for num, thread in enumerate(threads):
-            try:
-                response = thread.result()
-                response["localTimestamp"] = time.time()
-                responses.append(response)
-                if response["status"] == "EXPIRED":
-                    failed_responses.append(response["symbol"])
-            except BinanceAPIException as e:
-                if e.code == -2010:
-                    failed_action = self.plan.actions[num]
-                    failed_asset = failed_action.base if failed_action.side == "SELL" else failed_action.quote
-                    msg = f"> *{failed_asset}* balance is too low!"
-                    msg += f"\n```{rebalance.main()}```"
-                    failed_responses.append(failed_action.symbol)
-                else:
-                    msg = f"_Status_code_: *{e.status_code}*\n" \
-                          f"_Code_: *{e.code}*\n" \
-                          f"_Message_: *{e.message}*\n"
 
-                hp.send_to_slack(msg, SLACK_KEY, self.bot.slack_group, emoji=':blocky-sweat:')
-                if e.status_code == 429: os._exit(1)  # Exit if limit is reached
+            for num, thread in enumerate(threads):
+                try:
+                    response = thread.result()
+                    response["localTimestamp"] = time.time()
+                    responses.append(response)
+                    if response["status"] == "EXPIRED":
+                        failed_responses.append(response["symbol"])
+                except BinanceAPIException as e:
+                    executor.shutdown(wait=True)  # Wait for all the threads to execute
+                    self.bot.busy = False if self.bot.loop else True  # Release the lock as soon as the execution is finished
+
+                    if e.code == -2010:
+                        failed_action = self.plan.actions[num]
+                        failed_asset = failed_action.base if failed_action.side == "SELL" else failed_action.quote
+                        msg = f"> *{failed_asset}* balance is too low!"
+                        msg += f"\n```{rebalance.main()}```"
+                        failed_responses.append(failed_action.symbol)
+                    else:
+                        msg = f"_Status_code_: *{e.status_code}*\n" \
+                              f"_Code_: *{e.code}*\n" \
+                              f"_Message_: *{e.message}*\n"
+                    hp.send_to_slack(msg, SLACK_KEY, self.bot.slack_group, emoji=':blocky-sweat:')
+                    if e.status_code == 429: os._exit(1)  # Exit if limit is reached
+                    break  # Stop wasting the resources and time if whole opporunity won't be filled
+            else:
+                self.bot.busy = False if self.bot.loop else True  # Release the lock as soon as the execution is finished
+
+            executor.shutdown(wait=True)  # Wait for all the threads to execute
 
 
         # TODO to increase the speed of execution we should get results first and only then analyse them
@@ -338,14 +367,18 @@ class Opportunity:
         return responses
 
     def review_execution(self, responses):
+        """Simulate the execution with the execution-response."""
         # Fee is from trade simulation. Calculating new one would require additional BNB books and produce
         # almost if not the same result.
 
-        def rebalance(asset, qnt):
-            if asset not in wallet.keys():
-                wallet[asset] = qnt
+        def rebalance_wallet(wallet_, asset, qnt):
+            """Add the asset amount to the wallet and return rebalanced wallet."""
+            if asset not in wallet_.keys():
+                wallet_[asset] = qnt
             else:
-                wallet[asset] += qnt
+                wallet_[asset] += qnt
+
+            return wallet_
 
         fees = self.success_ratio * self.fees
         wallet = {}
@@ -366,17 +399,19 @@ class Opportunity:
             # Get prices
             fills = [(fill['price'], fill['qty']) for fill in order['fills']]
             orders_fills[order['side']][order['symbol']] = fills
-            rebalance(asset_out, -money_out)
-            rebalance(asset_in, money_in)
+            wallet = rebalance_wallet(wallet, asset_out, -money_out)
+            wallet = rebalance_wallet(wallet, asset_in, money_in)
 
         norm_wallet = self.normalize_wallet(wallet, self.plan.home_asset)
-        rebalance("BNB", -fees)
+        norm_wallet = rebalance_wallet(norm_wallet, "BNB", -fees)
 
         return {'end_wallet': norm_wallet, 'fills': orders_fills, 'balance': sum(norm_wallet.values())}
 
     def log_responses(self, responses):
+        """Log execution reponses to BigQuery."""
         responses_rows = []
         for response in responses:
+            response["id"] = hash(str(response["orderId"]) + response["symbol"] + PLATFORM)
             response["id"] = hash(str(response["orderId"]) + response["symbol"] + PLATFORM)
             response["exchangeTimestamp"] = response["transactTime"] / 10 ** 3
             response["exchange"] = PLATFORM
@@ -391,6 +426,7 @@ class Opportunity:
             raise Exception(errors)
 
     def log_opportunity(self):
+        """Log opportunity to BigQuery."""
         opportunity = {
             "id": self.id,
             "foundAtTimestamp": self.timestamp,
@@ -408,6 +444,7 @@ class Opportunity:
             raise Exception(errors)
 
     def log_books(self, books):
+        """Log books to BigQuery"""
         books_rows = []
         for symbol, book in books.items():
             book_row = {
@@ -426,25 +463,28 @@ class Opportunity:
 
 
 class Plan:
+    """Procedure and conditions in which actions should execute, no matter the order book."""
 
-    def __init__(self, path, home_asset, start_amount, symbols_info, instance_id, strategy, profit_asset, fee_asset):
-        self.path = path
-        self.home_asset = home_asset
+    def __init__(self, market_conds, home_asset, start_amount, instance_id, strategy, profit_asset, fee_asset):
+        self.path = [market_cond["symbol"] for market_cond in market_conds]
+        self.home_asset = home_asset  # Start and end asset
         self.start_amount = start_amount
         self.instance_id = instance_id
         self.strategy = strategy
-        self.actions = self._get_actions(symbols_info)
-        self.profit_asset = profit_asset
-        self.fee_asset = fee_asset
+        self.actions = self._get_actions(market_conds)
+        self.profit_asset = profit_asset  # Asset in which profit should be logged
+        self.fee_asset = fee_asset  # Asset in which fees should be logged
 
-    def _get_actions(self, symbols_info):
+    def _get_actions(self, plan):
+        """Return list of actions."""
+        # Action is execution condition for a market
         Action = namedtuple("Action", "symbol side quote base decimals exchange")
 
         current_asset = self.home_asset
         actions = []
-        for market in self.path:
-            base = symbols_info[market["symbol"]]["base"]
-            quote = symbols_info[market["symbol"]]["quote"]
+        for market_cond in plan:
+            base = market_cond["base"]
+            quote = market_cond["quote"]
             sell = base == current_asset
             buy = quote == current_asset
             if (buy or sell) and not (buy and sell):
@@ -453,12 +493,11 @@ class Plan:
             else:
                 raise Exception("Invalid chain.")
 
-            actions.append(Action(symbol=market["symbol"],
+            actions.append(Action(symbol=market_cond["symbol"],
                                   side=side,
                                   quote=quote,
                                   base=base,
-                                  decimals=symbols_info[market["symbol"]]["decimals"],
-                                  exchange=market["exchange"]))
-        self.path = [market["symbol"] for market in self.path]
+                                  decimals=market_cond["decimals"],
+                                  exchange=market_cond["exchange"]))
 
         return actions
