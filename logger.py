@@ -18,7 +18,6 @@ def process_message(msg):
     if msg['e'] == 'error':
         hp.send_to_slack(msg["m"], SLACK_KEY, SLACK_GROUP, emoji=':blocky-sweat:')
     elif msg["e"] == "outboundAccountInfo":
-        print(f"Change in balance found at {time.time()}")
         log_account_balance(msg)
 
 

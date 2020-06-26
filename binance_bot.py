@@ -271,10 +271,9 @@ class Opportunity:
               f"_Action:_ *{action_separator.join([(step.symbol + '-' + step.side) for step in self.plan.actions])}*\n" \
               f"_EstimatedProfit:_ *{self.profit:.8f} {self.plan.home_asset}*\n" \
               f"_ActualProfit:_ * {self.actual_profit}*\n" \
-              f"_Start timestamp:_ *{self.id[:-5]}*\n" \
-              f"_End timestamp:_ *{int(time.time()*1000)}*\n" \
               f"_OrdersExecution time:_ *{self.execution_time}*\n" \
-              f"_Status_: *{self.execution_msg}*\n" \
+              f"_Status_: *{self.execution_status}*\n" \
+              f"_Execution msg_: *{self.execution_msg}*\n" \
               f"_Start amount:_ *{self.plan.start_amount} {self.plan.home_asset}*\n"
         hp.send_to_slack(msg, SLACK_KEY, self.bot.slack_group, emoji=':blocky-money:')
 
@@ -311,8 +310,9 @@ class Opportunity:
 
     def _execute_async(self):
         """Execute an opportunity asynchronously."""
+        self.execution_status = "PASS"
+        success_message = "| "
         responses = []
-        failed_responses = []
         threads = []
         with concurrent.futures.ThreadPoolExecutor() as executor:
             for instruction in self.instructions:
@@ -320,7 +320,7 @@ class Opportunity:
                                          symbol=instruction.symbol,
                                          side=instruction.side,
                                          type="LIMIT",
-                                         timeInForce="FOK",
+                                         timeInForce="IOC",
                                          quantity=instruction.amount,
                                          price=instruction.price
                                          )
@@ -331,8 +331,6 @@ class Opportunity:
                     response = thread.result()
                     response["localTimestamp"] = time.time()
                     responses.append(response)
-                    if response["status"] == "EXPIRED":
-                        failed_responses.append(response["symbol"])
                 except BinanceAPIException as e:
                     executor.shutdown(wait=True)  # Wait for all the threads to execute
                     self.bot.busy = False if self.bot.loop else True  # Release the lock as soon as the execution is finished
@@ -342,7 +340,8 @@ class Opportunity:
                         failed_asset = failed_action.base if failed_action.side == "SELL" else failed_action.quote
                         msg = f"> *{failed_asset}* balance is too low!"
                         msg += f"\n```{rebalance.main()}```"
-                        failed_responses.append(failed_action.symbol)
+                        self.execution_status = "MISSED"
+                        success_message += f"{failed_action.symbol} 0% | "
                     else:
                         msg = f"_Status_code_: *{e.status_code}*\n" \
                               f"_Code_: *{e.code}*\n" \
@@ -355,14 +354,15 @@ class Opportunity:
 
             executor.shutdown(wait=True)  # Wait for all the threads to execute
 
-
-        # TODO to increase the speed of execution we should get results first and only then analyse them
-        if failed_responses:
-            self.execution_status = "MISSED"
-            self.execution_msg = f"MISSED: {', '.join(failed_responses)}"
-        else:
-            self.execution_status = self.execution_msg = "PASS"
-        self.success_ratio = (len(self.instructions)-len(failed_responses)) / len(self.instructions)
+        self.success_ratio = 0
+        for response in responses:
+            if response["status"] != "FILLED":
+                self.execution_status = "MISSED"
+            success_rate = float(response["executedQty"]) / float(response["origQty"])
+            self.success_ratio += success_rate
+            success_message += f"{response['symbol']} {success_rate:.0%} | "
+        self.execution_msg = success_message
+        self.success_ratio /= len(self.instructions)
 
         return responses
 
