@@ -1,25 +1,23 @@
-from dotenv import load_dotenv
-import os
-import sys
-
-from main import BinanceBot
+"""Module for testing the Binance bot"""
 
 
-load_dotenv()
-SECRET_KEY = os.getenv('BINANCE_SECRET')
-API_KEY = os.getenv('BINANCE_KEY')
-SLACK_KEY = os.getenv('SLACK_KEY')
-SLACK_MEMBER_ID = os.getenv('SLACK_MEMBER_ID')
+import json
+import argparse
 
-chains_eth = [["ETHUSDT", "ETHEUR", "EURUSDT"], 
-		      ["EURUSDT", "ETHEUR", "ETHUSDT"]]
-chains_btc = [["BTCUSDT", "BTCEUR", "EURUSDT"], 
-		  	  ["EURUSDT", "BTCEUR", "BTCUSDT"]]
-chains = chains_eth + chains_btc
-bot = BinanceBot(API_KEY, SECRET_KEY, SLACK_KEY, SLACK_MEMBER_ID)
-bot.to_slack = 0
-bot.execute_trade = 0
-bot.filter_off = 1
-bot.run_once(chains)
+from main import main
+from config import DEPLOYMENT_SETTINGS_SOURCE
 
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--plan', default=-1, type=int)
+parser.add_argument('--execute', action='store_true')
+parser.add_argument('--loop', action='store_true')
+args = parser.parse_args()
+
+with open(DEPLOYMENT_SETTINGS_SOURCE) as ds_file:
+    deployment_settings = json.load(ds_file)
+all_plans = deployment_settings["plans"]
+plans = [plan for plan in all_plans if plan["plan_no"] == args.plan or args.plan == -1]
+deployment_settings["plans"] = plans
+
+main(deployment_settings, execute=args.execute, loop=args.loop, test_it=1)
