@@ -3,3 +3,4 @@ Twisted==20.3.0
 requests==2.23.0
 python-dotenv==0.13.0
 google-cloud-bigquery==1.24.0
+Pympler==0.8
