@@ -579,7 +579,7 @@ class Opportunity:
             "foundAtTimestamp": self.timestamp,
             "startAmount": self.plan.start_amount,
             "startCurrency": self.plan.home_asset,
-            "estimatedProfitAmount": round(self.final_balance - self.fees, 9),
+            "estimatedProfitAmount": round(self.profit, 9),
             "estimatedProfitCurrency": self.plan.profit_asset,
             "estimatedFeeAmount": round(self.fees, 9),
             "estimatedFeeCurrency": self.plan.fee_asset,
