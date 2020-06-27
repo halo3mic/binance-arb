@@ -35,6 +35,13 @@ SUPPORTED_MARKETS = [
             "USDTRUB",
             "XRPEUR",
             "XRPRUB",
-            "XRPUSDT"
+            "XRPUSDT",
+            "BTCGBP",
+            "ETHGBP",
+            "BNBGBP",
+            "XRPGBP",
+            "ETHBTC",
+            "XRPBTC",
+            "BNBBTC"
         ]
 

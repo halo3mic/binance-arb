@@ -6,15 +6,18 @@ from binance.websockets import BinanceSocketManager
 from threading import Thread
 from twisted.internet import reactor
 from collections import namedtuple
+from queue import Queue
+from pprint import pprint
 import time
-import concurrent.futures  # For threading and multiprocessing
 import re
 import atexit
+import traceback
+from pympler import muppy, summary, asizeof
+
 
 import helpers as hp
 from config import *  # Settings are stored here
 import rebalance
-import traceback
 
 
 class BinanceBot(BinanceSocketManager):
@@ -51,7 +54,6 @@ class BinanceBot(BinanceSocketManager):
             self.busy = True  # Acts as a lock 
             self.process_books = self.books.copy()  # Makes sure these books won't be overwritten while processing
             Thread(target=self.process_plans, args=(pair,)).start()
-
         if self.exceptions:
             # Take all the exceptions from threads and message them to Slack group
             msg = " >" + "\n".join([str(exc) for exc in self.exceptions])
@@ -60,26 +62,30 @@ class BinanceBot(BinanceSocketManager):
 
     def process_plans(self, pair):
         """Check if book updates produced profitable opportunities and act if so."""
+        print(pair)
+        def plan_to_opp(plan):
+            opportunity = Opportunity(self, plan)
+            opportunity.find_opportunity()
+
+            return opportunity
+
         try:
             valid_plans = [plan for plan in self.plans if pair in plan.path]  # Only proccess plans which include updated market
-
-            for plan in valid_plans:
-                opportunity = Opportunity(self, plan)
-                opportunity.find_opportunity()
-                if opportunity.profit > 0 or (self.test_it and plan == valid_plans[-1]):
-                    # Save used books before releasing the lock, so they dont get overwritten
-                    used_markets = {market for plan in valid_plans for market in plan.path}
-                    used_books = dict([(market, book) for market, book in self.process_books.items()
-                                       if market in used_markets])
-                    if self.execute:
-                        responses = opportunity.execute(async_=True)
-                        opportunity.actual_profit = format(opportunity.review_execution(responses)["balance"], ".8f") + " " + opportunity.plan.home_asset
-                        opportunity.log_responses(responses)
-                    # Log data even if execution is turned off
-                    opportunity.log_opportunity()
-                    opportunity.log_books(used_books)
-                    opportunity.to_slack()
-
+            max_profit_opp = max([plan_to_opp(plan) for plan in valid_plans], key=lambda x: x.profit)
+            if max_profit_opp.profit > 0 or self.test_it:
+                # Save used books before releasing the lock, so they dont get overwritten
+                used_markets = {market for plan in valid_plans for market in plan.path}
+                used_books = dict([(market, book) for market, book in self.process_books.items()
+                                   if market in used_markets])
+                opportunity = max_profit_opp
+                if self.execute:
+                    responses = opportunity.execute(async_=True)
+                    # opportunity.actual_profit = format(opportunity.review_execution(responses)["balance"], ".8f") + " " + opportunity.plan.home_asset
+                    opportunity.log_responses(responses)
+                # Log data even if execution is turned off
+                opportunity.log_opportunity()
+                opportunity.log_books(used_books)
+                opportunity.to_slack()
         except Exception as e:
             e_str = traceback.format_exc()
             self.exceptions.append(e_str)
@@ -91,16 +97,26 @@ class BinanceBot(BinanceSocketManager):
         """Start the websocket."""
         stream_names = [pair.lower() + "@depth10@100ms" for pair in self.plan_markets]
         self.start_multiplex_socket(stream_names, self.handle_message)
-        if not reactor.running: self.start()  # Start the reactor if not running (for the restart)
         atexit.register(self.upon_closure)  # Close the sockets when you close the terminal
         self.books = self.get_intial_books(self.plan_markets)  # Get initial books
         self.last_book_update = time.time()
+        self.start()
+        print("Bot is running ...")
 
     def upon_closure(self):
         """Exit the thread and stop the reactor when the bot stops."""
         self.close()
         if reactor.running: reactor.stop()
         print("GOODBYE!")
+        all_objects = muppy.get_objects()
+        sum1 = summary.summarize(all_objects)
+        # Prints out a summary of the large objects
+        summary.print_(sum1)
+        print("Sizes")
+        print("BinanceBot: ", asizeof.asized(self.__dict__, detail=1).format())
+        print("Books: ", asizeof.asized(self.books, detail=1).format())
+        for pair, book in self.books.items():
+            print(pair, book["asks"][0], book["bids"][0])
 
     def get_intial_books(self, pairs):
         """Return the initial books for all markets via REST API calls."""
@@ -308,51 +324,118 @@ class Opportunity:
 
         return responses
 
+    # def _execute_async(self):
+    #     """Execute an opportunity asynchronously."""
+    #     self.execution_status = "PASS"
+    #     success_message = "| "
+    #     responses = []
+    #     threads = []
+    #     with concurrent.futures.ThreadPoolExecutor() as executor:
+    #         for instruction in self.instructions:
+    #             thread = executor.submit(self.bot.client.create_order,
+    #                                      symbol=instruction.symbol,
+    #                                      side=instruction.side,
+    #                                      type="LIMIT",
+    #                                      timeInForce="IOC",
+    #                                      quantity=instruction.amount,
+    #                                      price=instruction.price
+    #                                      )
+    #             threads.append(thread)
+    #
+    #         for num, thread in enumerate(threads):
+    #             try:
+    #                 response = thread.result()
+    #                 response["localTimestamp"] = time.time()
+    #                 responses.append(response)
+    #             except BinanceAPIException as e:
+    #                 executor.shutdown(wait=True)  # Wait for all the threads to execute
+    #                 self.bot.busy = False if self.bot.loop else True  # Release the lock as soon as the execution is finished
+    #
+    #                 if e.code == -2010:
+    #                     failed_action = self.plan.actions[num]
+    #                     failed_asset = failed_action.base if failed_action.side == "SELL" else failed_action.quote
+    #                     msg = f"> *{failed_asset}* balance is too low!"
+    #                     msg += f"\n```{rebalance.main()}```"
+    #                     self.execution_status = "MISSED"
+    #                     success_message += f"{failed_action.symbol} 0% | "
+    #                 else:
+    #                     msg = f"_Status_code_: *{e.status_code}*\n" \
+    #                           f"_Code_: *{e.code}*\n" \
+    #                           f"_Message_: *{e.message}*\n"
+    #                 hp.send_to_slack(msg, SLACK_KEY, self.bot.slack_group, emoji=':blocky-sweat:')
+    #                 if e.status_code == 429: os._exit(1)  # Exit if limit is reached
+    #                 break  # Stop wasting the resources and time if whole opporunity won't be filled
+    #         else:
+    #             self.bot.busy = False if self.bot.loop else True  # Release the lock as soon as the execution is finished
+    #         for t in threads:
+    #             t.cancel()
+    #     executor.shutdown(wait=True)  # Wait for all the threads to execute
+    #
+    #     self.success_ratio = 0
+    #     for response in responses:
+    #         if response["status"] != "FILLED":
+    #             self.execution_status = "MISSED"
+    #         success_rate = float(response["executedQty"]) / float(response["origQty"])
+    #         self.success_ratio += success_rate
+    #         success_message += f"{response['symbol']} {success_rate:.0%} | "
+    #     self.execution_msg = success_message
+    #     self.success_ratio /= len(self.instructions)
+    #
+    #     return responses
+
     def _execute_async(self):
         """Execute an opportunity asynchronously."""
+        nums = iter(range(0, 3))
+        self.fees = 0.027
+
+        def create_order(instruction):
+            # r = self.bot.client.create_order(symbol=instruction.symbol,
+            #                                  side=instruction.side,
+            #                                  type="LIMIT",
+            #                                  timeInForce="IOC",
+            #                                  quantity=instruction.amount,
+            #                                  price=instruction.price)
+            with open("./data/examples/response_example.txt") as example_file:
+                r = eval(example_file.read())[nums.__next__()]
+            time.sleep(1)
+            raise Exception("test")
+            return r
+
         self.execution_status = "PASS"
         success_message = "| "
         responses = []
         threads = []
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            for instruction in self.instructions:
-                thread = executor.submit(self.bot.client.create_order,
-                                         symbol=instruction.symbol,
-                                         side=instruction.side,
-                                         type="LIMIT",
-                                         timeInForce="IOC",
-                                         quantity=instruction.amount,
-                                         price=instruction.price
-                                         )
-                threads.append(thread)
+        que = Queue()
 
-            for num, thread in enumerate(threads):
-                try:
-                    response = thread.result()
+        for instruction in self.instructions:
+            try:
+                t = Thread(target=lambda q, arg1: q.put(create_order(arg1)), args=(que, instruction))
+                t.start()
+                threads.append(t)
+
+                for num, t in enumerate(threads):
+                    t.join()
+                    response = que.get()
                     response["localTimestamp"] = time.time()
                     responses.append(response)
-                except BinanceAPIException as e:
-                    executor.shutdown(wait=True)  # Wait for all the threads to execute
-                    self.bot.busy = False if self.bot.loop else True  # Release the lock as soon as the execution is finished
-
-                    if e.code == -2010:
-                        failed_action = self.plan.actions[num]
-                        failed_asset = failed_action.base if failed_action.side == "SELL" else failed_action.quote
-                        msg = f"> *{failed_asset}* balance is too low!"
-                        msg += f"\n```{rebalance.main()}```"
-                        self.execution_status = "MISSED"
-                        success_message += f"{failed_action.symbol} 0% | "
-                    else:
-                        msg = f"_Status_code_: *{e.status_code}*\n" \
-                              f"_Code_: *{e.code}*\n" \
-                              f"_Message_: *{e.message}*\n"
-                    hp.send_to_slack(msg, SLACK_KEY, self.bot.slack_group, emoji=':blocky-sweat:')
-                    if e.status_code == 429: os._exit(1)  # Exit if limit is reached
-                    break  # Stop wasting the resources and time if whole opporunity won't be filled
-            else:
+            except Exception as e:
                 self.bot.busy = False if self.bot.loop else True  # Release the lock as soon as the execution is finished
 
-            executor.shutdown(wait=True)  # Wait for all the threads to execute
+                if e.code == -2010:
+                    failed_action = self.plan.actions[num]
+                    failed_asset = failed_action.base if failed_action.side == "SELL" else failed_action.quote
+                    msg = f"> *{failed_asset}* balance is too low!"
+                    msg += f"\n```{rebalance.main()}```"
+                    self.execution_status = "MISSED"
+                    success_message += f"{failed_action.symbol} 0% | "
+                else:
+                    msg = f"_Status_code_: *{e.status_code}*\n" \
+                          f"_Code_: *{e.code}*\n" \
+                          f"_Message_: *{e.message}*\n"
+                hp.send_to_slack(msg, SLACK_KEY, self.bot.slack_group, emoji=':blocky-sweat:')
+                if e.status_code == 429: os._exit(1)  # Exit if limit is reached
+        else:
+            self.bot.busy = False if self.bot.loop else True  # Release the lock as soon as the execution is finished
 
         self.success_ratio = 0
         for response in responses:

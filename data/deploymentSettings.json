@@ -31,11 +31,42 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.77877",
+            "start_amount": "10.7562",
             "fee_asset": "EUR",
             "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
-            "plan_no": 19
+            "plan_no": 26
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BNBEUR",
+                    "quote": "EUR",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCEUR",
+                    "quote": "EUR",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BNB",
+            "start_amount": "0.75985",
+            "fee_asset": "BNB",
+            "profit_asset": "BNB",
+            "strategy": "ARBITRAGE",
+            "plan_no": 56
         },
         {
             "markets": [
@@ -62,11 +93,42 @@
                 }
             ],
             "start_currency": "BNB",
-            "start_amount": "0.76416",
+            "start_amount": "0.75985",
             "fee_asset": "BNB",
             "profit_asset": "BNB",
             "strategy": "ARBITRAGE",
-            "plan_no": 97
+            "plan_no": 153
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BNBEUR",
+                    "quote": "EUR",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCEUR",
+                    "quote": "EUR",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "EUR",
+            "start_amount": "10.7562",
+            "fee_asset": "EUR",
+            "profit_asset": "EUR",
+            "strategy": "ARBITRAGE",
+            "plan_no": 363
         },
         {
             "markets": [
@@ -93,11 +155,42 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "845.856",
+            "start_amount": "846.274",
             "fee_asset": "RUB",
             "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
-            "plan_no": 176
+            "plan_no": 407
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BNBRUB",
+                    "quote": "RUB",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCRUB",
+                    "quote": "RUB",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BNB",
+            "start_amount": "0.75985",
+            "fee_asset": "BNB",
+            "profit_asset": "BNB",
+            "strategy": "ARBITRAGE",
+            "plan_no": 455
         },
         {
             "markets": [
@@ -124,11 +217,42 @@
                 }
             ],
             "start_currency": "BNB",
-            "start_amount": "0.76416",
+            "start_amount": "0.75985",
             "fee_asset": "BNB",
             "profit_asset": "BNB",
             "strategy": "ARBITRAGE",
-            "plan_no": 265
+            "plan_no": 552
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BNBRUB",
+                    "quote": "RUB",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCRUB",
+                    "quote": "RUB",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "RUB",
+            "start_amount": "846.274",
+            "fee_asset": "RUB",
+            "profit_asset": "RUB",
+            "strategy": "ARBITRAGE",
+            "plan_no": 744
         },
         {
             "markets": [
@@ -155,11 +279,11 @@
                 }
             ],
             "start_currency": "USDT",
-            "start_amount": "12",
+            "start_amount": "11.97872",
             "fee_asset": "USDT",
             "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
-            "plan_no": 319
+            "plan_no": 767
         },
         {
             "markets": [
@@ -186,11 +310,42 @@
                 }
             ],
             "start_currency": "USDT",
-            "start_amount": "12",
+            "start_amount": "11.97872",
             "fee_asset": "USDT",
             "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
-            "plan_no": 332
+            "plan_no": 787
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BNBUSDT",
+                    "quote": "USDT",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCUSDT",
+                    "quote": "USDT",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BNB",
+            "start_amount": "0.75985",
+            "fee_asset": "BNB",
+            "profit_asset": "BNB",
+            "strategy": "ARBITRAGE",
+            "plan_no": 854
         },
         {
             "markets": [
@@ -217,11 +372,11 @@
                 }
             ],
             "start_currency": "BNB",
-            "start_amount": "0.76416",
+            "start_amount": "0.75985",
             "fee_asset": "BNB",
             "profit_asset": "BNB",
             "strategy": "ARBITRAGE",
-            "plan_no": 408
+            "plan_no": 912
         },
         {
             "markets": [
@@ -248,11 +403,73 @@
                 }
             ],
             "start_currency": "BNB",
-            "start_amount": "0.76416",
+            "start_amount": "0.75985",
             "fee_asset": "BNB",
             "profit_asset": "BNB",
             "strategy": "ARBITRAGE",
-            "plan_no": 421
+            "plan_no": 932
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BNBUSDT",
+                    "quote": "USDT",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCUSDT",
+                    "quote": "USDT",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "USDT",
+            "start_amount": "11.97872",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
+            "strategy": "ARBITRAGE",
+            "plan_no": 1125
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCEUR",
+                    "quote": "EUR",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBEUR",
+                    "quote": "EUR",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 1158
         },
         {
             "markets": [
@@ -279,11 +496,42 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.77877",
+            "start_amount": "10.7562",
             "fee_asset": "EUR",
             "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
-            "plan_no": 523
+            "plan_no": 1223
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCEUR",
+                    "quote": "EUR",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHEUR",
+                    "quote": "EUR",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 1251
         },
         {
             "markets": [
@@ -310,11 +558,166 @@
                 }
             ],
             "start_currency": "BTC",
-            "start_amount": "0.00131",
+            "start_amount": "0.0013",
             "fee_asset": "BTC",
             "profit_asset": "BTC",
             "strategy": "ARBITRAGE",
-            "plan_no": 568
+            "plan_no": 1296
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCEUR",
+                    "quote": "EUR",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPEUR",
+                    "quote": "EUR",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 1347
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCEUR",
+                    "quote": "EUR",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHEUR",
+                    "quote": "EUR",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "EUR",
+            "start_amount": "10.7562",
+            "fee_asset": "EUR",
+            "profit_asset": "EUR",
+            "strategy": "ARBITRAGE",
+            "plan_no": 1468
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCEUR",
+                    "quote": "EUR",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPEUR",
+                    "quote": "EUR",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "EUR",
+            "start_amount": "10.7562",
+            "fee_asset": "EUR",
+            "profit_asset": "EUR",
+            "strategy": "ARBITRAGE",
+            "plan_no": 1492
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCEUR",
+                    "quote": "EUR",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBEUR",
+                    "quote": "EUR",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "EUR",
+            "start_amount": "10.7562",
+            "fee_asset": "EUR",
+            "profit_asset": "EUR",
+            "strategy": "ARBITRAGE",
+            "plan_no": 1501
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCRUB",
+                    "quote": "RUB",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBRUB",
+                    "quote": "RUB",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 1557
         },
         {
             "markets": [
@@ -341,11 +744,42 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "845.856",
+            "start_amount": "846.274",
             "fee_asset": "RUB",
             "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
-            "plan_no": 680
+            "plan_no": 1604
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCRUB",
+                    "quote": "RUB",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHRUB",
+                    "quote": "RUB",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 1650
         },
         {
             "markets": [
@@ -372,11 +806,166 @@
                 }
             ],
             "start_currency": "BTC",
-            "start_amount": "0.00131",
+            "start_amount": "0.0013",
             "fee_asset": "BTC",
             "profit_asset": "BTC",
             "strategy": "ARBITRAGE",
-            "plan_no": 736
+            "plan_no": 1695
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCRUB",
+                    "quote": "RUB",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPRUB",
+                    "quote": "RUB",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 1746
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCRUB",
+                    "quote": "RUB",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHRUB",
+                    "quote": "RUB",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "RUB",
+            "start_amount": "846.274",
+            "fee_asset": "RUB",
+            "profit_asset": "RUB",
+            "strategy": "ARBITRAGE",
+            "plan_no": 1849
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCRUB",
+                    "quote": "RUB",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPRUB",
+                    "quote": "RUB",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "RUB",
+            "start_amount": "846.274",
+            "fee_asset": "RUB",
+            "profit_asset": "RUB",
+            "strategy": "ARBITRAGE",
+            "plan_no": 1873
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCRUB",
+                    "quote": "RUB",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBRUB",
+                    "quote": "RUB",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "RUB",
+            "start_amount": "846.274",
+            "fee_asset": "RUB",
+            "profit_asset": "RUB",
+            "strategy": "ARBITRAGE",
+            "plan_no": 1882
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCUSDT",
+                    "quote": "USDT",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBUSDT",
+                    "quote": "USDT",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 1956
         },
         {
             "markets": [
@@ -403,11 +992,11 @@
                 }
             ],
             "start_currency": "USDT",
-            "start_amount": "12",
+            "start_amount": "11.97872",
             "fee_asset": "USDT",
             "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
-            "plan_no": 823
+            "plan_no": 1964
         },
         {
             "markets": [
@@ -434,11 +1023,42 @@
                 }
             ],
             "start_currency": "USDT",
-            "start_amount": "12",
+            "start_amount": "11.97872",
             "fee_asset": "USDT",
             "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
-            "plan_no": 836
+            "plan_no": 1984
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCUSDT",
+                    "quote": "USDT",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHUSDT",
+                    "quote": "USDT",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 2049
         },
         {
             "markets": [
@@ -465,11 +1085,11 @@
                 }
             ],
             "start_currency": "BTC",
-            "start_amount": "0.00131",
+            "start_amount": "0.0013",
             "fee_asset": "BTC",
             "profit_asset": "BTC",
             "strategy": "ARBITRAGE",
-            "plan_no": 879
+            "plan_no": 2055
         },
         {
             "markets": [
@@ -496,11 +1116,166 @@
                 }
             ],
             "start_currency": "BTC",
-            "start_amount": "0.00131",
+            "start_amount": "0.0013",
             "fee_asset": "BTC",
             "profit_asset": "BTC",
             "strategy": "ARBITRAGE",
-            "plan_no": 892
+            "plan_no": 2075
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCUSDT",
+                    "quote": "USDT",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPUSDT",
+                    "quote": "USDT",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 2145
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCUSDT",
+                    "quote": "USDT",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHUSDT",
+                    "quote": "USDT",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "USDT",
+            "start_amount": "11.97872",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
+            "strategy": "ARBITRAGE",
+            "plan_no": 2230
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCUSDT",
+                    "quote": "USDT",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPUSDT",
+                    "quote": "USDT",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "USDT",
+            "start_amount": "11.97872",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
+            "strategy": "ARBITRAGE",
+            "plan_no": 2254
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCUSDT",
+                    "quote": "USDT",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBUSDT",
+                    "quote": "USDT",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "USDT",
+            "start_amount": "11.97872",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
+            "strategy": "ARBITRAGE",
+            "plan_no": 2263
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "ETHEUR",
+                    "quote": "EUR",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCEUR",
+                    "quote": "EUR",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "ETH",
+            "start_amount": "0.052",
+            "fee_asset": "ETH",
+            "profit_asset": "ETH",
+            "strategy": "ARBITRAGE",
+            "plan_no": 2353
         },
         {
             "markets": [
@@ -527,11 +1302,11 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.77877",
+            "start_amount": "10.7562",
             "fee_asset": "EUR",
             "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
-            "plan_no": 1027
+            "plan_no": 2420
         },
         {
             "markets": [
@@ -558,11 +1333,73 @@
                 }
             ],
             "start_currency": "ETH",
-            "start_amount": "0.05215",
+            "start_amount": "0.052",
             "fee_asset": "ETH",
             "profit_asset": "ETH",
             "strategy": "ARBITRAGE",
-            "plan_no": 1039
+            "plan_no": 2439
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "ETHEUR",
+                    "quote": "EUR",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCEUR",
+                    "quote": "EUR",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "EUR",
+            "start_amount": "10.7562",
+            "fee_asset": "EUR",
+            "profit_asset": "EUR",
+            "strategy": "ARBITRAGE",
+            "plan_no": 2606
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "ETHRUB",
+                    "quote": "RUB",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCRUB",
+                    "quote": "RUB",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "ETH",
+            "start_amount": "0.052",
+            "fee_asset": "ETH",
+            "profit_asset": "ETH",
+            "strategy": "ARBITRAGE",
+            "plan_no": 2752
         },
         {
             "markets": [
@@ -589,11 +1426,11 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "845.856",
+            "start_amount": "846.274",
             "fee_asset": "RUB",
             "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
-            "plan_no": 1184
+            "plan_no": 2801
         },
         {
             "markets": [
@@ -620,11 +1457,73 @@
                 }
             ],
             "start_currency": "ETH",
-            "start_amount": "0.05215",
+            "start_amount": "0.052",
             "fee_asset": "ETH",
             "profit_asset": "ETH",
             "strategy": "ARBITRAGE",
-            "plan_no": 1207
+            "plan_no": 2838
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "ETHRUB",
+                    "quote": "RUB",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCRUB",
+                    "quote": "RUB",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "RUB",
+            "start_amount": "846.274",
+            "fee_asset": "RUB",
+            "profit_asset": "RUB",
+            "strategy": "ARBITRAGE",
+            "plan_no": 2987
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "ETHUSDT",
+                    "quote": "USDT",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCUSDT",
+                    "quote": "USDT",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "ETH",
+            "start_amount": "0.052",
+            "fee_asset": "ETH",
+            "profit_asset": "ETH",
+            "strategy": "ARBITRAGE",
+            "plan_no": 3151
         },
         {
             "markets": [
@@ -651,11 +1550,11 @@
                 }
             ],
             "start_currency": "USDT",
-            "start_amount": "12",
+            "start_amount": "11.97872",
             "fee_asset": "USDT",
             "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
-            "plan_no": 1327
+            "plan_no": 3161
         },
         {
             "markets": [
@@ -682,11 +1581,11 @@
                 }
             ],
             "start_currency": "USDT",
-            "start_amount": "12",
+            "start_amount": "11.97872",
             "fee_asset": "USDT",
             "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
-            "plan_no": 1340
+            "plan_no": 3181
         },
         {
             "markets": [
@@ -713,11 +1612,11 @@
                 }
             ],
             "start_currency": "ETH",
-            "start_amount": "0.05215",
+            "start_amount": "0.052",
             "fee_asset": "ETH",
             "profit_asset": "ETH",
             "strategy": "ARBITRAGE",
-            "plan_no": 1350
+            "plan_no": 3198
         },
         {
             "markets": [
@@ -744,11 +1643,42 @@
                 }
             ],
             "start_currency": "ETH",
-            "start_amount": "0.05215",
+            "start_amount": "0.052",
             "fee_asset": "ETH",
             "profit_asset": "ETH",
             "strategy": "ARBITRAGE",
-            "plan_no": 1363
+            "plan_no": 3218
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "ETHUSDT",
+                    "quote": "USDT",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCUSDT",
+                    "quote": "USDT",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "USDT",
+            "start_amount": "11.97872",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
+            "strategy": "ARBITRAGE",
+            "plan_no": 3368
         },
         {
             "markets": [
@@ -775,11 +1705,11 @@
                 }
             ],
             "start_currency": "USDT",
-            "start_amount": "12",
+            "start_amount": "11.97872",
             "fee_asset": "USDT",
             "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
-            "plan_no": 1405
+            "plan_no": 3421
         },
         {
             "markets": [
@@ -806,11 +1736,11 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.77877",
+            "start_amount": "10.7562",
             "fee_asset": "EUR",
             "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
-            "plan_no": 1428
+            "plan_no": 3458
         },
         {
             "markets": [
@@ -837,11 +1767,11 @@
                 }
             ],
             "start_currency": "USDT",
-            "start_amount": "12",
+            "start_amount": "11.97872",
             "fee_asset": "USDT",
             "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
-            "plan_no": 1444
+            "plan_no": 3481
         },
         {
             "markets": [
@@ -868,11 +1798,11 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.77877",
+            "start_amount": "10.7562",
             "fee_asset": "EUR",
             "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
-            "plan_no": 1467
+            "plan_no": 3518
         },
         {
             "markets": [
@@ -899,11 +1829,11 @@
                 }
             ],
             "start_currency": "USDT",
-            "start_amount": "12",
+            "start_amount": "11.97872",
             "fee_asset": "USDT",
             "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
-            "plan_no": 1483
+            "plan_no": 3541
         },
         {
             "markets": [
@@ -930,11 +1860,11 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.77877",
+            "start_amount": "10.7562",
             "fee_asset": "EUR",
             "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
-            "plan_no": 1506
+            "plan_no": 3578
         },
         {
             "markets": [
@@ -961,11 +1891,11 @@
                 }
             ],
             "start_currency": "USDT",
-            "start_amount": "12",
+            "start_amount": "11.97872",
             "fee_asset": "USDT",
             "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
-            "plan_no": 1535
+            "plan_no": 3621
         },
         {
             "markets": [
@@ -992,11 +1922,11 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.77877",
+            "start_amount": "10.7562",
             "fee_asset": "EUR",
             "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
-            "plan_no": 1558
+            "plan_no": 3658
         },
         {
             "markets": [
@@ -1023,11 +1953,11 @@
                 }
             ],
             "start_currency": "USDT",
-            "start_amount": "12",
+            "start_amount": "11.97872",
             "fee_asset": "USDT",
             "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
-            "plan_no": 1573
+            "plan_no": 3820
         },
         {
             "markets": [
@@ -1054,11 +1984,11 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "845.856",
+            "start_amount": "846.274",
             "fee_asset": "RUB",
             "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
-            "plan_no": 1585
+            "plan_no": 3839
         },
         {
             "markets": [
@@ -1085,11 +2015,11 @@
                 }
             ],
             "start_currency": "USDT",
-            "start_amount": "12",
+            "start_amount": "11.97872",
             "fee_asset": "USDT",
             "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
-            "plan_no": 1612
+            "plan_no": 3880
         },
         {
             "markets": [
@@ -1116,11 +2046,11 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "845.856",
+            "start_amount": "846.274",
             "fee_asset": "RUB",
             "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
-            "plan_no": 1624
+            "plan_no": 3899
         },
         {
             "markets": [
@@ -1147,11 +2077,11 @@
                 }
             ],
             "start_currency": "USDT",
-            "start_amount": "12",
+            "start_amount": "11.97872",
             "fee_asset": "USDT",
             "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
-            "plan_no": 1651
+            "plan_no": 3940
         },
         {
             "markets": [
@@ -1178,11 +2108,11 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "845.856",
+            "start_amount": "846.274",
             "fee_asset": "RUB",
             "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
-            "plan_no": 1663
+            "plan_no": 3959
         },
         {
             "markets": [
@@ -1209,11 +2139,11 @@
                 }
             ],
             "start_currency": "USDT",
-            "start_amount": "12",
+            "start_amount": "11.97872",
             "fee_asset": "USDT",
             "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
-            "plan_no": 1703
+            "plan_no": 4020
         },
         {
             "markets": [
@@ -1240,11 +2170,42 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "845.856",
+            "start_amount": "846.274",
             "fee_asset": "RUB",
             "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
-            "plan_no": 1715
+            "plan_no": 4039
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "XRPEUR",
+                    "quote": "EUR",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCEUR",
+                    "quote": "EUR",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "XRP",
+            "start_amount": "65.44914",
+            "fee_asset": "XRP",
+            "profit_asset": "XRP",
+            "strategy": "ARBITRAGE",
+            "plan_no": 4254
         },
         {
             "markets": [
@@ -1271,11 +2232,11 @@
                 }
             ],
             "start_currency": "XRP",
-            "start_amount": "65.62756",
+            "start_amount": "65.44914",
             "fee_asset": "XRP",
             "profit_asset": "XRP",
             "strategy": "ARBITRAGE",
-            "plan_no": 1835
+            "plan_no": 4362
         },
         {
             "markets": [
@@ -1302,11 +2263,73 @@
                 }
             ],
             "start_currency": "EUR",
-            "start_amount": "10.77877",
+            "start_amount": "10.7562",
             "fee_asset": "EUR",
             "profit_asset": "EUR",
             "strategy": "ARBITRAGE",
-            "plan_no": 1869
+            "plan_no": 4417
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "XRPEUR",
+                    "quote": "EUR",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCEUR",
+                    "quote": "EUR",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "EUR",
+            "start_amount": "10.7562",
+            "fee_asset": "EUR",
+            "profit_asset": "EUR",
+            "strategy": "ARBITRAGE",
+            "plan_no": 4525
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "XRPRUB",
+                    "quote": "RUB",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCRUB",
+                    "quote": "RUB",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "XRP",
+            "start_amount": "65.44914",
+            "fee_asset": "XRP",
+            "profit_asset": "XRP",
+            "strategy": "ARBITRAGE",
+            "plan_no": 4653
         },
         {
             "markets": [
@@ -1333,11 +2356,11 @@
                 }
             ],
             "start_currency": "XRP",
-            "start_amount": "65.62756",
+            "start_amount": "65.44914",
             "fee_asset": "XRP",
             "profit_asset": "XRP",
             "strategy": "ARBITRAGE",
-            "plan_no": 2003
+            "plan_no": 4761
         },
         {
             "markets": [
@@ -1364,11 +2387,73 @@
                 }
             ],
             "start_currency": "RUB",
-            "start_amount": "845.856",
+            "start_amount": "846.274",
             "fee_asset": "RUB",
             "profit_asset": "RUB",
             "strategy": "ARBITRAGE",
-            "plan_no": 2026
+            "plan_no": 4798
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "XRPRUB",
+                    "quote": "RUB",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCRUB",
+                    "quote": "RUB",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "RUB",
+            "start_amount": "846.274",
+            "fee_asset": "RUB",
+            "profit_asset": "RUB",
+            "strategy": "ARBITRAGE",
+            "plan_no": 4906
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "XRPUSDT",
+                    "quote": "USDT",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCUSDT",
+                    "quote": "USDT",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "XRP",
+            "start_amount": "65.44914",
+            "fee_asset": "XRP",
+            "profit_asset": "XRP",
+            "strategy": "ARBITRAGE",
+            "plan_no": 5052
         },
         {
             "markets": [
@@ -1395,11 +2480,11 @@
                 }
             ],
             "start_currency": "XRP",
-            "start_amount": "65.62756",
+            "start_amount": "65.44914",
             "fee_asset": "XRP",
             "profit_asset": "XRP",
             "strategy": "ARBITRAGE",
-            "plan_no": 2146
+            "plan_no": 5121
         },
         {
             "markets": [
@@ -1426,11 +2511,11 @@
                 }
             ],
             "start_currency": "XRP",
-            "start_amount": "65.62756",
+            "start_amount": "65.44914",
             "fee_asset": "XRP",
             "profit_asset": "XRP",
             "strategy": "ARBITRAGE",
-            "plan_no": 2159
+            "plan_no": 5141
         },
         {
             "markets": [
@@ -1457,11 +2542,11 @@
                 }
             ],
             "start_currency": "USDT",
-            "start_amount": "12",
+            "start_amount": "11.97872",
             "fee_asset": "USDT",
             "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
-            "plan_no": 2169
+            "plan_no": 5158
         },
         {
             "markets": [
@@ -1488,11 +2573,1158 @@
                 }
             ],
             "start_currency": "USDT",
-            "start_amount": "12",
+            "start_amount": "11.97872",
             "fee_asset": "USDT",
             "profit_asset": "USDT",
             "strategy": "ARBITRAGE",
-            "plan_no": 2182
+            "plan_no": 5178
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "XRPUSDT",
+                    "quote": "USDT",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCUSDT",
+                    "quote": "USDT",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "USDT",
+            "start_amount": "11.97872",
+            "fee_asset": "USDT",
+            "profit_asset": "USDT",
+            "strategy": "ARBITRAGE",
+            "plan_no": 5287
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCGBP",
+                    "quote": "GBP",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHGBP",
+                    "quote": "GBP",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 5602
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCGBP",
+                    "quote": "GBP",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBGBP",
+                    "quote": "GBP",
+                    "base": "BNB",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 5623
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCGBP",
+                    "quote": "GBP",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPGBP",
+                    "quote": "GBP",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 5641
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCGBP",
+                    "quote": "GBP",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHGBP",
+                    "quote": "GBP",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "GBP",
+            "start_amount": "9.8046",
+            "fee_asset": "GBP",
+            "profit_asset": "GBP",
+            "strategy": "ARBITRAGE",
+            "plan_no": 5657
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCGBP",
+                    "quote": "GBP",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPGBP",
+                    "quote": "GBP",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "GBP",
+            "start_amount": "9.8046",
+            "fee_asset": "GBP",
+            "profit_asset": "GBP",
+            "strategy": "ARBITRAGE",
+            "plan_no": 5678
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BTCGBP",
+                    "quote": "GBP",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBGBP",
+                    "quote": "GBP",
+                    "base": "BNB",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "GBP",
+            "start_amount": "9.8046",
+            "fee_asset": "GBP",
+            "profit_asset": "GBP",
+            "strategy": "ARBITRAGE",
+            "plan_no": 5696
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "ETHGBP",
+                    "quote": "GBP",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCGBP",
+                    "quote": "GBP",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "ETH",
+            "start_amount": "0.052",
+            "fee_asset": "ETH",
+            "profit_asset": "ETH",
+            "strategy": "ARBITRAGE",
+            "plan_no": 5982
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "ETHGBP",
+                    "quote": "GBP",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCGBP",
+                    "quote": "GBP",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "GBP",
+            "start_amount": "9.8046",
+            "fee_asset": "GBP",
+            "profit_asset": "GBP",
+            "strategy": "ARBITRAGE",
+            "plan_no": 6037
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BNBGBP",
+                    "quote": "GBP",
+                    "base": "BNB",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCGBP",
+                    "quote": "GBP",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BNB",
+            "start_amount": "0.75985",
+            "fee_asset": "BNB",
+            "profit_asset": "BNB",
+            "strategy": "ARBITRAGE",
+            "plan_no": 6364
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BNBGBP",
+                    "quote": "GBP",
+                    "base": "BNB",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCGBP",
+                    "quote": "GBP",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "GBP",
+            "start_amount": "9.8046",
+            "fee_asset": "GBP",
+            "profit_asset": "GBP",
+            "strategy": "ARBITRAGE",
+            "plan_no": 6455
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "XRPGBP",
+                    "quote": "GBP",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCGBP",
+                    "quote": "GBP",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "XRP",
+            "start_amount": "65.44914",
+            "fee_asset": "XRP",
+            "profit_asset": "XRP",
+            "strategy": "ARBITRAGE",
+            "plan_no": 6743
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "XRPGBP",
+                    "quote": "GBP",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCGBP",
+                    "quote": "GBP",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "GBP",
+            "start_amount": "9.8046",
+            "fee_asset": "GBP",
+            "profit_asset": "GBP",
+            "strategy": "ARBITRAGE",
+            "plan_no": 6816
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCEUR",
+                    "quote": "EUR",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHEUR",
+                    "quote": "EUR",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "ETH",
+            "start_amount": "0.052",
+            "fee_asset": "ETH",
+            "profit_asset": "ETH",
+            "strategy": "ARBITRAGE",
+            "plan_no": 6902
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCRUB",
+                    "quote": "RUB",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHRUB",
+                    "quote": "RUB",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "ETH",
+            "start_amount": "0.052",
+            "fee_asset": "ETH",
+            "profit_asset": "ETH",
+            "strategy": "ARBITRAGE",
+            "plan_no": 6922
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCUSDT",
+                    "quote": "USDT",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHUSDT",
+                    "quote": "USDT",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "ETH",
+            "start_amount": "0.052",
+            "fee_asset": "ETH",
+            "profit_asset": "ETH",
+            "strategy": "ARBITRAGE",
+            "plan_no": 6942
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHEUR",
+                    "quote": "EUR",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCEUR",
+                    "quote": "EUR",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 6957
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHRUB",
+                    "quote": "RUB",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCRUB",
+                    "quote": "RUB",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 6977
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHUSDT",
+                    "quote": "USDT",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCUSDT",
+                    "quote": "USDT",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 6997
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCGBP",
+                    "quote": "GBP",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHGBP",
+                    "quote": "GBP",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "ETH",
+            "start_amount": "0.052",
+            "fee_asset": "ETH",
+            "profit_asset": "ETH",
+            "strategy": "ARBITRAGE",
+            "plan_no": 7120
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "ETHBTC",
+                    "quote": "BTC",
+                    "base": "ETH",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "ETHGBP",
+                    "quote": "GBP",
+                    "base": "ETH",
+                    "decimals": 5,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCGBP",
+                    "quote": "GBP",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 7139
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCEUR",
+                    "quote": "EUR",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPEUR",
+                    "quote": "EUR",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "XRP",
+            "start_amount": "65.44914",
+            "fee_asset": "XRP",
+            "profit_asset": "XRP",
+            "strategy": "ARBITRAGE",
+            "plan_no": 7287
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCRUB",
+                    "quote": "RUB",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPRUB",
+                    "quote": "RUB",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "XRP",
+            "start_amount": "65.44914",
+            "fee_asset": "XRP",
+            "profit_asset": "XRP",
+            "strategy": "ARBITRAGE",
+            "plan_no": 7307
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCUSDT",
+                    "quote": "USDT",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPUSDT",
+                    "quote": "USDT",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "XRP",
+            "start_amount": "65.44914",
+            "fee_asset": "XRP",
+            "profit_asset": "XRP",
+            "strategy": "ARBITRAGE",
+            "plan_no": 7327
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPEUR",
+                    "quote": "EUR",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCEUR",
+                    "quote": "EUR",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 7432
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPRUB",
+                    "quote": "RUB",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCRUB",
+                    "quote": "RUB",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 7452
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPUSDT",
+                    "quote": "USDT",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCUSDT",
+                    "quote": "USDT",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 7472
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCGBP",
+                    "quote": "GBP",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPGBP",
+                    "quote": "GBP",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "XRP",
+            "start_amount": "65.44914",
+            "fee_asset": "XRP",
+            "profit_asset": "XRP",
+            "strategy": "ARBITRAGE",
+            "plan_no": 7502
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "XRPBTC",
+                    "quote": "BTC",
+                    "base": "XRP",
+                    "decimals": 0,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "XRPGBP",
+                    "quote": "GBP",
+                    "base": "XRP",
+                    "decimals": 1,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCGBP",
+                    "quote": "GBP",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 7557
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBEUR",
+                    "quote": "EUR",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCEUR",
+                    "quote": "EUR",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 7602
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBRUB",
+                    "quote": "RUB",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCRUB",
+                    "quote": "RUB",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 7622
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBUSDT",
+                    "quote": "USDT",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCUSDT",
+                    "quote": "USDT",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 7642
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCEUR",
+                    "quote": "EUR",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBEUR",
+                    "quote": "EUR",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BNB",
+            "start_amount": "0.75985",
+            "fee_asset": "BNB",
+            "profit_asset": "BNB",
+            "strategy": "ARBITRAGE",
+            "plan_no": 7657
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCRUB",
+                    "quote": "RUB",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBRUB",
+                    "quote": "RUB",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BNB",
+            "start_amount": "0.75985",
+            "fee_asset": "BNB",
+            "profit_asset": "BNB",
+            "strategy": "ARBITRAGE",
+            "plan_no": 7677
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCUSDT",
+                    "quote": "USDT",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBUSDT",
+                    "quote": "USDT",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BNB",
+            "start_amount": "0.75985",
+            "fee_asset": "BNB",
+            "profit_asset": "BNB",
+            "strategy": "ARBITRAGE",
+            "plan_no": 7697
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCGBP",
+                    "quote": "GBP",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBGBP",
+                    "quote": "GBP",
+                    "base": "BNB",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BNB",
+            "start_amount": "0.75985",
+            "fee_asset": "BNB",
+            "profit_asset": "BNB",
+            "strategy": "ARBITRAGE",
+            "plan_no": 7881
+        },
+        {
+            "markets": [
+                {
+                    "symbol": "BNBBTC",
+                    "quote": "BTC",
+                    "base": "BNB",
+                    "decimals": 2,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BNBGBP",
+                    "quote": "GBP",
+                    "base": "BNB",
+                    "decimals": 3,
+                    "exchange": "BINANCE"
+                },
+                {
+                    "symbol": "BTCGBP",
+                    "quote": "GBP",
+                    "base": "BTC",
+                    "decimals": 6,
+                    "exchange": "BINANCE"
+                }
+            ],
+            "start_currency": "BTC",
+            "start_amount": "0.0013",
+            "fee_asset": "BTC",
+            "profit_asset": "BTC",
+            "strategy": "ARBITRAGE",
+            "plan_no": 7918
         }
     ]
 }
