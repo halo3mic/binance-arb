@@ -436,7 +436,9 @@ class Opportunity:
                           f"_Code_: *{e.code}*\n" \
                           f"_Message_: *{e.message}*\n"
                 hp.send_to_slack(msg, SLACK_KEY, self.bot.slack_group, emoji=':blocky-sweat:')
-                if e.status_code == 429: os._exit(1)  # Exit if limit is reached
+                if e.status_code == 429:
+                    timeout = 60*3  # 2 min timeout
+                    time.sleep(timeout)
 
         self.bot.busy = False if self.bot.loop else True  # Release the lock as soon as the execution is finished
 
