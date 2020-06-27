@@ -46,6 +46,7 @@ class BinanceBot(BinanceSocketManager):
         if msg.get("e") == 'error':
             hp.send_to_slack(str(msg), SLACK_KEY, SLACK_GROUP, emoji=':blocky-sweat:')
         pair = re.findall(r"^[a-z]*", msg["stream"])[0].upper()  # Find out for which market was the book update
+
         self.books[pair] = msg["data"]  # Save new books (and overwrite the old ones)
         self.last_book_update = self.books[pair]["timestamp"] = time.time()
 
@@ -115,8 +116,6 @@ class BinanceBot(BinanceSocketManager):
         print("Sizes")
         print("BinanceBot: ", asizeof.asized(self.__dict__, detail=1).format())
         print("Books: ", asizeof.asized(self.books, detail=1).format())
-        for pair, book in self.books.items():
-            print(pair, book["asks"][0], book["bids"][0])
 
     def get_intial_books(self, pairs):
         """Return the initial books for all markets via REST API calls."""
@@ -383,10 +382,74 @@ class Opportunity:
     #
     #     return responses
 
-    def _execute_async(self):
+    def _execute_async_test(self):
         """Execute an opportunity asynchronously."""
+
         nums = iter(range(0, 3))
         self.fees = 0.027
+
+        def create_order(instruction):
+            try:
+                with open("./data/examples/response_example.txt") as example_file:
+                    r = eval(example_file.read())[nums.__next__()]
+                time.sleep(1)
+                # raise Exception("test")
+                return r
+            except Exception as e:
+                return e
+
+        self.execution_status = "PASS"
+        success_message = "| "
+        responses = []
+        threads = []
+        que = Queue()
+
+        for instruction in self.instructions:
+            t = Thread(target=lambda q, arg1: q.put(create_order(arg1)), args=(que, instruction))
+            t.start()
+            threads.append(t)
+
+        for num, t in enumerate(threads):
+            try:
+                t.join()
+                response = que.get()
+                if isinstance(response, Exception):
+                    raise response
+                response["localTimestamp"] = time.time()
+                responses.append(response)
+            except BinanceAPIException as e:
+                failed_action = self.plan.actions[num]
+                self.execution_status = "MISSED"
+                success_message += f"{failed_action.symbol} 0% | "
+                if e.code == -2010:
+                    failed_asset = failed_action.base if failed_action.side == "SELL" else failed_action.quote
+                    msg = f"> *{failed_asset}* balance is too low!"
+                    msg += f"\n```{rebalance.main()}```"
+                else:
+                    msg = f"_Status_code_: *{e.status_code}*\n" \
+                          f"_Code_: *{e.code}*\n" \
+                          f"_Message_: *{e.message}*\n"
+                hp.send_to_slack(msg, SLACK_KEY, self.bot.slack_group, emoji=':blocky-sweat:')
+                if e.status_code == 429:
+                    timeout = 60 * 3  # 2 min timeout
+                    time.sleep(timeout)
+
+        self.bot.busy = False if self.bot.loop else True  # Release the lock as soon as the execution is finished
+
+        self.success_ratio = 0
+        for response in responses:
+            if response["status"] != "FILLED":
+                self.execution_status = "MISSED"
+            success_rate = float(response["executedQty"]) / float(response["origQty"])
+            self.success_ratio += success_rate
+            success_message += f"{response['symbol']} {success_rate:.0%} | "
+        self.execution_msg = success_message
+        self.success_ratio /= len(self.instructions)
+
+        return responses
+
+    def _execute_async(self):
+        """Execute an opportunity asynchronously."""
 
         def create_order(instruction):
             try:
@@ -396,10 +459,6 @@ class Opportunity:
                                                  timeInForce="IOC",
                                                  quantity=instruction.amount,
                                                  price=instruction.price)
-                # with open("./data/examples/response_example.txt") as example_file:
-                #     r = eval(example_file.read())[nums.__next__()]
-                # time.sleep(1)
-                # raise Exception("test")
                 return r
             except Exception as e:
                 return e
