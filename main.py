@@ -23,7 +23,11 @@ def main(settings, execute=1, test_it=0, loop=1):
     try:
         bb = BinanceBot(plans, execute=execute, test_it=test_it, loop=loop, settings=settings["global_settings"])
         bb.start_listening()
-
+        timeout = 3600 * 4
+        while True:
+            time.sleep(timeout)
+            msg = f"Bot is alive, last update was {time.time() - bb.last_book_update} sec ago."
+            hp.send_to_slack(msg, SLACK_KEY, SLACK_GROUP, emoji=":blocky-grin:")
     except Exception as e:
         hp.send_to_slack(str(e), SLACK_KEY, SLACK_GROUP, emoji=":blocky-grin:")
         exit()
