@@ -483,6 +483,7 @@ class Opportunity:
                     raise response
                 response["localTimestamp"] = time.time()
                 responses.append(response)
+                continue
             except BinanceAPIException as e:
                 failed_action = self.plan.actions[num]
                 self.execution_status = "MISSED"
