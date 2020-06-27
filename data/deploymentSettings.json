@@ -3224,7 +3224,7 @@
                 }
             ],
             "start_currency": "BTC",
-            "start_amount": "0.0013",
+            "start_amount": "0.0012",
             "fee_asset": "BTC",
             "profit_asset": "BTC",
             "strategy": "ARBITRAGE",

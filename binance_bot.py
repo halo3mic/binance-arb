@@ -62,7 +62,7 @@ class BinanceBot(BinanceSocketManager):
 
     def process_plans(self, pair):
         """Check if book updates produced profitable opportunities and act if so."""
-        print(pair)
+
         def plan_to_opp(plan):
             opportunity = Opportunity(self, plan)
             opportunity.find_opportunity()
@@ -80,7 +80,7 @@ class BinanceBot(BinanceSocketManager):
                 opportunity = max_profit_opp
                 if self.execute:
                     responses = opportunity.execute(async_=True)
-                    # opportunity.actual_profit = format(opportunity.review_execution(responses)["balance"], ".8f") + " " + opportunity.plan.home_asset
+                    opportunity.actual_profit = format(opportunity.review_execution(responses)["balance"], ".8f") + " " + opportunity.plan.home_asset
                     opportunity.log_responses(responses)
                 # Log data even if execution is turned off
                 opportunity.log_opportunity()
@@ -289,7 +289,7 @@ class Opportunity:
               f"_ActualProfit:_ * {self.actual_profit}*\n" \
               f"_OrdersExecution time:_ *{self.execution_time}*\n" \
               f"_Status_: *{self.execution_status}*\n" \
-              f"_Execution msg_: *{self.execution_msg}*\n" \
+              f"_ExecutionMsg_: *{self.execution_msg}*\n" \
               f"_Start amount:_ *{self.plan.start_amount} {self.plan.home_asset}*\n"
         hp.send_to_slack(msg, SLACK_KEY, self.bot.slack_group, emoji=':blocky-money:')
 
@@ -389,17 +389,20 @@ class Opportunity:
         self.fees = 0.027
 
         def create_order(instruction):
-            # r = self.bot.client.create_order(symbol=instruction.symbol,
-            #                                  side=instruction.side,
-            #                                  type="LIMIT",
-            #                                  timeInForce="IOC",
-            #                                  quantity=instruction.amount,
-            #                                  price=instruction.price)
-            with open("./data/examples/response_example.txt") as example_file:
-                r = eval(example_file.read())[nums.__next__()]
-            time.sleep(1)
-            raise Exception("test")
-            return r
+            try:
+                r = self.bot.client.create_order(symbol=instruction.symbol,
+                                                 side=instruction.side,
+                                                 type="LIMIT",
+                                                 timeInForce="IOC",
+                                                 quantity=instruction.amount,
+                                                 price=instruction.price)
+                # with open("./data/examples/response_example.txt") as example_file:
+                #     r = eval(example_file.read())[nums.__next__()]
+                # time.sleep(1)
+                # raise Exception("test")
+                return r
+            except Exception as e:
+                return e
 
         self.execution_status = "PASS"
         success_message = "| "
@@ -408,34 +411,34 @@ class Opportunity:
         que = Queue()
 
         for instruction in self.instructions:
+            t = Thread(target=lambda q, arg1: q.put(create_order(arg1)), args=(que, instruction))
+            t.start()
+            threads.append(t)
+
+        for num, t in enumerate(threads):
             try:
-                t = Thread(target=lambda q, arg1: q.put(create_order(arg1)), args=(que, instruction))
-                t.start()
-                threads.append(t)
-
-                for num, t in enumerate(threads):
-                    t.join()
-                    response = que.get()
-                    response["localTimestamp"] = time.time()
-                    responses.append(response)
-            except Exception as e:
-                self.bot.busy = False if self.bot.loop else True  # Release the lock as soon as the execution is finished
-
+                t.join()
+                response = que.get()
+                if isinstance(response, Exception):
+                    raise response
+                response["localTimestamp"] = time.time()
+                responses.append(response)
+            except BinanceAPIException as e:
+                failed_action = self.plan.actions[num]
+                self.execution_status = "MISSED"
+                success_message += f"{failed_action.symbol} 0% | "
                 if e.code == -2010:
-                    failed_action = self.plan.actions[num]
                     failed_asset = failed_action.base if failed_action.side == "SELL" else failed_action.quote
                     msg = f"> *{failed_asset}* balance is too low!"
                     msg += f"\n```{rebalance.main()}```"
-                    self.execution_status = "MISSED"
-                    success_message += f"{failed_action.symbol} 0% | "
                 else:
                     msg = f"_Status_code_: *{e.status_code}*\n" \
                           f"_Code_: *{e.code}*\n" \
                           f"_Message_: *{e.message}*\n"
                 hp.send_to_slack(msg, SLACK_KEY, self.bot.slack_group, emoji=':blocky-sweat:')
                 if e.status_code == 429: os._exit(1)  # Exit if limit is reached
-        else:
-            self.bot.busy = False if self.bot.loop else True  # Release the lock as soon as the execution is finished
+
+        self.bot.busy = False if self.bot.loop else True  # Release the lock as soon as the execution is finished
 
         self.success_ratio = 0
         for response in responses:
