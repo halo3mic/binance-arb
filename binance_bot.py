@@ -81,7 +81,8 @@ class BinanceBot(BinanceSocketManager):
                 opportunity = max_profit_opp
                 if self.execute:
                     responses = opportunity.execute(async_=True)
-                    opportunity.actual_profit = format(opportunity.review_execution(responses)["balance"], ".8f") + " " + opportunity.plan.home_asset
+                    if responses:
+                        opportunity.actual_profit = format(opportunity.review_execution(responses)["balance"], ".8f") + " " + opportunity.plan.home_asset
                     opportunity.log_responses(responses)
                 # Log data even if execution is turned off
                 opportunity.log_opportunity()
@@ -489,9 +490,10 @@ class Opportunity:
                 if e.code == -2010:
                     failed_asset = failed_action.base if failed_action.side == "SELL" else failed_action.quote
                     msg = f"> *{failed_asset}* balance is too low!"
-                    msg += f"\n```{rebalance.main()}```"
+                    # msg += f"\n```{rebalance.main()}```"
                 else:
-                    msg = f"_Status_code_: *{e.status_code}*\n" \
+                    msg = f"_Market_: *{failed_action.symbol}*\n" \
+                          f"_Status_code_: *{e.status_code}*\n" \
                           f"_Code_: *{e.code}*\n" \
                           f"_Message_: *{e.message}*\n"
                 hp.send_to_slack(msg, SLACK_KEY, self.bot.slack_group, emoji=':blocky-sweat:')

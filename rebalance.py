@@ -7,9 +7,9 @@ from config import *
 from helpers import append_rows
 
 
-BOTTOM_LIMIT = 36
-MIN_TRADING_AMOUNT = 10  # In normalizing asset
-NORMALIZING_ASSET = "USDT"
+BOTTOM_LIMIT = 36*0.0011
+MIN_TRADING_AMOUNT = 0.0011  # In normalizing asset
+NORMALIZING_ASSET = "BTC"
 CONNECTIONS = {'BNB': ['BTC', 'EUR', 'ETH', 'XRP', 'RUB', 'USDT'],
                'BTC': ['EUR', 'ETH', 'XRP', 'RUB', 'BNB', 'USDT'],
                'ETH': ['BTC', 'EUR', 'XRP', 'RUB', 'BNB', 'USDT'],
@@ -155,11 +155,11 @@ if __name__ == "__main__":
     balances = get_account_balances(client)
     prices = get_latest_prices(client)
     normalized_balances = normalize_balances(balances, prices)
-    pprint(sum(normalized_balances.values()))
-    # instructions = get_rebalance_instructions(normalized_balances, CONNECTIONS)
+    # pprint(sum(normalized_balances.values()))
+    instructions = get_rebalance_instructions(normalized_balances, CONNECTIONS)
     # # pprint(instructions)
-    # denormalized_instructions = denormalize_instructions(instructions, prices)
+    denormalized_instructions = denormalize_instructions(instructions, prices)
     # # pprint(denormalized_instructions)
-    # formatted_instructions = format_instructions(denormalized_instructions)
-    # print(formatted_instructions)
+    formatted_instructions = format_instructions(denormalized_instructions)
+    print(formatted_instructions)
     # execute_instructions(client, denormalized_instructions)
