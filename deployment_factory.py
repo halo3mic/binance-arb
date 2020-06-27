@@ -8,7 +8,7 @@ from config import *
 
 
 NORMALIZING_ASSET = "BTC"
-NORMALIZED_START_AMOUNT = 0.0015
+NORMALIZED_START_AMOUNT = 0.0017
 HEADER = {
         "instance_id": "Bot 1",
         "global_settings": {"fees": {"BINANCE": "0.00075"}},
