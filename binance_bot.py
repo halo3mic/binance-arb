@@ -460,9 +460,9 @@ class Opportunity:
                                                  timeInForce="IOC",
                                                  quantity=instruction.amount,
                                                  price=instruction.price)
-                return instruction.symmbol, r
+                return instruction.symbol, r
             except Exception as e:
-                return instruction.symmbol, e
+                return instruction.symbol, e
 
         self.execution_status = "PASS"
         success_message = "| "
