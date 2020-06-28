@@ -43,7 +43,7 @@ def main(settings, execute=1, test_it=0, loop=1):
                 timestamp = time.time()
                 url = "google.com"  # TODO change to SlackAPI url
                 while 1:
-                    response = os.system(f"ping {url}")
+                    response = os.system(f"ping -c 1 {url}")
                     if response == 0:  # If response is a success
                         msg = f"Connection was disturbed for {time.time() - timestamp}"
                         hp.send_to_slack(msg, SLACK_KEY, SLACK_GROUP, emoji=":blocky-grin:")
