@@ -460,9 +460,9 @@ class Opportunity:
                                                  timeInForce="IOC",
                                                  quantity=instruction.amount,
                                                  price=instruction.price)
-                return r
+                return instruction.symmbol, r
             except Exception as e:
-                return e
+                return instruction.symmbol, e
 
         self.execution_status = "PASS"
         success_message = "| "
@@ -478,22 +478,22 @@ class Opportunity:
         for num, t in enumerate(threads):
             try:
                 t.join()
-                response = que.get()
+                pair, response = que.get()
                 if isinstance(response, Exception):
                     raise response
                 response["localTimestamp"] = time.time()
                 responses.append(response)
                 continue
             except BinanceAPIException as e:
-                failed_action = self.plan.actions[num]
                 self.execution_status = "MISSED"
-                success_message += f"{failed_action.symbol} 0% | "
+                success_message += f"{pair} 0% | "
                 if e.code == -2010:
+                    failed_action = [action for action in self.plan.actions if action.symbol == pair][0]
                     failed_asset = failed_action.base if failed_action.side == "SELL" else failed_action.quote
                     msg = f"> *{failed_asset}* balance is too low!"
                     # msg += f"\n```{rebalance.main()}```"
                 else:
-                    msg = f"_Market_: *{failed_action.symbol}*\n" \
+                    msg = f"_Market_: *{pair}*\n" \
                           f"_Status_code_: *{e.status_code}*\n" \
                           f"_Code_: *{e.code}*\n" \
                           f"_Message_: *{e.message}*\n"

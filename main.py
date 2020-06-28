@@ -41,7 +41,7 @@ def main(settings, execute=1, test_it=0, loop=1):
                 hp.send_to_slack(str(e), SLACK_KEY, SLACK_GROUP, emoji=":blocky-grin:")
             except requests.exceptions.ConnectionError:
                 timestamp = time.time()
-                url = "https://slack.com"
+                url = "google.com"  # TODO change to SlackAPI url
                 while 1:
                     response = os.system(f"ping {url}")
                     if response == 0:  # If response is a success
