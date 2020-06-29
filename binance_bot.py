@@ -454,12 +454,13 @@ class Opportunity:
 
         def create_order(instruction):
             try:
+            	price_str = format(instruction.price, ".20f").rstrip("0")
                 r = self.bot.client.create_order(symbol=instruction.symbol,
                                                  side=instruction.side,
                                                  type="LIMIT",
                                                  timeInForce="IOC",
                                                  quantity=instruction.amount,
-                                                 price=instruction.price)
+                                                 price=price_str)
                 return instruction.symbol, r
             except Exception as e:
                 return instruction.symbol, e
