@@ -8,6 +8,7 @@ from twisted.internet import reactor
 from collections import namedtuple
 from queue import Queue
 from pprint import pprint
+from decimal import Decimal
 import time
 import re
 import atexit
@@ -201,7 +202,7 @@ class Opportunity:
                 # This works because the the platform looks for order with specified price or better one
                 worst_price = max(best_orders, key=lambda x: x[0])[0]
                 money_in_full = holding * price  # Amount before the qnt_filter is applied
-                money_in = self.apply_qnt_filter(money_in_full, action)  # Rounds to the allowed decimal place for the market
+                money_in = Decimal(self.apply_qnt_filter(money_in_full, action))  # Rounds to the allowed decimal place for the market
                 asset_in = action.base
                 money_out = money_in / price
                 asset_out = action.quote
@@ -210,7 +211,7 @@ class Opportunity:
                 best_orders, price = self.market_price(action.symbol, side, holding)
                 worst_price = min(best_orders, key=lambda x: x[0])[0]
                 money_out_full = holding
-                money_out = self.apply_qnt_filter(money_out_full, action)
+                money_out = Decimal(self.apply_qnt_filter(money_out_full, action))
                 asset_out = action.base
                 money_in = money_out * price
                 asset_in = action.quote
@@ -260,7 +261,7 @@ class Opportunity:
         avl = money_in
         money_out = []  # Best orders (price, amount)
         for price, amount in orders:
-            price, amount = float(price), float(amount)
+            price, amount = Decimal(price), Decimal(amount)
             diff = avl - (amount if not inverse else amount * price)
             if diff <= 0:
                 remaining = avl if not inverse else avl / price
@@ -454,13 +455,12 @@ class Opportunity:
 
         def create_order(instruction):
             try:
-            	price_str = format(instruction.price, ".20f").rstrip("0")
                 r = self.bot.client.create_order(symbol=instruction.symbol,
                                                  side=instruction.side,
                                                  type="LIMIT",
                                                  timeInForce="IOC",
-                                                 quantity=instruction.amount,
-                                                 price=price_str)
+                                                 quantity=,
+                                                 price=instruction.price)
                 return instruction.symbol, r
             except Exception as e:
                 return instruction.symbol, e
