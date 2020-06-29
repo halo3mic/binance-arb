@@ -202,7 +202,7 @@ class Opportunity:
                 # This works because the the platform looks for order with specified price or better one
                 worst_price = max(best_orders, key=lambda x: x[0])[0]
                 money_in_full = holding * price  # Amount before the qnt_filter is applied
-                money_in = Decimal(self.apply_qnt_filter(money_in_full, action))  # Rounds to the allowed decimal place for the market
+                money_in = self.apply_qnt_filter(money_in_full, action)  # Rounds to the allowed decimal place for the market
                 asset_in = action.base
                 money_out = money_in / price
                 asset_out = action.quote
@@ -211,7 +211,7 @@ class Opportunity:
                 best_orders, price = self.market_price(action.symbol, side, holding)
                 worst_price = min(best_orders, key=lambda x: x[0])[0]
                 money_out_full = holding
-                money_out = Decimal(self.apply_qnt_filter(money_out_full, action))
+                money_out = self.apply_qnt_filter(money_out_full, action)
                 asset_out = action.base
                 money_in = money_out * price
                 asset_in = action.quote
@@ -258,7 +258,7 @@ class Opportunity:
     @staticmethod
     def get_best_orders(orders, money_in, inverse=False):
         """Return best orders and overall price for the orders and input-amount."""
-        avl = money_in
+        avl = Decimal(money_in)
         money_out = []  # Best orders (price, amount)
         for price, amount in orders:
             price, amount = Decimal(price), Decimal(amount)
@@ -277,7 +277,7 @@ class Opportunity:
         price = hp.get_avg(money_out)
         price = 1/price if inverse else price
         # If inverse then return inversed price, but NOT inversed orders
-        return money_out, price
+        return money_out, float(price)
 
     def to_slack(self):
         """Send opportunity to Slack."""
@@ -459,7 +459,7 @@ class Opportunity:
                                                  side=instruction.side,
                                                  type="LIMIT",
                                                  timeInForce="IOC",
-                                                 quantity=,
+                                                 quantity=instruction.amount,
                                                  price=instruction.price)
                 return instruction.symbol, r
             except Exception as e:
