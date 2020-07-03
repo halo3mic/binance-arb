@@ -157,12 +157,16 @@ class Opportunity:
         self.execution_time = None
         self.actual_profit = None
         self.success_ratio = None
-        self.execution_msg = ""
+        self.execution_msg = None
         self._async = False
         self.execution_status = "NOT EXECUTED"
         self.timestamp = time.time()
-        # TODO Improve the id generation method
-        self.id = f"{str(int(self.timestamp*1000))}-{str(hash(str([action.symbol for action in plan.actions])))[-4:]}"
+        self.id = self._get_id()
+
+    def _get_id(self):
+        symbols = [action.quote if action.side == "BUY" else action.base for action in self.plan.actions]
+        id_str = f"{int(self.timestamp * 1000)}|{''.join(symbols)}"
+        return id_str
 
     def find_opportunity(self):
         """Find if plan is profitable based on current order books."""
@@ -287,6 +291,8 @@ class Opportunity:
             actual_profit_formatted = f"{hp.round_sig(self.actual_profit, sig=4)} {self.plan.home_asset}"
             if self.execution_status != "PASS":
                 actual_profit_formatted = f"*{actual_profit_formatted}"
+        else:
+            actual_profit_formatted = self.actual_profit
         # Pipe for async, otherwise the smaller/greater sign
         action_separator = " | " if self._async else " > "
         msg = f"_Opportunity ID:_ *{self.id}*\n" \
