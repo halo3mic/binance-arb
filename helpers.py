@@ -6,6 +6,7 @@ import requests
 import json
 import time
 from sys import platform
+from math import log10, floor
 from google.cloud import bigquery
 from dotenv import load_dotenv
 
@@ -77,6 +78,8 @@ def append_rows(dataset, table, rows):
     return errors
 
 def handle_no_connection(fun):
+    """Restart a function if there is an error and report it to slack. If no connection, wait till it is re-established"""
+    
     def wrapper(*args, **kwargs):
         while 1:
             try:
@@ -96,3 +99,11 @@ def handle_no_connection(fun):
                         time.sleep(20)  # Try again in 20 sec
 
     return wrapper
+
+def round_sig(x, sig=4, precision=8):
+    """Return value rounded to specified significant figure"""
+    rounded = round(x, sig - floor(log10(abs(x))) - 1)
+    rounded = int(rounded) if float(rounded).is_integer() else rounded  # 1.0 --> 1
+    rounded_str = format(rounded, f".{precision}f").rstrip(".0")
+    
+    return rounded_str

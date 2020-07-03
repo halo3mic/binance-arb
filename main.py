@@ -18,12 +18,13 @@ def main(settings, execute=1, test_it=0, loop=1):
     def run_bb_bot(plans):
         bb = BinanceBot(plans, execute=execute, test_it=test_it, loop=loop, settings=settings["global_settings"])
         bb.start_listening()
-        hp.send_to_slack(f"Bot instance {id(bb)} started", SLACK_KEY, SLACK_GROUP, emoji=":blocky-robot:")
+        if not test_it:
+            hp.send_to_slack(f"Bot instance {id(bb)} started", SLACK_KEY, SLACK_GROUP, emoji=":blocky-robot:")
         timeout = 3600 * 1
         while True:
             time.sleep(timeout)
             delay = time.time() - bb.last_book_update
-            msg = f"Bot is alive, last update was {delay} sec ago."
+            msg = f"Bot is alive, last update was {hp.round_sig(delay, sig=3)} sec ago."
             hp.send_to_slack(msg, SLACK_KEY, SLACK_GROUP, emoji=":blocky-robot:")
             if delay > 60:
                 del bb

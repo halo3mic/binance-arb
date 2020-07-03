@@ -83,7 +83,7 @@ class BinanceBot(BinanceSocketManager):
                 if self.execute:
                     responses = opportunity.execute(async_=True)
                     if responses:
-                        opportunity.actual_profit = format(opportunity.review_execution(responses)["balance"], ".8f") + " " + opportunity.plan.home_asset
+                        opportunity.actual_profit = opportunity.review_execution(responses)["balance"]
                     opportunity.log_responses(responses)
                 # Log data even if execution is turned off
                 opportunity.log_opportunity()
@@ -281,17 +281,21 @@ class Opportunity:
 
     def to_slack(self):
         """Send opportunity to Slack."""
-        if self.execution_status != "PASS":
-            self.actual_profit = f"*{self.actual_profit}"
+        # Format actual profit
+        if self.actual_profit:
+            actual_profit_formatted = f"{hp.round_sig(self.actual_profit, sig=4)} {self.plan.home_asset}"
+            if self.execution_status != "PASS":
+                actual_profit_formatted = f"*{actual_profit_formatted}"
+        # Pipe for async, otherwise the smaller/greater sign
         action_separator = " | " if self._async else " > "
         msg = f"_Opportunity ID:_ *{self.id}*\n" \
               f"_Action:_ *{action_separator.join([(step.symbol + '-' + step.side) for step in self.plan.actions])}*\n" \
-              f"_EstimatedProfit:_ *{self.profit:.8f} {self.plan.home_asset}*\n" \
-              f"_ActualProfit:_ * {self.actual_profit}*\n" \
+              f"_EstimatedProfit:_ *{hp.round_sig(self.profit, sig=3)} {self.plan.home_asset}*\n" \
+              f"_ActualProfit:_ * {actual_profit_formatted}*\n" \
               f"_OrdersExecution time:_ *{self.execution_time}*\n" \
               f"_Status_: *{self.execution_status}*\n" \
               f"_ExecutionMsg_: *{self.execution_msg}*\n" \
-              f"_Start amount:_ *{self.plan.start_amount} {self.plan.home_asset}*\n"
+              f"_Start amount:_ *{hp.round_sig(self.plan.start_amount, sig=4)} {self.plan.home_asset}*\n"
         hp.send_to_slack(msg, SLACK_KEY, self.bot.slack_group, emoji=':blocky-money:')
 
     def execute(self, async_=False):
