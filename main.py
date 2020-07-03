@@ -8,14 +8,17 @@ import os
 
 from binance_bot import BinanceBot, Plan
 import helpers as hp
+from helpers import handle_no_connection
 from config import SLACK_KEY, SLACK_GROUP, DEPLOYMENT_SETTINGS_SOURCE
 
 
 def main(settings, execute=1, test_it=0, loop=1):
-
+    
+    @handle_no_connection
     def run_bb_bot(plans):
         bb = BinanceBot(plans, execute=execute, test_it=test_it, loop=loop, settings=settings["global_settings"])
         bb.start_listening()
+        hp.send_to_slack(f"Bot instance {id(bb)} started", SLACK_KEY, SLACK_GROUP, emoji=":blocky-robot:")
         timeout = 3600 * 1
         while True:
             time.sleep(timeout)
@@ -38,23 +41,7 @@ def main(settings, execute=1, test_it=0, loop=1):
                           profit_asset=plan["profit_asset"],
                           fee_asset=plan["fee_asset"]))
 
-    while 1:
-        try:
-            hp.send_to_slack("Bot instance started", SLACK_KEY, SLACK_GROUP, emoji=":blocky-robot:")
-            run_bb_bot(plans)  # Runs in an infinite loop
-        except Exception as e:
-            try:
-                hp.send_to_slack(str(e), SLACK_KEY, SLACK_GROUP, emoji=":blocky-grin:")
-            except requests.exceptions.ConnectionError:
-                timestamp = time.time()
-                url = "google.com"  # TODO change to SlackAPI url
-                while 1:
-                    response = os.system(f"ping -c 1 {url}")
-                    if response == 0:  # If response is a success
-                        msg = f"Connection was disturbed for {time.time() - timestamp}"
-                        hp.send_to_slack(msg, SLACK_KEY, SLACK_GROUP, emoji=":blocky-grin:")
-                        break
-                    time.sleep(20)  # Try again in 20 sec
+    run_bb_bot(plans)
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ from binance.websockets import BinanceSocketManager
 import time
 
 import helpers as hp
+from helpers import handle_no_connection
 from config import *
 
 
@@ -38,13 +39,14 @@ def log_account_balance(account_info_raw):
     if errors:
         hp.send_to_slack(str(errors), SLACK_KEY, SLACK_GROUP, emoji=':blocky-sweat:')
 
-
+@handle_no_connection
 def start_logger():
     """Start the websocket."""
     client = Client(api_key=BINANCE_PUBLIC, api_secret=BINANCE_SECRET)
     socket_ = BinanceSocketManager(client, user_timeout=USER_TIMEOUT)
     socket_.start_user_socket(process_message)
     socket_.start()
+    hp.send_to_slack(f"Logger instance {id(socket_)} started", SLACK_KEY, SLACK_GROUP, emoji=":blocky-robot:")
     print("Listening for account balance updates ...")
 
     while 1:
@@ -55,3 +57,4 @@ def start_logger():
 
 if __name__ == "__main__":
     start_logger()
+

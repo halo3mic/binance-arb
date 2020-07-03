@@ -4,9 +4,12 @@
 import os
 import requests
 import json
+import time
 from sys import platform
 from google.cloud import bigquery
 from dotenv import load_dotenv
+
+from config import *
 
 
 load_dotenv()  # Load env variables - GOOGLE_APPLICATION_CREDENTIALS are required
@@ -72,3 +75,24 @@ def append_rows(dataset, table, rows):
     errors = client.insert_rows(table, rows)  # API request
 
     return errors
+
+def handle_no_connection(fun):
+    def wrapper(*args, **kwargs):
+        while 1:
+            try:
+                fun(*args, **kwargs)
+            except Exception as e:
+                try:
+                    send_to_slack(str(e), SLACK_KEY, SLACK_GROUP, emoji=":blocky-grin:")
+                except requests.exceptions.ConnectionError:
+                    timestamp = time.time()
+                    url = "google.com"  # TODO change to SlackAPI url
+                    while 1:
+                        response = os.system(f"ping -c 1 {url}")
+                        if response == 0:  # If response is a success
+                            msg = f"Connection was disturbed for {time.time() - timestamp}"
+                            send_to_slack(msg, SLACK_KEY, SLACK_GROUP, emoji=":blocky-grin:")
+                            break
+                        time.sleep(20)  # Try again in 20 sec
+
+    return wrapper
