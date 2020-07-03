@@ -16,11 +16,16 @@ def main(settings, execute=1, test_it=0, loop=1):
     def run_bb_bot(plans):
         bb = BinanceBot(plans, execute=execute, test_it=test_it, loop=loop, settings=settings["global_settings"])
         bb.start_listening()
-        timeout = 3600 * 4
+        timeout = 3600 * 1
         while True:
             time.sleep(timeout)
-            msg = f"Bot is alive, last update was {time.time() - bb.last_book_update} sec ago."
+            delay = time.time() - bb.last_book_update
+            msg = f"Bot is alive, last update was {delay} sec ago."
             hp.send_to_slack(msg, SLACK_KEY, SLACK_GROUP, emoji=":blocky-robot:")
+            if delay > 60:
+                del bb
+                raise Exception("Stale books")
+
 
     # deploymentSettings --> plans
     plans = []
@@ -35,6 +40,7 @@ def main(settings, execute=1, test_it=0, loop=1):
 
     while 1:
         try:
+            hp.send_to_slack("Bot instance started", SLACK_KEY, SLACK_GROUP, emoji=":blocky-robot:")
             run_bb_bot(plans)  # Runs in an infinite loop
         except Exception as e:
             try:
