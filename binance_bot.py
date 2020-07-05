@@ -339,7 +339,7 @@ class Opportunity:
                         failed_action = self.plan.actions[num]
                         failed_asset = failed_action.base if failed_action.side == "SELL" else failed_action.quote
                         msg = f"> *{failed_asset}* balance is too low!"
-                        msg += f"\n```{rebalance.main()}```"
+                        # msg += f"\n```{rebalance.main()}```"
                         self.execution_status = "MISSED"
                         success_message += f"{failed_action.symbol} 0% | "
                     else:
